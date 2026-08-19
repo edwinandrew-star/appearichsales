@@ -11,1175 +11,800 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
-
-/* =========================================================
-   RESET
-========================================================= */
-
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
 }
 
-html {
-    scroll-behavior: smooth;
+html{
+    scroll-behavior:smooth;
 }
 
-body {
-    font-family:
-        -apple-system,
-        BlinkMacSystemFont,
-        "Segoe UI",
-        Roboto,
-        Arial,
-        sans-serif;
-
-    background: #ffffff;
-    color: #111111;
-    min-height: 100vh;
-    overflow-x: hidden;
+body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+    background:#fafafa;
+    color:#111;
+    min-height:100vh;
+    overflow-x:hidden;
 }
 
-button,
-input,
-select {
-    font: inherit;
+button,input,select{
+    font:inherit;
 }
 
-button {
-    cursor: pointer;
+button{
+    cursor:pointer;
 }
 
-.hidden {
-    display: none !important;
+.hidden{
+    display:none!important;
 }
 
 
-/* =========================================================
-   SPLASH SCREEN
-========================================================= */
+/* =========================
+   SPLASH
+========================= */
 
-#splash {
-    position: fixed;
-    inset: 0;
-    z-index: 99999;
-
-    background: #000000;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    transition:
-        opacity .65s ease,
-        visibility .65s ease;
+#splash{
+    position:fixed;
+    inset:0;
+    z-index:99999;
+    background:#000;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transition:opacity .7s ease,visibility .7s ease;
 }
 
-#splash.hide {
-    opacity: 0;
-    visibility: hidden;
+#splash.hide{
+    opacity:0;
+    visibility:hidden;
 }
 
-#splashLogo {
-    width: min(210px, 55vw);
-    max-height: 210px;
-
-    object-fit: contain;
-
-    opacity: 0;
-
-    transform: scale(.55);
-
-    animation:
-        splashLogoPop
-        1.15s
-        cubic-bezier(.2,.8,.2,1)
-        forwards;
+#splashLogo{
+    width:min(210px,55vw);
+    height:auto;
+    object-fit:contain;
+    opacity:0;
+    transform:scale(.55);
+    animation:splashPop 1.15s cubic-bezier(.2,.8,.2,1) forwards;
 }
 
-@keyframes splashLogoPop {
-
-    0% {
-        opacity: 0;
-        transform: scale(.55);
+@keyframes splashPop{
+    0%{
+        opacity:0;
+        transform:scale(.55);
     }
-
-    55% {
-        opacity: 1;
-        transform: scale(1.08);
+    55%{
+        opacity:1;
+        transform:scale(1.08);
     }
-
-    100% {
-        opacity: 1;
-        transform: scale(1);
+    100%{
+        opacity:1;
+        transform:scale(1);
     }
 }
 
 
-/* =========================================================
-   AUTH SCREEN
-========================================================= */
+/* =========================
+   AUTH
+========================= */
 
-#authScreen {
-    min-height: 100vh;
-
-    background: #ffffff;
-
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
-    padding: 24px;
+#authScreen{
+    min-height:100vh;
+    background:#fff;
 }
 
-.auth-wrapper {
-    width: 100%;
-    max-width: 430px;
-
-    animation:
-        authEnter
-        .7s
-        ease
-        both;
+.auth-page{
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
 }
 
-@keyframes authEnter {
+/* Completely independent hero */
+.login-hero-wrap{
+    width:100%;
+    background:#000;
+    overflow:hidden;
+}
 
-    from {
-        opacity: 0;
-        transform: translateY(25px);
+.login-hero-video{
+    width:100%;
+    height:42vh;
+    min-height:250px;
+    max-height:520px;
+    display:block;
+    object-fit:cover;
+    object-position:center center;
+    background:#000;
+}
+
+/* Login content is separate */
+.auth-content{
+    width:100%;
+    max-width:460px;
+    margin:0 auto;
+    padding:28px 22px 40px;
+    background:#fff;
+}
+
+.auth-copy{
+    text-align:center;
+    min-height:27px;
+    overflow:hidden;
+    margin-bottom:20px;
+}
+
+.animated-sentence{
+    font-size:15px;
+    color:#555;
+    font-weight:600;
+    animation:sentenceIn .65s ease;
+}
+
+@keyframes sentenceIn{
+    from{
+        opacity:0;
+        transform:translateX(80px);
     }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-
-/* =========================================================
-   LOGIN HERO VIDEO
-========================================================= */
-
-.hero-video {
-    width: 100%;
-
-    height: 260px;
-
-    display: block;
-
-    object-fit: cover;
-
-    object-position: center center;
-
-    border-radius: 24px;
-
-    background: #f3f3f3;
-
-    margin: 0 0 24px 0;
-
-    overflow: hidden;
-}
-
-
-/* fallback */
-
-.hero-fallback {
-
-    width: 100%;
-
-    height: 260px;
-
-    border-radius: 24px;
-
-    background: #f5f5f5;
-
-    display: flex;
-
-    align-items: center;
-    justify-content: center;
-
-    text-align: center;
-
-    color: #777;
-
-    padding: 20px;
-
-    margin-bottom: 24px;
-}
-
-
-/* =========================================================
-   LOGIN SENTENCES
-========================================================= */
-
-.auth-copy {
-
-    text-align: center;
-
-    margin-bottom: 24px;
-
-    min-height: 30px;
-
-    overflow: hidden;
-}
-
-.animated-sentence {
-
-    font-size: 17px;
-
-    font-weight: 600;
-
-    letter-spacing: -.2px;
-
-    animation:
-        sentenceFromRight
-        .65s
-        ease;
-}
-
-@keyframes sentenceFromRight {
-
-    from {
-        opacity: 0;
-        transform: translateX(75px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateX(0);
+    to{
+        opacity:1;
+        transform:translateX(0);
     }
 }
 
-
-/* =========================================================
-   AUTH TEXT
-========================================================= */
-
-.auth-title {
-
-    font-size: 31px;
-
-    font-weight: 800;
-
-    letter-spacing: -1px;
-
-    margin-bottom: 8px;
+.auth-title{
+    font-size:31px;
+    line-height:1.05;
+    font-weight:850;
+    letter-spacing:-1px;
+    text-align:center;
+    margin-bottom:8px;
 }
 
-.auth-subtitle {
-
-    color: #777777;
-
-    font-size: 14px;
-
-    margin-bottom: 22px;
+.auth-subtitle{
+    color:#777;
+    font-size:14px;
+    text-align:center;
+    margin-bottom:23px;
 }
 
-
-/* =========================================================
-   INPUTS
-========================================================= */
-
-.field {
-
-    margin-bottom: 14px;
+.field{
+    margin-bottom:14px;
 }
 
-.field label {
-
-    display: block;
-
-    font-size: 13px;
-
-    font-weight: 650;
-
-    margin-bottom: 7px;
+.field label{
+    display:block;
+    font-size:13px;
+    font-weight:700;
+    margin-bottom:7px;
 }
 
 .field input,
-.field select {
-
-    width: 100%;
-
-    height: 52px;
-
-    border: 1px solid #e6e6e6;
-
-    border-radius: 15px;
-
-    background: #ffffff;
-
-    padding: 0 15px;
-
-    outline: none;
-
-    transition:
-        border .2s ease,
-        box-shadow .2s ease;
+.field select{
+    width:100%;
+    height:52px;
+    border:1px solid #e4e4e4;
+    border-radius:15px;
+    padding:0 15px;
+    outline:none;
+    background:#fff;
+    transition:.2s;
 }
 
 .field input:focus,
-.field select:focus {
+.field select:focus{
+    border-color:#111;
+    box-shadow:0 0 0 3px rgba(0,0,0,.05);
+}
 
-    border-color: #111111;
+.primary-btn{
+    width:100%;
+    min-height:53px;
+    border:none;
+    border-radius:16px;
+    background:#111;
+    color:#fff;
+    font-weight:800;
+    transition:.15s;
+}
 
-    box-shadow:
-        0 0 0 3px
-        rgba(0,0,0,.05);
+.primary-btn:active{
+    transform:scale(.98);
+}
+
+.primary-btn:disabled{
+    opacity:.55;
+}
+
+.auth-switch{
+    text-align:center;
+    margin-top:18px;
+    font-size:14px;
+    color:#777;
+}
+
+.auth-switch button{
+    border:none;
+    background:none;
+    color:#111;
+    font-weight:800;
+}
+
+.error-box{
+    background:#fff1f1;
+    color:#b32626;
+    border-radius:13px;
+    padding:11px 13px;
+    font-size:13px;
+    margin-bottom:14px;
+}
+
+.success-box{
+    background:#effff4;
+    color:#23723d;
+    border-radius:13px;
+    padding:11px 13px;
+    font-size:13px;
+    margin-bottom:14px;
 }
 
 
-/* =========================================================
-   BUTTONS
-========================================================= */
+/* =========================
+   APP
+========================= */
 
-.primary-btn {
-
-    width: 100%;
-
-    min-height: 53px;
-
-    border: none;
-
-    border-radius: 16px;
-
-    background: #111111;
-
-    color: #ffffff;
-
-    font-weight: 750;
-
-    transition:
-        transform .15s ease,
-        opacity .15s ease;
+#app{
+    min-height:100vh;
+    padding-bottom:90px;
 }
 
-.primary-btn:active {
-
-    transform: scale(.98);
+.topbar{
+    position:sticky;
+    top:0;
+    z-index:100;
+    background:rgba(255,255,255,.96);
+    backdrop-filter:blur(15px);
+    border-bottom:1px solid #eee;
+    padding:15px 18px;
 }
 
-.primary-btn:disabled {
-
-    opacity: .5;
-
-    cursor: not-allowed;
+.topbar-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
 }
 
-
-/* =========================================================
-   AUTH SWITCH
-========================================================= */
-
-.auth-switch {
-
-    text-align: center;
-
-    margin-top: 18px;
-
-    color: #777777;
-
-    font-size: 14px;
+.brand{
+    display:flex;
+    align-items:center;
+    gap:10px;
 }
 
-.auth-switch button {
+.brand img{
+    width:39px;
+    height:39px;
+    object-fit:contain;
+    border-radius:10px;
+}
 
-    border: none;
+.brand-name{
+    font-size:18px;
+    font-weight:850;
+}
 
-    background: transparent;
-
-    color: #111111;
-
-    font-weight: 750;
-
-    padding: 0;
+.page-content{
+    width:100%;
+    max-width:900px;
+    margin:auto;
+    padding:18px;
 }
 
 
-/* =========================================================
-   MESSAGES
-========================================================= */
-
-.error-box {
-
-    background: #fff1f1;
-
-    color: #b32626;
-
-    border-radius: 13px;
-
-    padding: 11px 13px;
-
-    font-size: 13px;
-
-    margin-bottom: 14px;
-}
-
-.success-box {
-
-    background: #effff4;
-
-    color: #23723d;
-
-    border-radius: 13px;
-
-    padding: 11px 13px;
-
-    font-size: 13px;
-
-    margin-bottom: 14px;
-}
-
-
-/* =========================================================
-   MAIN APP
-========================================================= */
-
-#app {
-
-    min-height: 100vh;
-
-    padding-bottom: 90px;
-
-    background: #fafafa;
-}
-
-
-/* =========================================================
-   TOP BAR
-========================================================= */
-
-.topbar {
-
-    background: #ffffff;
-
-    padding:
-        17px
-        18px
-        14px;
-
-    position: sticky;
-
-    top: 0;
-
-    z-index: 50;
-
-    border-bottom:
-        1px solid #eeeeee;
-}
-
-.topbar-row {
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: space-between;
-}
-
-.brand {
-
-    display: flex;
-
-    align-items: center;
-
-    gap: 10px;
-}
-
-.brand img {
-
-    width: 38px;
-
-    height: 38px;
-
-    object-fit: contain;
-
-    border-radius: 10px;
-}
-
-.brand-name {
-
-    font-weight: 800;
-
-    font-size: 18px;
-}
-
-
-/* =========================================================
-   PAGE CONTENT
-========================================================= */
-
-.page-content {
-
-    max-width: 900px;
-
-    margin: auto;
-
-    padding: 18px;
-}
-
-
-/* =========================================================
+/* =========================
    HOME HERO
-========================================================= */
+========================= */
 
-.hero-home {
+.home-hero-wrap{
+    width:100%;
+    border-radius:24px;
+    overflow:hidden;
+    margin-bottom:18px;
+    background:#eee;
+}
 
-    width: 100%;
-
-    height: 230px;
-
-    object-fit: cover;
-
-    object-position: center;
-
-    border-radius: 24px;
-
-    display: block;
-
-    background: #eeeeee;
-
-    margin-bottom: 18px;
+.hero-home{
+    width:100%;
+    height:240px;
+    display:block;
+    object-fit:cover;
+    object-position:center;
 }
 
 
-/* =========================================================
+/* =========================
    GREETING
-========================================================= */
+========================= */
 
-.greeting {
-
-    margin-bottom: 16px;
+.greeting{
+    margin-bottom:18px;
 }
 
-.greeting small {
-
-    color: #777777;
+.greeting small{
+    color:#777;
 }
 
-.greeting h1 {
-
-    margin-top: 4px;
-
-    font-size: 28px;
-
-    letter-spacing: -.8px;
+.greeting h1{
+    font-size:29px;
+    margin-top:4px;
+    letter-spacing:-.8px;
 }
 
 
-/* =========================================================
+/* =========================
+   ADD SALE HERO BUTTON
+========================= */
+
+.add-sale-main{
+    width:100%;
+    min-height:62px;
+    border:none;
+    border-radius:19px;
+    background:#111;
+    color:#fff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    font-size:16px;
+    font-weight:850;
+    margin:17px 0;
+    box-shadow:0 8px 25px rgba(0,0,0,.12);
+}
+
+.add-sale-main span{
+    width:31px;
+    height:31px;
+    border-radius:50%;
+    background:#fff;
+    color:#111;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:22px;
+}
+
+
+/* =========================
    STATS
-========================================================= */
+========================= */
 
-.stats-grid {
-
-    display: grid;
-
-    grid-template-columns:
-        repeat(2, 1fr);
-
-    gap: 12px;
-
-    margin-bottom: 18px;
+.stats-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:11px;
+    margin-bottom:18px;
 }
 
-.stat-card {
-
-    background: #ffffff;
-
-    border:
-        1px solid #eeeeee;
-
-    border-radius: 19px;
-
-    padding: 17px;
+.stat-card{
+    background:#fff;
+    border:1px solid #eee;
+    border-radius:19px;
+    padding:16px;
 }
 
-.stat-card small {
-
-    color: #777777;
-
-    display: block;
-
-    margin-bottom: 8px;
-
-    font-size: 12px;
+.stat-card small{
+    display:block;
+    color:#777;
+    font-size:12px;
+    margin-bottom:8px;
 }
 
-.stat-card strong {
-
-    font-size: 21px;
-
-    letter-spacing: -.4px;
+.stat-card strong{
+    font-size:20px;
 }
 
 
-/* =========================================================
-   SECTION TITLES
-========================================================= */
+/* =========================
+   QUICK ADD
+========================= */
 
-.section-title {
-
-    display: flex;
-
-    justify-content: space-between;
-
-    align-items: center;
-
-    margin: 22px 0 12px;
+.quick-card{
+    background:#fff;
+    border:1px solid #eee;
+    border-radius:21px;
+    padding:17px;
+    margin-bottom:18px;
 }
 
-.section-title h2 {
-
-    font-size: 19px;
+.section-title{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin:21px 0 12px;
 }
 
-.section-title button {
+.section-title h2{
+    font-size:19px;
+}
 
-    border: none;
+.quick-title{
+    font-size:16px;
+    font-weight:800;
+    margin-bottom:12px;
+}
 
-    background: transparent;
+.quick-size-grid{
+    display:grid;
+    grid-template-columns:repeat(5,1fr);
+    gap:7px;
+}
 
-    font-weight: 700;
+.quick-size{
+    border:1px solid #e5e5e5;
+    background:#fff;
+    border-radius:13px;
+    min-height:47px;
+    font-weight:800;
+}
 
-    font-size: 13px;
+.quick-size:active{
+    background:#111;
+    color:#fff;
 }
 
 
-/* =========================================================
+/* =========================
    SALES
-========================================================= */
+========================= */
 
-.sale-list {
-
-    display: flex;
-
-    flex-direction: column;
-
-    gap: 9px;
+.sale-list{
+    display:flex;
+    flex-direction:column;
+    gap:9px;
 }
 
-.sale-item {
-
-    background: #ffffff;
-
-    border:
-        1px solid #eeeeee;
-
-    border-radius: 17px;
-
-    padding: 14px;
-
-    display: flex;
-
-    justify-content: space-between;
-
-    gap: 12px;
+.sale-item{
+    background:#fff;
+    border:1px solid #eee;
+    border-radius:17px;
+    padding:14px;
+    display:flex;
+    justify-content:space-between;
+    gap:12px;
 }
 
-.sale-main strong {
-
-    display: block;
-
-    margin-bottom: 4px;
+.sale-main strong{
+    display:block;
+    margin-bottom:5px;
 }
 
-.sale-main small {
-
-    color: #777777;
-
-    font-size: 12px;
-
-    display: block;
-
-    margin-top: 2px;
+.sale-main small{
+    display:block;
+    color:#777;
+    font-size:12px;
+    margin-top:3px;
 }
 
-.sale-right {
-
-    text-align: right;
-
-    min-width: 90px;
+.sale-right{
+    text-align:right;
+    min-width:95px;
 }
 
-.sale-right strong {
+.sale-right strong{
+    display:block;
+    margin-bottom:6px;
+}
 
-    display: block;
+.action-btn{
+    border:none;
+    background:none;
+    font-size:11px;
+    font-weight:750;
+    margin-left:5px;
+}
 
-    margin-bottom: 5px;
+.delete-btn{
+    color:#c33;
 }
 
 
-/* =========================================================
+/* =========================
    CARD
-========================================================= */
+========================= */
 
-.card {
-
-    background: #ffffff;
-
-    border:
-        1px solid #eeeeee;
-
-    border-radius: 21px;
-
-    padding: 18px;
+.card{
+    background:#fff;
+    border:1px solid #eee;
+    border-radius:21px;
+    padding:18px;
 }
 
 
-/* =========================================================
-   SIZE BUTTONS
-========================================================= */
+/* =========================
+   SIZE
+========================= */
 
-.size-grid {
-
-    display: grid;
-
-    grid-template-columns:
-        repeat(5, 1fr);
-
-    gap: 7px;
+.size-grid{
+    display:grid;
+    grid-template-columns:repeat(5,1fr);
+    gap:7px;
 }
 
 .size-btn,
-.choice-btn {
-
-    border:
-        1px solid #e5e5e5;
-
-    background: #ffffff;
-
-    min-height: 48px;
-
-    border-radius: 13px;
-
-    font-weight: 700;
-
-    transition: all .15s ease;
+.choice-btn{
+    border:1px solid #e5e5e5;
+    background:#fff;
+    min-height:48px;
+    border-radius:13px;
+    font-weight:750;
 }
 
 .size-btn.active,
-.choice-btn.active {
+.choice-btn.active{
+    background:#111;
+    color:#fff;
+    border-color:#111;
+}
 
-    background: #111111;
-
-    color: #ffffff;
-
-    border-color: #111111;
+.choice-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:8px;
 }
 
 
-/* =========================================================
-   CHOICES
-========================================================= */
-
-.choice-grid {
-
-    display: grid;
-
-    grid-template-columns:
-        1fr 1fr;
-
-    gap: 8px;
-}
-
-
-/* =========================================================
-   FORM ACTIONS
-========================================================= */
-
-.form-actions {
-
-    display: flex;
-
-    gap: 9px;
-}
-
-.secondary-btn {
-
-    flex: 1;
-
-    min-height: 51px;
-
-    border:
-        1px solid #dddddd;
-
-    background: #ffffff;
-
-    border-radius: 15px;
-
-    font-weight: 700;
-}
-
-.form-actions .primary-btn {
-
-    flex: 2;
-}
-
-
-/* =========================================================
+/* =========================
    PROGRESS
-========================================================= */
+========================= */
 
-.month-select {
-
-    width: 100%;
-
-    height: 50px;
-
-    border:
-        1px solid #dddddd;
-
-    border-radius: 14px;
-
-    background: #ffffff;
-
-    padding: 0 14px;
-
-    margin-bottom: 15px;
+.month-select{
+    width:100%;
+    height:50px;
+    border:1px solid #ddd;
+    border-radius:14px;
+    background:#fff;
+    padding:0 14px;
+    margin-bottom:15px;
 }
 
-.progress-bar {
-
-    height: 10px;
-
-    background: #eeeeee;
-
-    border-radius: 99px;
-
-    overflow: hidden;
-
-    margin-top: 9px;
+.progress-bar{
+    height:9px;
+    background:#eee;
+    border-radius:99px;
+    overflow:hidden;
 }
 
-.progress-fill {
-
-    height: 100%;
-
-    width: 0%;
-
-    background: #111111;
-
-    border-radius: inherit;
-
-    transition:
-        width .5s ease;
+.progress-fill{
+    height:100%;
+    width:0;
+    background:#111;
+    border-radius:inherit;
+    transition:width .5s ease;
 }
 
-.size-progress {
-
-    margin-top: 14px;
+.size-row{
+    margin-bottom:15px;
 }
 
-.size-row {
-
-    margin-bottom: 14px;
-}
-
-.size-row-top {
-
-    display: flex;
-
-    justify-content: space-between;
-
-    font-size: 13px;
-
-    margin-bottom: 6px;
+.size-row-top{
+    display:flex;
+    justify-content:space-between;
+    font-size:13px;
+    margin-bottom:7px;
 }
 
 
-/* =========================================================
-   EMPTY STATE
-========================================================= */
+/* =========================
+   EMPTY
+========================= */
 
-.empty {
-
-    background: #ffffff;
-
-    border:
-        1px dashed #dddddd;
-
-    border-radius: 18px;
-
-    padding: 30px 20px;
-
-    text-align: center;
-
-    color: #777777;
+.empty{
+    background:#fff;
+    border:1px dashed #ddd;
+    border-radius:18px;
+    padding:30px 20px;
+    text-align:center;
+    color:#777;
 }
 
 
-/* =========================================================
+/* =========================
    BOTTOM NAV
-========================================================= */
+========================= */
 
-.bottom-nav {
-
-    position: fixed;
-
-    bottom: 0;
-
-    left: 0;
-
-    right: 0;
-
-    height: 73px;
-
-    background:
-        rgba(255,255,255,.97);
-
-    backdrop-filter:
-        blur(15px);
-
-    border-top:
-        1px solid #eeeeee;
-
-    display: grid;
-
-    grid-template-columns:
-        repeat(4, 1fr);
-
-    z-index: 100;
-
-    padding-bottom:
-        env(safe-area-inset-bottom);
+.bottom-nav{
+    position:fixed;
+    left:0;
+    right:0;
+    bottom:0;
+    height:74px;
+    background:rgba(255,255,255,.97);
+    backdrop-filter:blur(15px);
+    border-top:1px solid #eee;
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    z-index:200;
+    padding-bottom:env(safe-area-inset-bottom);
 }
 
-.nav-btn {
-
-    border: none;
-
-    background: transparent;
-
-    color: #888888;
-
-    font-size: 11px;
-
-    font-weight: 600;
+.nav-btn{
+    border:none;
+    background:transparent;
+    color:#888;
+    font-size:11px;
+    font-weight:650;
 }
 
-.nav-btn.active {
-
-    color: #111111;
+.nav-btn.active{
+    color:#111;
 }
 
-.nav-icon {
-
-    display: block;
-
-    font-size: 20px;
-
-    margin-bottom: 3px;
+.nav-icon{
+    display:block;
+    font-size:20px;
+    margin-bottom:3px;
 }
 
 
-/* =========================================================
+/* =========================
    MODAL
-========================================================= */
+========================= */
 
-.modal {
-
-    position: fixed;
-
-    inset: 0;
-
-    background:
-        rgba(0,0,0,.45);
-
-    z-index: 500;
-
-    display: flex;
-
-    align-items: flex-end;
-
-    justify-content: center;
+.modal{
+    position:fixed;
+    inset:0;
+    z-index:1000;
+    background:rgba(0,0,0,.45);
+    display:flex;
+    align-items:flex-end;
+    justify-content:center;
 }
 
-.modal-box {
-
-    width: 100%;
-
-    max-width: 600px;
-
-    background: #ffffff;
-
-    border-radius:
-        25px 25px 0 0;
-
-    padding: 20px;
-
-    max-height: 90vh;
-
-    overflow-y: auto;
-
-    animation:
-        modalUp
-        .3s
-        ease;
+.modal-box{
+    width:100%;
+    max-width:600px;
+    max-height:92vh;
+    overflow-y:auto;
+    background:#fff;
+    border-radius:25px 25px 0 0;
+    padding:20px;
+    animation:modalUp .3s ease;
 }
 
-@keyframes modalUp {
-
-    from {
-        transform: translateY(100%);
+@keyframes modalUp{
+    from{
+        transform:translateY(100%);
     }
-
-    to {
-        transform: translateY(0);
+    to{
+        transform:translateY(0);
     }
 }
 
-.modal-head {
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: space-between;
-
-    margin-bottom: 18px;
+.modal-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:18px;
 }
 
-.close-btn {
+.close-btn{
+    border:none;
+    background:#f2f2f2;
+    width:37px;
+    height:37px;
+    border-radius:50%;
+    font-size:20px;
+}
 
-    border: none;
+.form-actions{
+    display:flex;
+    gap:9px;
+}
 
-    background: #f3f3f3;
+.secondary-btn{
+    flex:1;
+    min-height:52px;
+    border:1px solid #ddd;
+    background:#fff;
+    border-radius:15px;
+    font-weight:750;
+}
 
-    width: 36px;
-
-    height: 36px;
-
-    border-radius: 50%;
-
-    font-size: 20px;
+.form-actions .primary-btn{
+    flex:2;
 }
 
 
-/* =========================================================
+/* =========================
    PROFILE
-========================================================= */
+========================= */
 
-.profile-card {
-
-    text-align: center;
-
-    padding: 30px 20px;
+.profile-card{
+    text-align:center;
+    padding:30px 20px;
 }
 
-.profile-avatar {
-
-    width: 78px;
-
-    height: 78px;
-
-    border-radius: 50%;
-
-    background: #111111;
-
-    color: #ffffff;
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: center;
-
-    font-size: 30px;
-
-    font-weight: 800;
-
-    margin: 0 auto 14px;
+.profile-avatar{
+    width:78px;
+    height:78px;
+    border-radius:50%;
+    background:#111;
+    color:#fff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:30px;
+    font-weight:850;
+    margin:0 auto 14px;
 }
 
-.logout-btn {
-
-    width: 100%;
-
-    margin-top: 20px;
-
-    min-height: 50px;
-
-    border-radius: 15px;
-
-    border:
-        1px solid #dddddd;
-
-    background: #ffffff;
-
-    font-weight: 700;
-
-    color: #c22;
+.logout-btn{
+    width:100%;
+    min-height:50px;
+    border:1px solid #ddd;
+    background:#fff;
+    color:#c33;
+    border-radius:15px;
+    font-weight:750;
+    margin-top:20px;
 }
 
 
-/* =========================================================
+/* =========================
    RESPONSIVE
-========================================================= */
+========================= */
 
-@media (max-width: 480px) {
+@media(max-width:480px){
 
-    #authScreen {
-        padding: 20px;
+    .login-hero-video{
+        height:38vh;
+        min-height:230px;
     }
 
-    .hero-video {
-
-        height: 220px;
-
-        border-radius: 22px;
+    .hero-home{
+        height:210px;
     }
 
-    .hero-home {
-
-        height: 210px;
-
-        border-radius: 22px;
+    .auth-content{
+        padding:25px 20px 38px;
     }
 
-    .auth-title {
-
-        font-size: 29px;
+    .auth-title{
+        font-size:29px;
     }
 }
 
+@media(min-width:700px){
 
-@media (min-width: 700px) {
-
-    #authScreen {
-
-        padding: 40px;
+    .login-hero-video{
+        height:48vh;
+        max-height:560px;
     }
 
-    .hero-video {
-
-        height: 330px;
+    .hero-home{
+        height:320px;
     }
 
-    .hero-home {
-
-        height: 320px;
+    .stats-grid{
+        grid-template-columns:repeat(4,1fr);
     }
 
-    .stats-grid {
-
-        grid-template-columns:
-            repeat(4, 1fr);
+    .auth-content{
+        padding-top:35px;
     }
 }
 
 </style>
 </head>
 
-
 <body>
 
 
-<!-- =========================================================
-     SPLASH SCREEN
-========================================================= -->
+<!-- =====================================================
+     SPLASH
+====================================================== -->
 
 <section id="splash">
 
@@ -1192,233 +817,206 @@ button {
 </section>
 
 
-
-<!-- =========================================================
+<!-- =====================================================
      AUTH
-========================================================= -->
+====================================================== -->
 
-<section
-    id="authScreen"
-    class="hidden"
->
+<section id="authScreen" class="hidden">
 
-    <div class="auth-wrapper">
+    <div class="auth-page">
 
 
-        <!-- LOGIN HERO VIDEO -->
+        <!-- FULL SEPARATE HERO -->
+        <div class="login-hero-wrap">
 
-        <video
-            id="loginVideo"
-            class="hero-video"
-            autoplay
-            muted
-            loop
-            playsinline
-            preload="auto"
-        >
-
-            <source
-                src="images/login-hero.mp4"
-                type="video/mp4"
+            <video
+                id="loginVideo"
+                class="login-hero-video"
+                autoplay
+                muted
+                loop
+                playsinline
+                preload="auto"
             >
 
-        </video>
+                <source
+                    src="images/login-hero.mp4"
+                    type="video/mp4"
+                >
 
-
-        <div
-            id="videoFallback"
-            class="hero-fallback hidden"
-        >
-
-            Perfume video could not be loaded.
+            </video>
 
         </div>
 
 
+        <!-- COMPLETELY SEPARATE LOGIN AREA -->
 
-        <!-- ANIMATED SENTENCES -->
+        <div class="auth-content">
 
-        <div class="auth-copy">
+            <div class="auth-copy">
 
-            <div
-                id="animatedSentence"
-                class="animated-sentence"
-            >
-                Wear your presence.
-            </div>
-
-        </div>
-
-
-
-        <!-- LOGIN -->
-
-        <div id="loginForm">
-
-            <h1 class="auth-title">
-                Welcome Back
-            </h1>
-
-            <p class="auth-subtitle">
-                Manage your perfume sales simply.
-            </p>
-
-
-            <div id="loginMessage"></div>
-
-
-            <div class="field">
-
-                <label>
-                    Email
-                </label>
-
-                <input
-                    id="loginEmail"
-                    type="email"
-                    placeholder="Enter your email"
-                    autocomplete="email"
+                <div
+                    id="animatedSentence"
+                    class="animated-sentence"
                 >
+                    Wear your presence.
+                </div>
 
             </div>
 
 
-            <div class="field">
+            <!-- LOGIN -->
 
-                <label>
-                    Password
-                </label>
+            <div id="loginForm">
 
-                <input
-                    id="loginPassword"
-                    type="password"
-                    placeholder="Enter your password"
-                    autocomplete="current-password"
+                <h1 class="auth-title">
+                    Welcome Back
+                </h1>
+
+                <p class="auth-subtitle">
+                    Manage your perfume sales simply.
+                </p>
+
+                <div id="loginMessage"></div>
+
+
+                <div class="field">
+
+                    <label>Email</label>
+
+                    <input
+                        id="loginEmail"
+                        type="email"
+                        placeholder="Enter your email"
+                        autocomplete="email"
+                    >
+
+                </div>
+
+
+                <div class="field">
+
+                    <label>Password</label>
+
+                    <input
+                        id="loginPassword"
+                        type="password"
+                        placeholder="Enter your password"
+                        autocomplete="current-password"
+                    >
+
+                </div>
+
+
+                <button
+                    id="loginBtn"
+                    class="primary-btn"
                 >
-
-            </div>
-
-
-            <button
-                id="loginBtn"
-                class="primary-btn"
-            >
-                Login
-            </button>
-
-
-            <div class="auth-switch">
-
-                Don't have an account?
-
-                <button id="showSignup">
-                    Sign Up
-                </button>
-
-            </div>
-
-        </div>
-
-
-
-        <!-- SIGN UP -->
-
-        <div
-            id="signupForm"
-            class="hidden"
-        >
-
-            <h1 class="auth-title">
-                Create Account
-            </h1>
-
-            <p class="auth-subtitle">
-                Start managing your perfume sales.
-            </p>
-
-
-            <div id="signupMessage"></div>
-
-
-            <div class="field">
-
-                <label>
-                    Full Name
-                </label>
-
-                <input
-                    id="signupName"
-                    type="text"
-                    placeholder="Your name"
-                    autocomplete="name"
-                >
-
-            </div>
-
-
-            <div class="field">
-
-                <label>
-                    Email
-                </label>
-
-                <input
-                    id="signupEmail"
-                    type="email"
-                    placeholder="Enter your email"
-                    autocomplete="email"
-                >
-
-            </div>
-
-
-            <div class="field">
-
-                <label>
-                    Password
-                </label>
-
-                <input
-                    id="signupPassword"
-                    type="password"
-                    placeholder="Create a password"
-                    autocomplete="new-password"
-                >
-
-            </div>
-
-
-            <div class="field">
-
-                <label>
-                    Confirm Password
-                </label>
-
-                <input
-                    id="signupConfirm"
-                    type="password"
-                    placeholder="Confirm your password"
-                    autocomplete="new-password"
-                >
-
-            </div>
-
-
-            <button
-                id="signupBtn"
-                class="primary-btn"
-            >
-                Create Account
-            </button>
-
-
-            <div class="auth-switch">
-
-                Already have an account?
-
-                <button id="showLogin">
                     Login
                 </button>
+
+
+                <div class="auth-switch">
+
+                    Don't have an account?
+
+                    <button id="showSignup">
+                        Sign Up
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <!-- SIGN UP -->
+
+            <div id="signupForm" class="hidden">
+
+                <h1 class="auth-title">
+                    Create Account
+                </h1>
+
+                <p class="auth-subtitle">
+                    Start managing your perfume sales.
+                </p>
+
+                <div id="signupMessage"></div>
+
+
+                <div class="field">
+
+                    <label>Full Name</label>
+
+                    <input
+                        id="signupName"
+                        type="text"
+                        placeholder="Your name"
+                        autocomplete="name"
+                    >
+
+                </div>
+
+
+                <div class="field">
+
+                    <label>Email</label>
+
+                    <input
+                        id="signupEmail"
+                        type="email"
+                        placeholder="Enter your email"
+                        autocomplete="email"
+                    >
+
+                </div>
+
+
+                <div class="field">
+
+                    <label>Password</label>
+
+                    <input
+                        id="signupPassword"
+                        type="password"
+                        placeholder="Create a password"
+                        autocomplete="new-password"
+                    >
+
+                </div>
+
+
+                <div class="field">
+
+                    <label>Confirm Password</label>
+
+                    <input
+                        id="signupConfirm"
+                        type="password"
+                        placeholder="Confirm your password"
+                        autocomplete="new-password"
+                    >
+
+                </div>
+
+
+                <button
+                    id="signupBtn"
+                    class="primary-btn"
+                >
+                    Create Account
+                </button>
+
+
+                <div class="auth-switch">
+
+                    Already have an account?
+
+                    <button id="showLogin">
+                        Login
+                    </button>
+
+                </div>
 
             </div>
 
@@ -1429,18 +1027,12 @@ button {
 </section>
 
 
+<!-- =====================================================
+     APP
+====================================================== -->
 
-<!-- =========================================================
-     MAIN APP
-========================================================= -->
+<main id="app" class="hidden">
 
-<main
-    id="app"
-    class="hidden"
->
-
-
-    <!-- TOP BAR -->
 
     <header class="topbar">
 
@@ -1464,10 +1056,9 @@ button {
     </header>
 
 
-
-    <!-- =====================================================
+    <!-- =================================================
          HOME
-    ====================================================== -->
+    ================================================== -->
 
     <section
         id="homePage"
@@ -1475,14 +1066,16 @@ button {
     >
 
 
-        <!-- MANUAL HOME HERO -->
+        <div class="home-hero-wrap">
 
-        <img
-            class="hero-home"
-            src="images/home-hero.png"
-            alt="Perfume"
-            onerror="this.style.display='none'"
-        >
+            <img
+                class="hero-home"
+                src="images/home-hero.png"
+                alt="Perfume"
+                onerror="this.style.display='none'"
+            >
+
+        </div>
 
 
         <div class="greeting">
@@ -1498,11 +1091,23 @@ button {
         </div>
 
 
+        <!-- MAIN ADD SALE -->
 
-        <!-- TODAY'S STATS -->
+        <button
+            class="add-sale-main"
+            onclick="openSaleModal()"
+        >
+
+            <span>+</span>
+
+            Add New Sale
+
+        </button>
+
+
+        <!-- TODAY STATS -->
 
         <div class="stats-grid">
-
 
             <div class="stat-card">
 
@@ -1555,10 +1160,60 @@ button {
 
             </div>
 
+        </div>
+
+
+        <!-- QUICK ADD -->
+
+        <div class="quick-card">
+
+            <div class="quick-title">
+                Quick Add Sale
+            </div>
+
+            <div class="quick-size-grid">
+
+                <button
+                    class="quick-size"
+                    onclick="quickSale(10)"
+                >
+                    10ml
+                </button>
+
+                <button
+                    class="quick-size"
+                    onclick="quickSale(20)"
+                >
+                    20ml
+                </button>
+
+                <button
+                    class="quick-size"
+                    onclick="quickSale(30)"
+                >
+                    30ml
+                </button>
+
+                <button
+                    class="quick-size"
+                    onclick="quickSale(50)"
+                >
+                    50ml
+                </button>
+
+                <button
+                    class="quick-size"
+                    onclick="quickSale(100)"
+                >
+                    100ml
+                </button>
+
+            </div>
 
         </div>
 
 
+        <!-- RECENT -->
 
         <div class="section-title">
 
@@ -1568,6 +1223,11 @@ button {
 
             <button
                 onclick="showPage('sales')"
+                style="
+                    border:none;
+                    background:none;
+                    font-weight:750;
+                "
             >
                 View All
             </button>
@@ -1584,10 +1244,9 @@ button {
     </section>
 
 
-
-    <!-- =====================================================
+    <!-- =================================================
          SALES
-    ====================================================== -->
+    ================================================== -->
 
     <section
         id="salesPage"
@@ -1623,10 +1282,9 @@ button {
     </section>
 
 
-
-    <!-- =====================================================
+    <!-- =================================================
          PROGRESS
-    ====================================================== -->
+    ================================================== -->
 
     <section
         id="progressPage"
@@ -1636,7 +1294,7 @@ button {
         <div class="section-title">
 
             <h2>
-                Progress
+                Monthly Progress
             </h2>
 
         </div>
@@ -1648,9 +1306,7 @@ button {
         ></select>
 
 
-
         <div class="stats-grid">
-
 
             <div class="stat-card">
 
@@ -1703,17 +1359,12 @@ button {
 
             </div>
 
-
         </div>
-
 
 
         <div class="card">
 
-            <div
-                class="section-title"
-                style="margin-top:0"
-            >
+            <div class="section-title" style="margin-top:0">
 
                 <h2>
                     Perfume Sizes
@@ -1721,11 +1372,9 @@ button {
 
             </div>
 
-
             <div id="sizeProgress"></div>
 
         </div>
-
 
 
         <div
@@ -1733,30 +1382,24 @@ button {
             style="margin-top:14px"
         >
 
-            <div
-                class="section-title"
-                style="margin-top:0"
-            >
+            <div class="section-title" style="margin-top:0">
 
                 <h2>
-                    Daily Sales
+                    Daily Progress
                 </h2>
 
             </div>
-
 
             <div id="dailyProgress"></div>
 
         </div>
 
-
     </section>
 
 
-
-    <!-- =====================================================
+    <!-- =================================================
          PROFILE
-    ====================================================== -->
+    ================================================== -->
 
     <section
         id="profilePage"
@@ -1765,7 +1408,6 @@ button {
 
         <div class="card profile-card">
 
-
             <div
                 id="profileAvatar"
                 class="profile-avatar"
@@ -1773,11 +1415,9 @@ button {
                 P
             </div>
 
-
             <h2 id="profileName">
                 User
             </h2>
-
 
             <p
                 id="profileEmail"
@@ -1789,14 +1429,12 @@ button {
                 email
             </p>
 
-
             <button
                 id="logoutBtn"
                 class="logout-btn"
             >
                 Logout
             </button>
-
 
         </div>
 
@@ -1806,29 +1444,22 @@ button {
 </main>
 
 
-
-<!-- =========================================================
-     BOTTOM NAVIGATION
-========================================================= -->
+<!-- =====================================================
+     BOTTOM NAV
+====================================================== -->
 
 <nav
     id="bottomNav"
     class="bottom-nav hidden"
 >
 
-
     <button
         class="nav-btn active"
         data-page="home"
         onclick="showPage('home')"
     >
-
-        <span class="nav-icon">
-            ⌂
-        </span>
-
+        <span class="nav-icon">⌂</span>
         Home
-
     </button>
 
 
@@ -1837,13 +1468,8 @@ button {
         data-page="sales"
         onclick="showPage('sales')"
     >
-
-        <span class="nav-icon">
-            ＋
-        </span>
-
+        <span class="nav-icon">＋</span>
         Sales
-
     </button>
 
 
@@ -1852,13 +1478,8 @@ button {
         data-page="progress"
         onclick="showPage('progress')"
     >
-
-        <span class="nav-icon">
-            ◔
-        </span>
-
+        <span class="nav-icon">◔</span>
         Progress
-
     </button>
 
 
@@ -1867,23 +1488,16 @@ button {
         data-page="profile"
         onclick="showPage('profile')"
     >
-
-        <span class="nav-icon">
-            ◯
-        </span>
-
+        <span class="nav-icon">◯</span>
         Profile
-
     </button>
-
 
 </nav>
 
 
-
-<!-- =========================================================
+<!-- =====================================================
      SALE MODAL
-========================================================= -->
+====================================================== -->
 
 <div
     id="saleModal"
@@ -1891,7 +1505,6 @@ button {
 >
 
     <div class="modal-box">
-
 
         <div class="modal-head">
 
@@ -1915,17 +1528,13 @@ button {
         >
 
 
-        <!-- SIZE -->
-
         <div class="field">
 
             <label>
                 Perfume Size
             </label>
 
-
             <div class="size-grid">
-
 
                 <button
                     class="size-btn"
@@ -1935,7 +1544,6 @@ button {
                     10ml
                 </button>
 
-
                 <button
                     class="size-btn"
                     data-size="20"
@@ -1943,7 +1551,6 @@ button {
                 >
                     20ml
                 </button>
-
 
                 <button
                     class="size-btn"
@@ -1953,7 +1560,6 @@ button {
                     30ml
                 </button>
 
-
                 <button
                     class="size-btn"
                     data-size="50"
@@ -1961,7 +1567,6 @@ button {
                 >
                     50ml
                 </button>
-
 
                 <button
                     class="size-btn"
@@ -1971,14 +1576,10 @@ button {
                     100ml
                 </button>
 
-
             </div>
 
         </div>
 
-
-
-        <!-- QUANTITY -->
 
         <div class="field">
 
@@ -1991,14 +1592,10 @@ button {
                 type="number"
                 min="1"
                 value="1"
-                placeholder="Quantity"
             >
 
         </div>
 
-
-
-        <!-- AMOUNT -->
 
         <div class="field">
 
@@ -2010,14 +1607,11 @@ button {
                 id="saleAmount"
                 type="number"
                 min="0"
-                placeholder="Amount received"
+                placeholder="Enter amount received"
             >
 
         </div>
 
-
-
-        <!-- PAYMENT -->
 
         <div class="field">
 
@@ -2025,9 +1619,7 @@ button {
                 Payment Method
             </label>
 
-
             <div class="choice-grid">
-
 
                 <button
                     id="cashBtn"
@@ -2037,7 +1629,6 @@ button {
                     Cash
                 </button>
 
-
                 <button
                     id="mobileBtn"
                     class="choice-btn"
@@ -2046,14 +1637,10 @@ button {
                     Mobile Money
                 </button>
 
-
             </div>
 
         </div>
 
-
-
-        <!-- DELIVERY -->
 
         <div class="field">
 
@@ -2061,9 +1648,7 @@ button {
                 Delivery?
             </label>
 
-
             <div class="choice-grid">
-
 
                 <button
                     id="deliveryNo"
@@ -2073,7 +1658,6 @@ button {
                     No
                 </button>
 
-
                 <button
                     id="deliveryYes"
                     class="choice-btn"
@@ -2082,14 +1666,10 @@ button {
                     Yes
                 </button>
 
-
             </div>
 
         </div>
 
-
-
-        <!-- DELIVERY COST -->
 
         <div
             id="deliveryCostField"
@@ -2104,25 +1684,20 @@ button {
                 id="deliveryCost"
                 type="number"
                 min="0"
-                placeholder="Delivery cost"
+                placeholder="Enter delivery cost"
             >
 
         </div>
 
 
-
-        <!-- CUSTOMER -->
-
         <div class="field">
 
             <label>
                 Customer Name
-                <span
-                    style="
-                        color:#999;
-                        font-weight:400;
-                    "
-                >
+                <span style="
+                    color:#999;
+                    font-weight:400;
+                ">
                     Optional
                 </span>
             </label>
@@ -2136,11 +1711,7 @@ button {
         </div>
 
 
-
-        <!-- ACTIONS -->
-
         <div class="form-actions">
-
 
             <button
                 class="secondary-btn"
@@ -2148,7 +1719,6 @@ button {
             >
                 Cancel
             </button>
-
 
             <button
                 id="saveSaleBtn"
@@ -2158,52 +1728,35 @@ button {
                 Save Sale
             </button>
 
-
         </div>
-
 
     </div>
 
 </div>
 
 
-
 <script>
 
-/* =========================================================
+/* =====================================================
    SUPABASE
-========================================================= */
-
-/*
-    IMPORTANT:
-
-    Your REST URL was:
-
-    https://zudqubbglwphfxaviqsg.supabase.co/rest/v1/
-
-    For createClient() we use ONLY:
-
-    https://zudqubbglwphfxaviqsg.supabase.co
-*/
+====================================================== */
 
 const SUPABASE_URL =
-    "https://zudqubbglwphfxaviqsg.supabase.co";
-
+"https://zudqubbglwphfxaviqsg.supabase.co";
 
 const SUPABASE_ANON_KEY =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp1ZHF1YmJnbHdwaGZ4YXZpcXNnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI0NjcyNTUsImV4cCI6MjA5ODA0MzI1NX0.7pRbRqz9-5gN8SG_ALn5ecHOWQofykPvhbrE2HQROCE";
-
+"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp1ZHF1YmJnbHdwaGZ4YXZpcXNnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI0NjcyNTUsImV4cCI6MjA5ODA0MzI1NX0.7pRbRqz9-5gN8SG_ALn5ecHOWQofykPvhbrE2HQROCE";
 
 const supabaseClient =
-    window.supabase.createClient(
-        SUPABASE_URL,
-        SUPABASE_ANON_KEY
-    );
+window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_ANON_KEY
+);
 
 
-/* =========================================================
-   GLOBAL STATE
-========================================================= */
+/* =====================================================
+   STATE
+====================================================== */
 
 let currentUser = null;
 
@@ -2215,31 +1768,26 @@ let selectedPayment = "Cash";
 
 let selectedDelivery = false;
 
-
-/* =========================================================
-   SENTENCES
-========================================================= */
-
-const sentences = [
-
-    "Wear your presence.",
-
-    "Every scent tells a story.",
-
-    "Your fragrance. Your identity.",
-
-    "Manage every sale simply."
-
-];
-
 let sentenceIndex = 0;
 
 
-/* =========================================================
-   HELPERS
-========================================================= */
+/* =====================================================
+   SENTENCES
+====================================================== */
 
-function money(value) {
+const sentences = [
+    "Wear your presence.",
+    "Every scent tells a story.",
+    "Your fragrance. Your identity.",
+    "Manage every sale simply."
+];
+
+
+/* =====================================================
+   HELPERS
+====================================================== */
+
+function money(value){
 
     return Number(value || 0)
         .toLocaleString("en-US");
@@ -2247,47 +1795,45 @@ function money(value) {
 }
 
 
-function escapeHtml(value) {
+function escapeHtml(value){
 
     return String(value ?? "")
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
 
 }
 
 
-function localDateKey(date = new Date()) {
+function localDateKey(date = new Date()){
 
-    const year =
-        date.getFullYear();
+    const y = date.getFullYear();
 
-    const month =
-        String(date.getMonth() + 1)
-        .padStart(2, "0");
+    const m = String(
+        date.getMonth()+1
+    ).padStart(2,"0");
 
-    const day =
-        String(date.getDate())
-        .padStart(2, "0");
+    const d = String(
+        date.getDate()
+    ).padStart(2,"0");
 
-    return `${year}-${month}-${day}`;
+    return `${y}-${m}-${d}`;
 
 }
 
 
-function monthKey(date = new Date()) {
+function monthKey(date = new Date()){
 
     return `${date.getFullYear()}-${
-        String(date.getMonth() + 1)
-            .padStart(2, "0")
+        String(date.getMonth()+1).padStart(2,"0")
     }`;
 
 }
 
 
-function getSaleDate(sale) {
+function getSaleDate(sale){
 
     return new Date(
         sale.created_at ||
@@ -2297,88 +1843,79 @@ function getSaleDate(sale) {
 }
 
 
-function formatDate(dateString) {
+function formatDate(value){
 
-    if (!dateString) return "";
+    if(!value) return "";
 
-    return new Date(dateString)
+    return new Date(value)
         .toLocaleString(
             undefined,
             {
-                day: "numeric",
-                month: "short",
-                year: "numeric",
-                hour: "2-digit",
-                minute: "2-digit"
+                day:"numeric",
+                month:"short",
+                year:"numeric",
+                hour:"2-digit",
+                minute:"2-digit"
             }
         );
 
 }
 
 
-/* =========================================================
-   MESSAGE
-========================================================= */
-
 function showMessage(
-    elementId,
+    id,
     message,
-    type = "error"
-) {
+    type="error"
+){
 
-    const element =
-        document.getElementById(elementId);
+    const el =
+        document.getElementById(id);
 
-    if (!message) {
+    if(!message){
 
-        element.innerHTML = "";
+        el.innerHTML="";
 
         return;
+
     }
 
-    element.innerHTML = `
-
+    el.innerHTML = `
         <div class="${
             type === "success"
-                ? "success-box"
-                : "error-box"
+            ? "success-box"
+            : "error-box"
         }">
-
             ${escapeHtml(message)}
-
         </div>
-
     `;
 
 }
 
 
-/* =========================================================
+/* =====================================================
    SPLASH
-========================================================= */
+====================================================== */
 
 window.addEventListener(
     "load",
     () => {
 
-        const splash =
-            document.getElementById("splash");
-
-
         setTimeout(
             () => {
 
-                splash.classList.add("hide");
-
+                document
+                    .getElementById("splash")
+                    .classList.add("hide");
 
                 setTimeout(
                     () => {
 
-                        splash.style.display =
-                            "none";
+                        document
+                            .getElementById("splash")
+                            .style.display="none";
 
                     },
-                    650
+                    700
                 );
 
             },
@@ -2396,97 +1933,62 @@ window.addEventListener(
 );
 
 
-/* =========================================================
+/* =====================================================
    VIDEO
-========================================================= */
+====================================================== */
 
-function startVideo() {
+function startVideo(){
 
     const video =
-        document.getElementById("loginVideo");
-
-    const fallback =
-        document.getElementById("videoFallback");
-
-
-    video.muted = true;
-
-    video.defaultMuted = true;
-
-    video.playsInline = true;
-
-
-    video.play()
-        .then(
-            () => {
-
-                fallback.classList.add(
-                    "hidden"
-                );
-
-            }
-        )
-        .catch(
-            () => {
-
-                /*
-                    Some browsers block autoplay.
-                    The video remains on the page.
-                */
-
-            }
+        document.getElementById(
+            "loginVideo"
         );
 
+    video.muted=true;
 
-    video.addEventListener(
-        "error",
-        () => {
+    video.defaultMuted=true;
 
-            video.classList.add(
-                "hidden"
-            );
+    video.playsInline=true;
 
-            fallback.classList.remove(
-                "hidden"
-            );
-
-        }
-    );
+    video.play()
+        .catch(
+            error => {
+                console.log(
+                    "Video autoplay waiting:",
+                    error
+                );
+            }
+        );
 
 }
 
 
-/* =========================================================
-   SENTENCE ANIMATION
-========================================================= */
+/* =====================================================
+   SENTENCE
+====================================================== */
 
-function startSentenceAnimation() {
+function startSentenceAnimation(){
 
     const element =
         document.getElementById(
             "animatedSentence"
         );
 
-
     setInterval(
         () => {
 
             sentenceIndex =
-                (sentenceIndex + 1)
+                (sentenceIndex+1)
                 % sentences.length;
-
 
             element.classList.remove(
                 "animated-sentence"
             );
 
-
             void element.offsetWidth;
-
 
             element.textContent =
                 sentences[sentenceIndex];
-
 
             element.classList.add(
                 "animated-sentence"
@@ -2499,30 +2001,30 @@ function startSentenceAnimation() {
 }
 
 
-/* =========================================================
+/* =====================================================
    INITIALIZE
-========================================================= */
+====================================================== */
 
-async function initializeApp() {
+async function initializeApp(){
 
-    try {
+    try{
 
         const {
-            data: {
+            data:{
                 session
             }
         } =
-            await supabaseClient.auth
-                .getSession();
+        await supabaseClient.auth
+            .getSession();
 
 
-        if (session?.user) {
+        if(session?.user){
 
             await enterApp(
                 session.user
             );
 
-        } else {
+        }else{
 
             showAuth();
 
@@ -2531,18 +2033,18 @@ async function initializeApp() {
 
         supabaseClient.auth
             .onAuthStateChange(
-                async (
+                async(
                     event,
                     session
                 ) => {
 
-                    if (session?.user) {
+                    if(session?.user){
 
                         await enterApp(
                             session.user
                         );
 
-                    } else {
+                    }else{
 
                         showAuth();
 
@@ -2552,7 +2054,7 @@ async function initializeApp() {
             );
 
 
-    } catch (error) {
+    }catch(error){
 
         console.error(error);
 
@@ -2560,7 +2062,6 @@ async function initializeApp() {
 
         showMessage(
             "loginMessage",
-            "Could not connect to Supabase: " +
             error.message
         );
 
@@ -2569,21 +2070,19 @@ async function initializeApp() {
 }
 
 
-/* =========================================================
-   SHOW AUTH
-========================================================= */
+/* =====================================================
+   AUTH / APP
+====================================================== */
 
-function showAuth() {
+function showAuth(){
 
     document
         .getElementById("authScreen")
         .classList.remove("hidden");
 
-
     document
         .getElementById("app")
         .classList.add("hidden");
-
 
     document
         .getElementById("bottomNav")
@@ -2592,21 +2091,15 @@ function showAuth() {
 }
 
 
-/* =========================================================
-   SHOW APP
-========================================================= */
-
-function showApp() {
+function showApp(){
 
     document
         .getElementById("authScreen")
         .classList.add("hidden");
 
-
     document
         .getElementById("app")
         .classList.remove("hidden");
-
 
     document
         .getElementById("bottomNav")
@@ -2615,107 +2108,84 @@ function showApp() {
 }
 
 
-/* =========================================================
-   SWITCH TO SIGNUP
-========================================================= */
+/* =====================================================
+   AUTH SWITCH
+====================================================== */
 
 document
-    .getElementById("showSignup")
-    .addEventListener(
-        "click",
-        () => {
+.getElementById("showSignup")
+.addEventListener(
+    "click",
+    () => {
 
-            document
-                .getElementById("loginForm")
-                .classList.add("hidden");
+        document
+            .getElementById("loginForm")
+            .classList.add("hidden");
 
+        document
+            .getElementById("signupForm")
+            .classList.remove("hidden");
 
-            document
-                .getElementById("signupForm")
-                .classList.remove("hidden");
+        showMessage(
+            "loginMessage",
+            ""
+        );
 
+    }
+);
 
-            showMessage(
-                "loginMessage",
-                ""
-            );
-
-            showMessage(
-                "signupMessage",
-                ""
-            );
-
-        }
-    );
-
-
-/* =========================================================
-   SWITCH TO LOGIN
-========================================================= */
 
 document
-    .getElementById("showLogin")
-    .addEventListener(
-        "click",
-        () => {
+.getElementById("showLogin")
+.addEventListener(
+    "click",
+    () => {
 
-            document
-                .getElementById("signupForm")
-                .classList.add("hidden");
+        document
+            .getElementById("signupForm")
+            .classList.add("hidden");
 
+        document
+            .getElementById("loginForm")
+            .classList.remove("hidden");
 
-            document
-                .getElementById("loginForm")
-                .classList.remove("hidden");
+        showMessage(
+            "signupMessage",
+            ""
+        );
 
-
-            showMessage(
-                "loginMessage",
-                ""
-            );
-
-            showMessage(
-                "signupMessage",
-                ""
-            );
-
-        }
-    );
+    }
+);
 
 
-/* =========================================================
+/* =====================================================
    SIGN UP
-========================================================= */
+====================================================== */
 
 document
-    .getElementById("signupBtn")
-    .addEventListener(
-        "click",
-        signup
-    );
+.getElementById("signupBtn")
+.addEventListener(
+    "click",
+    signup
+);
 
 
-async function signup() {
+async function signup(){
 
     const name =
         document
             .getElementById("signupName")
-            .value
-            .trim();
-
+            .value.trim();
 
     const email =
         document
             .getElementById("signupEmail")
-            .value
-            .trim();
-
+            .value.trim();
 
     const password =
         document
             .getElementById("signupPassword")
             .value;
-
 
     const confirm =
         document
@@ -2723,12 +2193,7 @@ async function signup() {
             .value;
 
 
-    if (
-        !name ||
-        !email ||
-        !password ||
-        !confirm
-    ) {
+    if(!name || !email || !password || !confirm){
 
         showMessage(
             "signupMessage",
@@ -2740,7 +2205,7 @@ async function signup() {
     }
 
 
-    if (password !== confirm) {
+    if(password !== confirm){
 
         showMessage(
             "signupMessage",
@@ -2752,11 +2217,11 @@ async function signup() {
     }
 
 
-    if (password.length < 6) {
+    if(password.length < 6){
 
         showMessage(
             "signupMessage",
-            "Password should be at least 6 characters."
+            "Password must be at least 6 characters."
         );
 
         return;
@@ -2769,55 +2234,45 @@ async function signup() {
             "signupBtn"
         );
 
+    button.disabled=true;
 
-    button.disabled = true;
-
-    button.textContent =
-        "Creating...";
+    button.textContent="Creating...";
 
 
-    try {
+    try{
 
         const {
             data,
             error
         } =
-            await supabaseClient.auth
-                .signUp({
+        await supabaseClient.auth
+            .signUp({
 
-                    email,
+                email,
 
-                    password,
+                password,
 
-                    options: {
-
-                        data: {
-
-                            full_name:
-                                name
-
-                        }
-
+                options:{
+                    data:{
+                        full_name:name
                     }
+                }
 
-                });
-
-
-        if (error)
-            throw error;
+            });
 
 
-        if (!data.session) {
+        if(error) throw error;
+
+
+        if(!data.session){
 
             showMessage(
                 "signupMessage",
-
                 "Account created. Check your email to confirm your account.",
-
                 "success"
             );
 
-        } else {
+        }else{
 
             await enterApp(
                 data.user
@@ -2826,18 +2281,18 @@ async function signup() {
         }
 
 
-    } catch (error) {
+    }catch(error){
 
         showMessage(
             "signupMessage",
             error.message
         );
 
-    } finally {
+    }finally{
 
-        button.disabled = false;
+        button.disabled=false;
 
-        button.textContent =
+        button.textContent=
             "Create Account";
 
     }
@@ -2845,26 +2300,24 @@ async function signup() {
 }
 
 
-/* =========================================================
+/* =====================================================
    LOGIN
-========================================================= */
+====================================================== */
 
 document
-    .getElementById("loginBtn")
-    .addEventListener(
-        "click",
-        login
-    );
+.getElementById("loginBtn")
+.addEventListener(
+    "click",
+    login
+);
 
 
-async function login() {
+async function login(){
 
     const email =
         document
             .getElementById("loginEmail")
-            .value
-            .trim();
-
+            .value.trim();
 
     const password =
         document
@@ -2872,7 +2325,7 @@ async function login() {
             .value;
 
 
-    if (!email || !password) {
+    if(!email || !password){
 
         showMessage(
             "loginMessage",
@@ -2889,31 +2342,27 @@ async function login() {
             "loginBtn"
         );
 
+    button.disabled=true;
 
-    button.disabled = true;
-
-    button.textContent =
-        "Logging in...";
+    button.textContent="Logging in...";
 
 
-    try {
+    try{
 
         const {
             data,
             error
         } =
-            await supabaseClient.auth
-                .signInWithPassword({
+        await supabaseClient.auth
+            .signInWithPassword({
 
-                    email,
+                email,
+                password
 
-                    password
-
-                });
+            });
 
 
-        if (error)
-            throw error;
+        if(error) throw error;
 
 
         await enterApp(
@@ -2921,32 +2370,31 @@ async function login() {
         );
 
 
-    } catch (error) {
+    }catch(error){
 
         showMessage(
             "loginMessage",
             error.message
         );
 
-    } finally {
+    }finally{
 
-        button.disabled = false;
+        button.disabled=false;
 
-        button.textContent =
-            "Login";
+        button.textContent="Login";
 
     }
 
 }
 
 
-/* =========================================================
+/* =====================================================
    ENTER APP
-========================================================= */
+====================================================== */
 
-async function enterApp(user) {
+async function enterApp(user){
 
-    currentUser = user;
+    currentUser=user;
 
     showApp();
 
@@ -2959,72 +2407,67 @@ async function enterApp(user) {
 
     document
         .getElementById("userGreeting")
-        .textContent = name;
+        .textContent=name;
 
 
     document
         .getElementById("profileName")
-        .textContent = name;
+        .textContent=name;
 
 
     document
         .getElementById("profileEmail")
-        .textContent =
+        .textContent=
             user.email || "";
 
 
     document
         .getElementById("profileAvatar")
-        .textContent =
-            name
-                .charAt(0)
-                .toUpperCase();
+        .textContent=
+            name.charAt(0).toUpperCase();
 
 
     await loadSales();
-
 
     showPage("home");
 
 }
 
 
-/* =========================================================
+/* =====================================================
    LOAD SALES
-========================================================= */
+====================================================== */
 
-async function loadSales() {
+async function loadSales(){
 
-    if (!currentUser)
-        return;
+    if(!currentUser) return;
 
 
-    try {
+    try{
 
         const {
             data,
             error
         } =
-            await supabaseClient
-                .from("sales")
-                .select("*")
-                .eq(
-                    "user_id",
-                    currentUser.id
-                )
-                .order(
-                    "created_at",
-                    {
-                        ascending: false
-                    }
-                );
+        await supabaseClient
+            .from("sales")
+            .select("*")
+            .eq(
+                "user_id",
+                currentUser.id
+            )
+            .order(
+                "created_at",
+                {
+                    ascending:false
+                }
+            );
 
 
-        if (error)
-            throw error;
+        if(error) throw error;
 
 
-        sales = data || [];
+        sales=data || [];
 
 
         renderHome();
@@ -3034,16 +2477,15 @@ async function loadSales() {
         renderProgress();
 
 
-    } catch (error) {
+    }catch(error){
 
         console.error(
             "Load sales error:",
             error
         );
 
-
         alert(
-            "Could not load sales:\n\n" +
+            "Could not load sales:\n\n"+
             error.message
         );
 
@@ -3052,13 +2494,13 @@ async function loadSales() {
 }
 
 
-/* =========================================================
+/* =====================================================
    NAVIGATION
-========================================================= */
+====================================================== */
 
-function showPage(page) {
+function showPage(page){
 
-    const pages = [
+    const pages=[
         "home",
         "sales",
         "progress",
@@ -3069,20 +2511,14 @@ function showPage(page) {
     pages.forEach(
         name => {
 
-            const element =
-                document.getElementById(
-                    name + "Page"
-                );
-
-
-            if (element) {
-
-                element.classList.toggle(
+            document
+                .getElementById(
+                    name+"Page"
+                )
+                .classList.toggle(
                     "hidden",
-                    name !== page
+                    name!==page
                 );
-
-            }
 
         }
     );
@@ -3095,109 +2531,93 @@ function showPage(page) {
 
                 button.classList.toggle(
                     "active",
-                    button.dataset.page === page
+                    button.dataset.page===page
                 );
 
             }
         );
 
 
-    if (page === "home")
+    if(page==="home")
         renderHome();
 
-
-    if (page === "sales")
+    if(page==="sales")
         renderSales();
 
-
-    if (page === "progress")
+    if(page==="progress")
         renderProgress();
 
 }
 
 
-/* =========================================================
+/* =====================================================
    HOME
-========================================================= */
+====================================================== */
 
-function renderHome() {
+function renderHome(){
 
-    const today =
+    const today=
         localDateKey();
 
 
-    const todaySales =
+    const todaySales=
         sales.filter(
             sale =>
                 localDateKey(
                     getSaleDate(sale)
-                ) === today
+                )===today
         );
 
 
-    const total =
+    const total=
         todaySales.reduce(
-            (
-                sum,
-                sale
-            ) =>
-                sum +
+            (sum,sale)=>
+                sum+
                 Number(
-                    sale.amount || 0
+                    sale.amount||0
                 ),
             0
         );
 
 
-    const units =
+    const units=
         todaySales.reduce(
-            (
-                sum,
-                sale
-            ) =>
-                sum +
+            (sum,sale)=>
+                sum+
                 Number(
-                    sale.quantity || 0
+                    sale.quantity||0
                 ),
             0
         );
 
 
-    const cash =
+    const cash=
         todaySales
             .filter(
                 sale =>
-                    sale.payment_method ===
-                    "Cash"
+                    sale.payment_method==="Cash"
             )
             .reduce(
-                (
-                    sum,
-                    sale
-                ) =>
-                    sum +
+                (sum,sale)=>
+                    sum+
                     Number(
-                        sale.amount || 0
+                        sale.amount||0
                     ),
                 0
             );
 
 
-    const mobile =
+    const mobile=
         todaySales
             .filter(
                 sale =>
-                    sale.payment_method ===
-                    "Mobile Money"
+                    sale.payment_method==="Mobile Money"
             )
             .reduce(
-                (
-                    sum,
-                    sale
-                ) =>
-                    sum +
+                (sum,sale)=>
+                    sum+
                     Number(
-                        sale.amount || 0
+                        sale.amount||0
                     ),
                 0
             );
@@ -3205,51 +2625,51 @@ function renderHome() {
 
     document
         .getElementById("todayTotal")
-        .textContent =
+        .textContent=
             money(total);
 
 
     document
         .getElementById("todayUnits")
-        .textContent =
+        .textContent=
             units;
 
 
     document
         .getElementById("todayCash")
-        .textContent =
+        .textContent=
             money(cash);
 
 
     document
         .getElementById("todayMobile")
-        .textContent =
+        .textContent=
             money(mobile);
 
 
-    const recent =
-        sales.slice(0, 5);
+    const recent=
+        sales.slice(0,5);
 
 
-    const container =
+    const container=
         document.getElementById(
             "recentSales"
         );
 
 
-    if (!recent.length) {
+    if(!recent.length){
 
-        container.innerHTML = `
+        container.innerHTML=`
 
             <div class="empty">
 
-                No sales yet.
+                No sales recorded yet.
 
                 <br><br>
 
                 Tap
-                <strong>Add Sale</strong>
-                to record your first sale.
+                <strong>+ Add New Sale</strong>
+                to begin.
 
             </div>
 
@@ -3260,31 +2680,42 @@ function renderHome() {
     }
 
 
-    container.innerHTML =
+    container.innerHTML=
         recent
-            .map(
-                renderSaleHTML
-            )
+            .map(renderSaleHTML)
             .join("");
 
 }
 
 
-/* =========================================================
-   SALES PAGE
-========================================================= */
+/* =====================================================
+   QUICK SALE
+====================================================== */
 
-function renderSales() {
+function quickSale(size){
 
-    const container =
+    openSaleModal();
+
+    selectSize(size);
+
+}
+
+
+/* =====================================================
+   SALES LIST
+====================================================== */
+
+function renderSales(){
+
+    const container=
         document.getElementById(
             "allSales"
         );
 
 
-    if (!sales.length) {
+    if(!sales.length){
 
-        container.innerHTML = `
+        container.innerHTML=`
 
             <div class="empty">
 
@@ -3299,34 +2730,23 @@ function renderSales() {
     }
 
 
-    container.innerHTML =
+    container.innerHTML=
         sales
-            .map(
-                renderSaleHTML
-            )
+            .map(renderSaleHTML)
             .join("");
 
 }
 
 
-/* =========================================================
+/* =====================================================
    SALE HTML
-========================================================= */
+====================================================== */
 
-function renderSaleHTML(sale) {
-
-    const delivery =
-        sale.delivery
-            ? `Delivery: ${money(
-                sale.delivery_cost
-            )}`
-            : "No delivery";
-
+function renderSaleHTML(sale){
 
     return `
 
         <div class="sale-item">
-
 
             <div class="sale-main">
 
@@ -3335,7 +2755,6 @@ function renderSaleHTML(sale) {
                     ${escapeHtml(
                         sale.size
                     )}ml ×
-
                     ${escapeHtml(
                         sale.quantity
                     )}
@@ -3360,26 +2779,30 @@ function renderSaleHTML(sale) {
 
                 <small>
 
-                    ${delivery}
+                    ${
+                        sale.delivery
+                        ? "Delivery: "+
+                          money(
+                              sale.delivery_cost
+                          )
+                        : "No delivery"
+                    }
 
                 </small>
 
 
                 ${
                     sale.customer_name
-
                     ?
-
                     `
                     <small>
+                        Customer:
                         ${escapeHtml(
                             sale.customer_name
                         )}
                     </small>
                     `
-
                     :
-
                     ""
                 }
 
@@ -3389,51 +2812,28 @@ function renderSaleHTML(sale) {
             <div class="sale-right">
 
                 <strong>
-
                     ${money(
                         sale.amount
                     )}
-
                 </strong>
 
 
                 <button
-
-                    onclick="editSale(
-                        '${sale.id}'
-                    )"
-
-                    style="
-                        border:none;
-                        background:none;
-                        font-size:11px;
-                        font-weight:700;
-                        margin-right:7px;
-                    "
+                    class="action-btn"
+                    onclick="editSale('${sale.id}')"
                 >
                     Edit
                 </button>
 
 
                 <button
-
-                    onclick="deleteSale(
-                        '${sale.id}'
-                    )"
-
-                    style="
-                        border:none;
-                        background:none;
-                        color:#c33;
-                        font-size:11px;
-                        font-weight:700;
-                    "
+                    class="action-btn delete-btn"
+                    onclick="deleteSale('${sale.id}')"
                 >
                     Delete
                 </button>
 
             </div>
-
 
         </div>
 
@@ -3442,82 +2842,74 @@ function renderSaleHTML(sale) {
 }
 
 
-/* =========================================================
+/* =====================================================
    SALE MODAL
-========================================================= */
+====================================================== */
 
-function openSaleModal() {
+function openSaleModal(){
 
     document
         .getElementById("saleModal")
-        .classList.remove(
-            "hidden"
-        );
-
+        .classList.remove("hidden");
 
     resetSaleForm();
 
 }
 
 
-function closeSaleModal() {
+function closeSaleModal(){
 
     document
         .getElementById("saleModal")
-        .classList.add(
-            "hidden"
-        );
+        .classList.add("hidden");
 
 }
 
 
-function resetSaleForm() {
+function resetSaleForm(){
 
     document
         .getElementById("editingSaleId")
-        .value = "";
+        .value="";
 
 
     document
         .getElementById("saleModalTitle")
-        .textContent =
-            "Add Sale";
+        .textContent="Add Sale";
 
 
     document
         .getElementById("saleQuantity")
-        .value = 1;
+        .value=1;
 
 
     document
         .getElementById("saleAmount")
-        .value = "";
+        .value="";
 
 
     document
         .getElementById("deliveryCost")
-        .value = "";
+        .value="";
 
 
     document
         .getElementById("customerName")
-        .value = "";
+        .value="";
 
 
-    selectedSize = null;
+    selectedSize=null;
 
-    selectedPayment = "Cash";
+    selectedPayment="Cash";
 
-    selectedDelivery = false;
+    selectedDelivery=false;
 
 
     document
         .querySelectorAll(".size-btn")
         .forEach(
             button =>
-                button.classList.remove(
-                    "active"
-                )
+                button.classList.remove("active")
         );
 
 
@@ -3525,22 +2917,16 @@ function resetSaleForm() {
 
     selectDelivery(false);
 
-
-    document
-        .getElementById("saveSaleBtn")
-        .textContent =
-            "Save Sale";
-
 }
 
 
-/* =========================================================
+/* =====================================================
    SELECT SIZE
-========================================================= */
+====================================================== */
 
-function selectSize(size) {
+function selectSize(size){
 
-    selectedSize = size;
+    selectedSize=size;
 
 
     document
@@ -3552,7 +2938,7 @@ function selectSize(size) {
                     "active",
                     Number(
                         button.dataset.size
-                    ) === size
+                    )===size
                 );
 
             }
@@ -3561,20 +2947,20 @@ function selectSize(size) {
 }
 
 
-/* =========================================================
+/* =====================================================
    PAYMENT
-========================================================= */
+====================================================== */
 
-function selectPayment(payment) {
+function selectPayment(payment){
 
-    selectedPayment = payment;
+    selectedPayment=payment;
 
 
     document
         .getElementById("cashBtn")
         .classList.toggle(
             "active",
-            payment === "Cash"
+            payment==="Cash"
         );
 
 
@@ -3582,19 +2968,19 @@ function selectPayment(payment) {
         .getElementById("mobileBtn")
         .classList.toggle(
             "active",
-            payment === "Mobile Money"
+            payment==="Mobile Money"
         );
 
 }
 
 
-/* =========================================================
+/* =====================================================
    DELIVERY
-========================================================= */
+====================================================== */
 
-function selectDelivery(value) {
+function selectDelivery(value){
 
-    selectedDelivery = value;
+    selectedDelivery=value;
 
 
     document
@@ -3620,28 +3006,19 @@ function selectDelivery(value) {
             !value
         );
 
-
-    if (!value) {
-
-        document
-            .getElementById("deliveryCost")
-            .value = "";
-
-    }
-
 }
 
 
-/* =========================================================
+/* =====================================================
    SAVE SALE
-========================================================= */
+====================================================== */
 
-async function saveSale() {
+async function saveSale(){
 
-    if (!currentUser) {
+    if(!currentUser){
 
         alert(
-            "You are not authenticated."
+            "You are not logged in."
         );
 
         return;
@@ -3649,7 +3026,7 @@ async function saveSale() {
     }
 
 
-    if (!selectedSize) {
+    if(!selectedSize){
 
         alert(
             "Select a perfume size."
@@ -3660,49 +3037,38 @@ async function saveSale() {
     }
 
 
-    const quantity =
+    const quantity=
         Number(
             document
-                .getElementById(
-                    "saleQuantity"
-                )
+                .getElementById("saleQuantity")
                 .value
         );
 
 
-    const amount =
+    const amount=
         Number(
             document
-                .getElementById(
-                    "saleAmount"
-                )
+                .getElementById("saleAmount")
                 .value
         );
 
 
-    const deliveryCost =
+    const deliveryCost=
         Number(
             document
-                .getElementById(
-                    "deliveryCost"
-                )
+                .getElementById("deliveryCost")
                 .value
-        ) || 0;
+        )||0;
 
 
-    const customerName =
+    const customerName=
         document
-            .getElementById(
-                "customerName"
-            )
+            .getElementById("customerName")
             .value
             .trim();
 
 
-    if (
-        !quantity ||
-        quantity < 1
-    ) {
+    if(quantity<1){
 
         alert(
             "Enter a valid quantity."
@@ -3713,13 +3079,10 @@ async function saveSale() {
     }
 
 
-    if (
-        !Number.isFinite(amount) ||
-        amount < 0
-    ) {
+    if(!Number.isFinite(amount) || amount<0){
 
         alert(
-            "Enter a valid sale amount."
+            "Enter the amount received."
         );
 
         return;
@@ -3727,38 +3090,30 @@ async function saveSale() {
     }
 
 
-    const editingId =
+    const editingId=
         document
-            .getElementById(
-                "editingSaleId"
-            )
+            .getElementById("editingSaleId")
             .value;
 
 
-    const saleData = {
+    const saleData={
 
-        user_id:
-            currentUser.id,
+        user_id:currentUser.id,
 
-        size:
-            selectedSize,
+        size:selectedSize,
 
-        quantity:
-            quantity,
+        quantity:quantity,
 
-        amount:
-            amount,
+        amount:amount,
 
-        payment_method:
-            selectedPayment,
+        payment_method:selectedPayment,
 
-        delivery:
-            selectedDelivery,
+        delivery:selectedDelivery,
 
         delivery_cost:
             selectedDelivery
-                ? deliveryCost
-                : 0,
+            ? deliveryCost
+            : 0,
 
         customer_name:
             customerName || null
@@ -3766,31 +3121,31 @@ async function saveSale() {
     };
 
 
-    const button =
+    const button=
         document.getElementById(
             "saveSaleBtn"
         );
 
 
-    button.disabled = true;
+    button.disabled=true;
 
-    button.textContent =
-        "Saving...";
+    button.textContent=
+        editingId
+        ? "Updating..."
+        : "Saving...";
 
 
-    try {
+    try{
 
         let result;
 
 
-        if (editingId) {
+        if(editingId){
 
-            result =
+            result=
                 await supabaseClient
                     .from("sales")
-                    .update(
-                        saleData
-                    )
+                    .update(saleData)
                     .eq(
                         "id",
                         editingId
@@ -3800,84 +3155,75 @@ async function saveSale() {
                         currentUser.id
                     );
 
-        } else {
+        }else{
 
-            result =
+            result=
                 await supabaseClient
                     .from("sales")
-                    .insert(
-                        saleData
-                    );
+                    .insert(saleData);
 
         }
 
 
-        if (result.error)
+        if(result.error)
             throw result.error;
 
 
         closeSaleModal();
 
-
         await loadSales();
 
 
-    } catch (error) {
+    }catch(error){
 
         alert(
-            "Could not save sale:\n\n" +
+            "Could not save sale:\n\n"+
             error.message
         );
 
-    } finally {
+    }finally{
 
-        button.disabled = false;
+        button.disabled=false;
 
-        button.textContent =
+        button.textContent=
             editingId
-                ? "Update Sale"
-                : "Save Sale";
+            ? "Update Sale"
+            : "Save Sale";
 
     }
 
 }
 
 
-/* =========================================================
-   EDIT SALE
-========================================================= */
+/* =====================================================
+   EDIT
+====================================================== */
 
-function editSale(id) {
+function editSale(id){
 
-    const sale =
+    const sale=
         sales.find(
             item =>
-                String(item.id) ===
-                String(id)
+                String(item.id)===String(id)
         );
 
 
-    if (!sale)
-        return;
+    if(!sale) return;
 
 
     document
         .getElementById("saleModal")
-        .classList.remove(
-            "hidden"
-        );
+        .classList.remove("hidden");
 
 
     document
         .getElementById("saleModalTitle")
-        .textContent =
-            "Edit Sale";
+        .textContent="Edit Sale";
 
 
     document
         .getElementById("editingSaleId")
-        .value =
-            sale.id;
+        .value=sale.id;
 
 
     selectSize(
@@ -3887,14 +3233,12 @@ function editSale(id) {
 
     document
         .getElementById("saleQuantity")
-        .value =
-            sale.quantity;
+        .value=sale.quantity;
 
 
     document
         .getElementById("saleAmount")
-        .value =
-            sale.amount;
+        .value=sale.amount;
 
 
     selectPayment(
@@ -3909,74 +3253,62 @@ function editSale(id) {
 
     document
         .getElementById("deliveryCost")
-        .value =
-            sale.delivery_cost || "";
+        .value=
+            sale.delivery_cost||"";
 
 
     document
         .getElementById("customerName")
-        .value =
-            sale.customer_name || "";
+        .value=
+            sale.customer_name||"";
 
 
     document
         .getElementById("saveSaleBtn")
-        .textContent =
-            "Update Sale";
+        .textContent="Update Sale";
 
 }
 
 
-/* =========================================================
-   DELETE SALE
-========================================================= */
+/* =====================================================
+   DELETE
+====================================================== */
 
-async function deleteSale(id) {
+async function deleteSale(id){
 
-    if (
-        !confirm(
-            "Delete this sale? This cannot be undone."
-        )
-    ) {
-
-        return;
-
-    }
+    if(!confirm(
+        "Delete this sale? This cannot be undone."
+    )) return;
 
 
-    if (!currentUser)
-        return;
-
-
-    try {
+    try{
 
         const {
             error
         } =
-            await supabaseClient
-                .from("sales")
-                .delete()
-                .eq(
-                    "id",
-                    id
-                )
-                .eq(
-                    "user_id",
-                    currentUser.id
-                );
+        await supabaseClient
+            .from("sales")
+            .delete()
+            .eq(
+                "id",
+                id
+            )
+            .eq(
+                "user_id",
+                currentUser.id
+            );
 
 
-        if (error)
-            throw error;
+        if(error) throw error;
 
 
         await loadSales();
 
 
-    } catch (error) {
+    }catch(error){
 
         alert(
-            "Could not delete sale:\n\n" +
+            "Could not delete sale:\n\n"+
             error.message
         );
 
@@ -3985,20 +3317,22 @@ async function deleteSale(id) {
 }
 
 
-/* =========================================================
-   MONTH SELECTOR
-========================================================= */
+/* =====================================================
+   MONTHLY PROGRESS
+====================================================== */
 
-function setupMonthSelector() {
+function setupMonthSelector(){
 
-    const selector =
+    const selector=
         document.getElementById(
             "monthSelector"
         );
 
 
-    const months =
-        new Set();
+    const months=new Set();
+
+
+    months.add(monthKey());
 
 
     sales.forEach(
@@ -4014,23 +3348,13 @@ function setupMonthSelector() {
     );
 
 
-    /*
-       Always show current month,
-       even if there are no sales yet.
-    */
-
-    months.add(
-        monthKey()
-    );
-
-
-    const sorted =
+    const sorted=
         [...months]
             .sort()
             .reverse();
 
 
-    selector.innerHTML =
+    selector.innerHTML=
         sorted
             .map(
                 key => {
@@ -4038,38 +3362,32 @@ function setupMonthSelector() {
                     const [
                         year,
                         month
-                    ] =
+                    ]=
                         key.split("-");
 
 
-                    const date =
+                    const date=
                         new Date(
                             Number(year),
-                            Number(month) - 1,
+                            Number(month)-1,
                             1
                         );
 
 
-                    const label =
+                    const label=
                         date.toLocaleString(
                             undefined,
                             {
-                                month:
-                                    "long",
-                                year:
-                                    "numeric"
+                                month:"long",
+                                year:"numeric"
                             }
                         );
 
 
                     return `
-
                         <option value="${key}">
-
                             ${label}
-
                         </option>
-
                     `;
 
                 }
@@ -4077,17 +3395,13 @@ function setupMonthSelector() {
             .join("");
 
 
-    selector.onchange =
+    selector.onchange=
         renderSelectedMonth;
 
 }
 
 
-/* =========================================================
-   PROGRESS
-========================================================= */
-
-function renderProgress() {
+function renderProgress(){
 
     setupMonthSelector();
 
@@ -4096,98 +3410,77 @@ function renderProgress() {
 }
 
 
-/* =========================================================
-   SELECTED MONTH
-========================================================= */
+function renderSelectedMonth(){
 
-function renderSelectedMonth() {
-
-    const selector =
+    const selector=
         document.getElementById(
             "monthSelector"
         );
 
 
-    const key =
-        selector.value;
+    const key=selector.value;
+
+    if(!key) return;
 
 
-    if (!key)
-        return;
-
-
-    const monthSales =
+    const monthSales=
         sales.filter(
             sale =>
                 monthKey(
                     getSaleDate(sale)
-                ) === key
+                )===key
         );
 
 
-    const total =
+    const total=
         monthSales.reduce(
-            (
-                sum,
-                sale
-            ) =>
-                sum +
+            (sum,sale)=>
+                sum+
                 Number(
-                    sale.amount || 0
+                    sale.amount||0
                 ),
             0
         );
 
 
-    const units =
+    const units=
         monthSales.reduce(
-            (
-                sum,
-                sale
-            ) =>
-                sum +
+            (sum,sale)=>
+                sum+
                 Number(
-                    sale.quantity || 0
+                    sale.quantity||0
                 ),
             0
         );
 
 
-    const cash =
+    const cash=
         monthSales
             .filter(
                 sale =>
-                    sale.payment_method ===
-                    "Cash"
+                    sale.payment_method==="Cash"
             )
             .reduce(
-                (
-                    sum,
-                    sale
-                ) =>
-                    sum +
+                (sum,sale)=>
+                    sum+
                     Number(
-                        sale.amount || 0
+                        sale.amount||0
                     ),
                 0
             );
 
 
-    const mobile =
+    const mobile=
         monthSales
             .filter(
                 sale =>
-                    sale.payment_method ===
-                    "Mobile Money"
+                    sale.payment_method==="Mobile Money"
             )
             .reduce(
-                (
-                    sum,
-                    sale
-                ) =>
-                    sum +
+                (sum,sale)=>
+                    sum+
                     Number(
-                        sale.amount || 0
+                        sale.amount||0
                     ),
                 0
             );
@@ -4195,34 +3488,29 @@ function renderSelectedMonth() {
 
     document
         .getElementById("monthTotal")
-        .textContent =
+        .textContent=
             money(total);
 
 
     document
         .getElementById("monthUnits")
-        .textContent =
+        .textContent=
             units;
 
 
     document
         .getElementById("monthCash")
-        .textContent =
+        .textContent=
             money(cash);
 
 
     document
         .getElementById("monthMobile")
-        .textContent =
+        .textContent=
             money(mobile);
 
 
-
-    /* =====================================================
-       PERFUME SIZE PROGRESS
-    ====================================================== */
-
-    const sizes = [
+    const sizes=[
         10,
         20,
         30,
@@ -4231,97 +3519,80 @@ function renderSelectedMonth() {
     ];
 
 
-    const sizeCounts =
+    const counts=
         sizes.map(
             size => {
 
+                const count=
+                    monthSales
+                        .filter(
+                            sale =>
+                                Number(
+                                    sale.size
+                                )===size
+                        )
+                        .reduce(
+                            (sum,sale)=>
+                                sum+
+                                Number(
+                                    sale.quantity||0
+                                ),
+                            0
+                        );
+
                 return {
-
                     size,
-
-                    count:
-                        monthSales
-                            .filter(
-                                sale =>
-                                    Number(
-                                        sale.size
-                                    ) === size
-                            )
-                            .reduce(
-                                (
-                                    sum,
-                                    sale
-                                ) =>
-                                    sum +
-                                    Number(
-                                        sale.quantity ||
-                                        0
-                                    ),
-                                0
-                            )
-
+                    count
                 };
 
             }
         );
 
 
-    const maxSize =
+    const max=
         Math.max(
             1,
-            ...sizeCounts.map(
-                item =>
-                    item.count
+            ...counts.map(
+                item=>item.count
             )
         );
 
 
     document
-        .getElementById(
-            "sizeProgress"
-        )
-        .innerHTML =
-
-            sizeCounts
+        .getElementById("sizeProgress")
+        .innerHTML=
+            counts
                 .map(
                     item => {
 
-                        const percent =
+                        const percentage=
                             (
-                                item.count /
-                                maxSize
-                            ) * 100;
+                                item.count/max
+                            )*100;
 
 
                         return `
 
                             <div class="size-row">
 
-                                <div
-                                    class="size-row-top"
-                                >
+                                <div class="size-row-top">
 
                                     <strong>
                                         ${item.size}ml
                                     </strong>
 
                                     <span>
-                                        ${item.count}
-                                        sold
+                                        ${item.count} sold
                                     </span>
 
                                 </div>
 
-
-                                <div
-                                    class="progress-bar"
-                                >
+                                <div class="progress-bar">
 
                                     <div
                                         class="progress-fill"
                                         style="
-                                            width:
-                                            ${percent}%
+                                            width:${percentage}%
                                         "
                                     ></div>
 
@@ -4336,59 +3607,45 @@ function renderSelectedMonth() {
                 .join("");
 
 
-
-    /* =====================================================
-       DAILY PROGRESS
-    ====================================================== */
-
-    const daily = {};
+    const daily={};
 
 
     monthSales.forEach(
         sale => {
 
-            const date =
+            const date=
                 localDateKey(
                     getSaleDate(sale)
                 );
 
 
-            daily[date] =
-                (
-                    daily[date] || 0
-                ) +
+            daily[date]=
+                (daily[date]||0)+
                 Number(
-                    sale.amount || 0
+                    sale.amount||0
                 );
 
         }
     );
 
 
-    const dailyEntries =
+    const days=
         Object.entries(daily)
             .sort(
-                (
-                    [a],
-                    [b]
-                ) =>
+                ([a],[b]) =>
                     b.localeCompare(a)
             );
 
 
-    if (!dailyEntries.length) {
+    if(!days.length){
 
         document
-            .getElementById(
-                "dailyProgress"
-            )
-            .innerHTML = `
+            .getElementById("dailyProgress")
+            .innerHTML=`
 
                 <div class="empty">
-
                     No sales recorded
                     for this month.
-
                 </div>
 
             `;
@@ -4398,49 +3655,35 @@ function renderSelectedMonth() {
     }
 
 
-    const maxDaily =
+    const maxDay=
         Math.max(
             1,
-            ...dailyEntries.map(
-                (
-                    [, value]
-                ) =>
-                    value
+            ...days.map(
+                ([,value])=>value
             )
         );
 
 
     document
-        .getElementById(
-            "dailyProgress"
-        )
-        .innerHTML =
-
-            dailyEntries
+        .getElementById("dailyProgress")
+        .innerHTML=
+            days
                 .map(
-                    (
-                        [date, value]
-                    ) => {
+                    ([date,value]) => {
 
-                        const percent =
-                            (
-                                value /
-                                maxDaily
-                            ) * 100;
+                        const percentage=
+                            (value/maxDay)*100;
 
 
-                        const displayDate =
+                        const display=
                             new Date(
-                                date +
-                                "T00:00:00"
+                                date+"T00:00:00"
                             )
                             .toLocaleDateString(
                                 undefined,
                                 {
-                                    day:
-                                        "numeric",
-                                    month:
-                                        "short"
+                                    day:"numeric",
+                                    month:"short"
                                 }
                             );
 
@@ -4449,12 +3692,10 @@ function renderSelectedMonth() {
 
                             <div class="size-row">
 
-                                <div
-                                    class="size-row-top"
-                                >
+                                <div class="size-row-top">
 
                                     <strong>
-                                        ${displayDate}
+                                        ${display}
                                     </strong>
 
                                     <span>
@@ -4463,16 +3704,12 @@ function renderSelectedMonth() {
 
                                 </div>
 
-
-                                <div
-                                    class="progress-bar"
-                                >
+                                <div class="progress-bar">
 
                                     <div
                                         class="progress-fill"
                                         style="
-                                            width:
-                                            ${percent}%
+                                            width:${percentage}%
                                         "
                                     ></div>
 
@@ -4489,68 +3726,42 @@ function renderSelectedMonth() {
 }
 
 
-/* =========================================================
+/* =====================================================
    LOGOUT
-========================================================= */
+====================================================== */
 
 document
-    .getElementById("logoutBtn")
-    .addEventListener(
-        "click",
-        async () => {
+.getElementById("logoutBtn")
+.addEventListener(
+    "click",
+    async()=>{
 
-            try {
+        await supabaseClient.auth.signOut();
 
-                await supabaseClient.auth
-                    .signOut();
+        currentUser=null;
 
-            } catch (error) {
+        sales=[];
 
-                console.error(error);
+        showAuth();
 
-            }
-
-
-            currentUser = null;
-
-            sales = [];
-
-            showAuth();
-
-        }
-    );
+    }
+);
 
 
-/* =========================================================
-   GLOBAL FUNCTIONS
-========================================================= */
+/* =====================================================
+   GLOBAL
+====================================================== */
 
-window.openSaleModal =
-    openSaleModal;
-
-window.closeSaleModal =
-    closeSaleModal;
-
-window.selectSize =
-    selectSize;
-
-window.selectPayment =
-    selectPayment;
-
-window.selectDelivery =
-    selectDelivery;
-
-window.saveSale =
-    saveSale;
-
-window.editSale =
-    editSale;
-
-window.deleteSale =
-    deleteSale;
-
-window.showPage =
-    showPage;
+window.openSaleModal=openSaleModal;
+window.closeSaleModal=closeSaleModal;
+window.quickSale=quickSale;
+window.selectSize=selectSize;
+window.selectPayment=selectPayment;
+window.selectDelivery=selectDelivery;
+window.saveSale=saveSale;
+window.editSale=editSale;
+window.deleteSale=deleteSale;
+window.showPage=showPage;
 
 </script>
 
