@@ -1,0 +1,1211 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Essence & Co. — Perfume Sales Management</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Supabase JS SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Google Fonts: Playfair Display & Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        .font-serif {
+            font-family: 'Playfair Display', serif;
+        }
+        /* Custom scrollbar for sleek mobile/desktop feel */
+        ::-webkit-scrollbar {
+            width: 5px;
+            height: 5px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(212, 175, 55, 0.3);
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(212, 175, 55, 0.6);
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes popScale {
+            0% { transform: scale(0.8); opacity: 0; }
+            70% { transform: scale(1.05); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .animate-slide-right {
+            animation: slideInRight 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .animate-pop {
+            animation: popScale 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+    </style>
+</head>
+<body class="bg-[#0c0a09] text-[#f5f5f4] h-full antialiased selection:bg-[#d4af37] selection:text-black">
+
+    <!-- App Root Container -->
+    <div id="app" class="min-h-full flex flex-col justify-between max-w-md mx-auto relative bg-[#141210] shadow-2xl overflow-hidden border-x border-[#292524]">
+        
+        <!-- ================= 1. SPLASH SCREEN ================= -->
+        <div id="screen-splash" class="absolute inset-0 z-50 bg-[#0c0a09] flex flex-col items-center justify-center p-6 transition-opacity duration-700">
+            <div class="flex flex-col items-center text-center animate-pop">
+                <!-- Transparent Logo -->
+                <div class="w-32 h-32 mb-6 relative flex items-center justify-center">
+                    <img src="/images/splash-logo.png" alt="Essence & Co." class="max-w-full max-h-full object-contain drop-shadow-[0_10px_20px_rgba(212,175,55,0.2)]" onerror="this.src='https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&w=300&q=80'">
+                </div>
+                <h1 class="font-serif text-3xl font-bold tracking-wider text-[#d4af37] mb-2">ESSENCE & CO.</h1>
+                <p class="text-xs uppercase tracking-[0.3em] text-[#a8a29e]">Perfume Sales Management</p>
+            </div>
+            <div class="absolute bottom-10 text-[11px] text-[#78716c] tracking-widest uppercase">
+                Luxury Edition
+            </div>
+        </div>
+
+        <!-- ================= 2. LOGIN / SIGN UP SCREEN ================= -->
+        <div id="screen-auth" class="absolute inset-0 z-40 bg-[#0c0a09] flex flex-col hidden overflow-y-auto">
+            <!-- Login Hero Video -->
+            <div class="relative w-full h-64 bg-[#1c1917] overflow-hidden shrink-0">
+                <video id="login-hero-video" autoplay muted loop playsinline class="w-full h-full object-cover opacity-80 scale-105">
+                    <source src="/images/login-hero.mp4" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+                <div class="absolute inset-0 bg-gradient-to-t from-[#0c0a09] via-transparent to-transparent"></div>
+                
+                <!-- Animated Taglines Overlay -->
+                <div class="absolute bottom-4 left-6 right-6">
+                    <p id="auth-tagline" class="font-serif text-xl italic text-[#f5f5f4] drop-shadow-md transition-all duration-500 animate-slide-right">
+                        “Wear your presence.”
+                    </p>
+                </div>
+            </div>
+
+            <!-- Auth Form Container -->
+            <div class="flex-1 p-6 flex flex-col justify-center animate-fade-in">
+                <!-- Mode Switcher Tabs -->
+                <div class="flex border-b border-[#292524] mb-6">
+                    <button id="tab-signin-btn" onclick="switchAuthMode('signin')" class="flex-1 pb-3 text-sm font-medium tracking-wide text-[#d4af37] border-b-2 border-[#d4af37] transition-all">Sign In</button>
+                    <button id="tab-signup-btn" onclick="switchAuthMode('signup')" class="flex-1 pb-3 text-sm font-medium tracking-wide text-[#78716c] border-b-2 border-transparent transition-all">Sign Up</button>
+                </div>
+
+                <!-- Error / Success Alert Box -->
+                <div id="auth-alert" class="hidden mb-4 p-3 rounded-lg text-xs font-medium border"></div>
+
+                <!-- Sign In Form -->
+                <form id="form-signin" onsubmit="handleSignIn(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-medium uppercase tracking-wider text-[#a8a29e] mb-1.5">Email Address</label>
+                        <input type="email" id="signin-email" required class="w-full bg-[#1c1917] border border-[#292524] rounded-xl px-4 py-3 text-sm text-[#f5f5f4] focus:outline-none focus:border-[#d4af37] transition-colors" placeholder="shop@essence.com">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium uppercase tracking-wider text-[#a8a29e] mb-1.5">Password</label>
+                        <input type="password" id="signin-password" required class="w-full bg-[#1c1917] border border-[#292524] rounded-xl px-4 py-3 text-sm text-[#f5f5f4] focus:outline-none focus:border-[#d4af37] transition-colors" placeholder="••••••••">
+                    </div>
+                    <button type="submit" id="signin-submit-btn" class="w-full mt-2 bg-[#d4af37] text-black font-semibold py-3.5 px-4 rounded-xl text-sm tracking-wider uppercase hover:bg-[#c5a028] active:scale-[0.98] transition-all shadow-lg shadow-[#d4af37]/10 flex items-center justify-center space-x-2">
+                        <span>Sign In</span>
+                        <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    </button>
+                </form>
+
+                <!-- Sign Up Form -->
+                <form id="form-signup" onsubmit="handleSignUp(event)" class="space-y-4 hidden">
+                    <div>
+                        <label class="block text-xs font-medium uppercase tracking-wider text-[#a8a29e] mb-1.5">Full Name</label>
+                        <input type="text" id="signup-name" required class="w-full bg-[#1c1917] border border-[#292524] rounded-xl px-4 py-3 text-sm text-[#f5f5f4] focus:outline-none focus:border-[#d4af37] transition-colors" placeholder="Amina Luxury">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium uppercase tracking-wider text-[#a8a29e] mb-1.5">Email Address</label>
+                        <input type="email" id="signup-email" required class="w-full bg-[#1c1917] border border-[#292524] rounded-xl px-4 py-3 text-sm text-[#f5f5f4] focus:outline-none focus:border-[#d4af37] transition-colors" placeholder="shop@essence.com">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium uppercase tracking-wider text-[#a8a29e] mb-1.5">Password</label>
+                        <input type="password" id="signup-password" required minlength="6" class="w-full bg-[#1c1917] border border-[#292524] rounded-xl px-4 py-3 text-sm text-[#f5f5f4] focus:outline-none focus:border-[#d4af37] transition-colors" placeholder="At least 6 characters">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium uppercase tracking-wider text-[#a8a29e] mb-1.5">Confirm Password</label>
+                        <input type="password" id="signup-confirm-password" required minlength="6" class="w-full bg-[#1c1917] border border-[#292524] rounded-xl px-4 py-3 text-sm text-[#f5f5f4] focus:outline-none focus:border-[#d4af37] transition-colors" placeholder="Confirm password">
+                    </div>
+                    <button type="submit" id="signup-submit-btn" class="w-full mt-2 bg-[#d4af37] text-black font-semibold py-3.5 px-4 rounded-xl text-sm tracking-wider uppercase hover:bg-[#c5a028] active:scale-[0.98] transition-all shadow-lg shadow-[#d4af37]/10 flex items-center justify-center space-x-2">
+                        <span>Create Account</span>
+                        <i data-lucide="user-plus" class="w-4 h-4"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- ================= 3. MAIN APP INTERFACE ================= -->
+        <div id="screen-main" class="flex-1 flex flex-col hidden overflow-hidden">
+            
+            <!-- Top Header Bar -->
+            <header class="px-5 py-4 border-b border-[#292524] flex items-center justify-between bg-[#141210]/90 backdrop-blur-md sticky top-0 z-30">
+                <div class="flex items-center space-x-3">
+                    <div class="w-9 h-9 rounded-full bg-[#292524] border border-[#d4af37]/30 flex items-center justify-center text-[#d4af37] font-serif font-bold text-sm">
+                        E
+                    </div>
+                    <div>
+                        <h2 class="font-serif text-sm font-bold tracking-wide text-[#f5f5f4]">Essence & Co.</h2>
+                        <p id="header-user-email" class="text-[11px] text-[#a8a29e] truncate max-w-[140px]">shop@essence.com</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <button onclick="openAddSaleModal()" class="bg-[#d4af37] text-black px-3.5 py-2 rounded-xl text-xs font-semibold tracking-wider uppercase hover:bg-[#c5a028] active:scale-95 transition-all flex items-center space-x-1.5 shadow-md shadow-[#d4af37]/10">
+                        <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                        <span>Add Sale</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Scrollable Content Views Container -->
+            <main class="flex-1 overflow-y-auto pb-24 relative">
+                
+                <!-- VIEW 1: HOME -->
+                <div id="view-home" class="p-5 space-y-6 animate-fade-in">
+                    
+                    <!-- Home Hero Image -->
+                    <div class="w-full h-40 rounded-2xl overflow-hidden relative border border-[#292524] shadow-lg">
+                        <img id="home-hero-img" src="/images/home-hero.png" alt="Perfume Boutique" class="w-full h-full object-cover" onerror="this.src='https://images.unsplash.com/photo-1615397349754-cfa2066a298e?auto=format&fit=crop&w=600&q=80'">
+                        <div class="absolute inset-0 bg-gradient-to-t from-[#0c0a09]/90 via-[#0c0a09]/20 to-transparent flex flex-col justify-end p-4">
+                            <span class="text-[10px] tracking-[0.2em] uppercase text-[#d4af37] font-medium">Boutique Daily Overview</span>
+                            <h2 class="font-serif text-lg font-bold text-white" id="home-greeting">Welcome back</h2>
+                        </div>
+                    </div>
+
+                    <!-- Dashboard Metric Cards Grid -->
+                    <div class="grid grid-cols-2 gap-3">
+                        <!-- Today's Total -->
+                        <div class="bg-[#1c1917] border border-[#292524] rounded-2xl p-4 flex flex-col justify-between relative overflow-hidden group hover:border-[#d4af37]/50 transition-colors">
+                            <div class="absolute -right-3 -top-3 w-16 h-16 bg-[#d4af37]/5 rounded-full blur-xl"></div>
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-[11px] uppercase tracking-wider text-[#a8a29e] font-medium">Today's Total</span>
+                                <div class="w-7 h-7 rounded-lg bg-[#292524] flex items-center justify-center text-[#d4af37]">
+                                    <i data-lucide="trending-up" class="w-3.5 h-3.5"></i>
+                                </div>
+                            </div>
+                            <div>
+                                <h3 id="stat-todays-total" class="font-serif text-xl font-bold text-white tracking-tight">0</h3>
+                                <p class="text-[10px] text-[#78716c] mt-0.5">Amount sold today</p>
+                            </div>
+                        </div>
+
+                        <!-- Perfumes Sold Today -->
+                        <div class="bg-[#1c1917] border border-[#292524] rounded-2xl p-4 flex flex-col justify-between relative overflow-hidden group hover:border-[#d4af37]/50 transition-colors">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-[11px] uppercase tracking-wider text-[#a8a29e] font-medium">Perfumes Sold</span>
+                                <div class="w-7 h-7 rounded-lg bg-[#292524] flex items-center justify-center text-[#d4af37]">
+                                    <i data-lucide="package" class="w-3.5 h-3.5"></i>
+                                </div>
+                            </div>
+                            <div>
+                                <h3 id="stat-perfumes-sold-today" class="font-serif text-xl font-bold text-white tracking-tight">0</h3>
+                                <p class="text-[10px] text-[#78716c] mt-0.5">Total units today</p>
+                            </div>
+                        </div>
+
+                        <!-- Cash Today -->
+                        <div class="bg-[#1c1917] border border-[#292524] rounded-2xl p-4 flex flex-col justify-between">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-[11px] uppercase tracking-wider text-[#a8a29e] font-medium">Cash Today</span>
+                                <div class="w-7 h-7 rounded-lg bg-[#292524] flex items-center justify-center text-emerald-400">
+                                    <i data-lucide="banknote" class="w-3.5 h-3.5"></i>
+                                </div>
+                            </div>
+                            <div>
+                                <h3 id="stat-cash-today" class="font-serif text-lg font-bold text-white tracking-tight">0</h3>
+                                <p class="text-[10px] text-[#78716c] mt-0.5">Cash payments</p>
+                            </div>
+                        </div>
+
+                        <!-- Mobile Money Today -->
+                        <div class="bg-[#1c1917] border border-[#292524] rounded-2xl p-4 flex flex-col justify-between">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-[11px] uppercase tracking-wider text-[#a8a29e] font-medium">Mobile Money</span>
+                                <div class="w-7 h-7 rounded-lg bg-[#292524] flex items-center justify-center text-blue-400">
+                                    <i data-lucide="smartphone" class="w-3.5 h-3.5"></i>
+                                </div>
+                            </div>
+                            <div>
+                                <h3 id="stat-momo-today" class="font-serif text-lg font-bold text-white tracking-tight">0</h3>
+                                <p class="text-[10px] text-[#78716c] mt-0.5">M-Money payments</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Monthly Progress Quick Banner -->
+                    <div onclick="switchNavTab('progress')" class="bg-gradient-to-r from-[#1c1917] to-[#24201c] border border-[#d4af37]/30 rounded-2xl p-4 flex items-center justify-between cursor-pointer hover:border-[#d4af37] transition-all group">
+                        <div class="flex items-center space-x-3.5">
+                            <div class="w-10 h-10 rounded-xl bg-[#d4af37]/10 flex items-center justify-center text-[#d4af37] shrink-0 group-hover:scale-105 transition-transform">
+                                <i data-lucide="bar-chart-3" class="w-5 h-5"></i>
+                            </div>
+                            <div>
+                                <span class="text-[10px] uppercase tracking-wider text-[#d4af37] font-semibold">Monthly Performance</span>
+                                <h4 id="home-monthly-total" class="font-serif text-base font-bold text-white mt-0.5">0 Total Sold</h4>
+                            </div>
+                        </div>
+                        <i data-lucide="chevron-right" class="w-5 h-5 text-[#a8a29e] group-hover:translate-x-1 transition-transform"></i>
+                    </div>
+
+                    <!-- Recent Sales Section -->
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between">
+                            <h3 class="font-serif text-sm font-bold text-white tracking-wide">Recent Transactions</h3>
+                            <button onclick="switchNavTab('sales')" class="text-xs text-[#d4af37] hover:underline font-medium">View All</button>
+                        </div>
+                        <div id="home-recent-sales-list" class="space-y-2.5">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VIEW 2: SALES RECORDS -->
+                <div id="view-sales" class="p-5 space-y-4 hidden animate-fade-in">
+                    <div class="flex flex-col space-y-3">
+                        <div class="flex items-center justify-between">
+                            <h2 class="font-serif text-lg font-bold text-white">Sales Records</h2>
+                            <button onclick="openAddSaleModal()" class="bg-[#d4af37] text-black px-3 py-1.5 rounded-lg text-xs font-semibold uppercase tracking-wider hover:bg-[#c5a028] transition-all flex items-center space-x-1">
+                                <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                                <span>Add Sale</span>
+                            </button>
+                        </div>
+
+                        <!-- Search & Filters Bar -->
+                        <div class="space-y-2">
+                            <div class="relative">
+                                <i data-lucide="search" class="w-4 h-4 text-[#78716c] absolute left-3.5 top-3.5"></i>
+                                <input type="text" id="sales-search-input" oninput="renderSalesRecords()" placeholder="Search by size, payment, date..." class="w-full bg-[#1c1917] border border-[#292524] rounded-xl pl-10 pr-4 py-2.5 text-xs text-[#f5f5f4] focus:outline-none focus:border-[#d4af37] transition-colors">
+                            </div>
+                            <div class="flex items-center space-x-2 overflow-x-auto pb-1 text-xs">
+                                <select id="filter-size" onchange="renderSalesRecords()" class="bg-[#1c1917] border border-[#292524] rounded-lg px-2.5 py-1.5 text-[#a8a29e] focus:outline-none focus:border-[#d4af37]">
+                                    <option value="">All Sizes</option>
+                                    <option value="10ml">10ml</option>
+                                    <option value="20ml">20ml</option>
+                                    <option value="30ml">30ml</option>
+                                    <option value="50ml">50ml</option>
+                                    <option value="100ml">100ml</option>
+                                </select>
+                                <select id="filter-payment" onchange="renderSalesRecords()" class="bg-[#1c1917] border border-[#292524] rounded-lg px-2.5 py-1.5 text-[#a8a29e] focus:outline-none focus:border-[#d4af37]">
+                                    <option value="">All Payments</option>
+                                    <option value="Cash">Cash</option>
+                                    <option value="Mobile Money">Mobile Money</option>
+                                </select>
+                                <select id="filter-delivery" onchange="renderSalesRecords()" class="bg-[#1c1917] border border-[#292524] rounded-lg px-2.5 py-1.5 text-[#a8a29e] focus:outline-none focus:border-[#d4af37]">
+                                    <option value="">Delivery: All</option>
+                                    <option value="Yes">Delivery: Yes</option>
+                                    <option value="No">Delivery: No</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sales Transactions List -->
+                    <div id="sales-records-list" class="space-y-3 pt-1">
+                        <!-- Populated dynamically -->
+                    </div>
+                </div>
+
+                <!-- VIEW 3: MONTHLY PROGRESS -->
+                <div id="view-progress" class="p-5 space-y-6 hidden animate-fade-in">
+                    <div class="flex items-center justify-between">
+                        <h2 class="font-serif text-lg font-bold text-white">Monthly Progress</h2>
+                        <!-- Month Selector Dropdown -->
+                        <select id="progress-month-select" onchange="updateProgressView()" class="bg-[#1c1917] border border-[#292524] rounded-xl px-3 py-2 text-xs font-medium text-[#d4af37] focus:outline-none focus:border-[#d4af37]">
+                            <option value="0">January</option>
+                            <option value="1">February</option>
+                            <option value="2">March</option>
+                            <option value="3">April</option>
+                            <option value="4">May</option>
+                            <option value="5">June</option>
+                            <option value="6">July</option>
+                            <option value="7" selected>August</option>
+                            <option value="8">September</option>
+                            <option value="9">October</option>
+                            <option value="10">November</option>
+                            <option value="11">December</option>
+                        </select>
+                    </div>
+
+                    <!-- Monthly Summary Hero Card -->
+                    <div class="bg-gradient-to-br from-[#1c1917] to-[#141210] border border-[#d4af37]/30 rounded-2xl p-5 relative overflow-hidden shadow-lg">
+                        <div class="absolute right-0 bottom-0 translate-x-4 translate-y-4 w-32 h-32 bg-[#d4af37]/5 rounded-full blur-2xl"></div>
+                        <span id="progress-month-label" class="text-[11px] uppercase tracking-wider text-[#d4af37] font-semibold">August Progress</span>
+                        <div class="mt-2 flex items-baseline space-x-2">
+                            <h3 id="progress-total-amount" class="font-serif text-2xl font-bold text-white">0</h3>
+                            <span class="text-xs text-[#a8a29e]">Total Amount Sold</span>
+                        </div>
+                        <div class="mt-4 pt-4 border-t border-[#292524] grid grid-cols-2 gap-4">
+                            <div>
+                                <span class="text-[10px] uppercase text-[#78716c]">Total Perfumes Sold</span>
+                                <p id="progress-total-units" class="font-serif text-base font-bold text-white mt-0.5">0 units</p>
+                            </div>
+                            <div>
+                                <span class="text-[10px] uppercase text-[#78716c]">Deliveries Count</span>
+                                <p id="progress-total-deliveries" class="font-serif text-base font-bold text-white mt-0.5">0 deliveries</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Payment Breakdown -->
+                    <div class="bg-[#1c1917] border border-[#292524] rounded-2xl p-4 space-y-3">
+                        <h4 class="font-serif text-sm font-bold text-white tracking-wide">Payment Breakdown</h4>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="bg-[#141210] p-3 rounded-xl border border-[#292524]">
+                                <div class="flex items-center space-x-2 mb-1">
+                                    <div class="w-2 h-2 rounded-full bg-emerald-400"></div>
+                                    <span class="text-xs text-[#a8a29e]">Cash</span>
+                                </div>
+                                <p id="progress-cash-amount" class="font-serif text-base font-bold text-white">0</p>
+                            </div>
+                            <div class="bg-[#141210] p-3 rounded-xl border border-[#292524]">
+                                <div class="flex items-center space-x-2 mb-1">
+                                    <div class="w-2 h-2 rounded-full bg-blue-400"></div>
+                                    <span class="text-xs text-[#a8a29e]">Mobile Money</span>
+                                </div>
+                                <p id="progress-momo-amount" class="font-serif text-base font-bold text-white">0</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Perfume Size Breakdown -->
+                    <div class="bg-[#1c1917] border border-[#292524] rounded-2xl p-4 space-y-3">
+                        <h4 class="font-serif text-sm font-bold text-white tracking-wide">Perfume Size Breakdown</h4>
+                        <div id="progress-size-breakdown" class="space-y-2.5">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VIEW 4: PROFILE -->
+                <div id="view-profile" class="p-5 space-y-6 hidden animate-fade-in">
+                    <h2 class="font-serif text-lg font-bold text-white">Boutique Profile</h2>
+
+                    <div class="bg-[#1c1917] border border-[#292524] rounded-2xl p-5 space-y-4">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-14 h-14 rounded-2xl bg-[#d4af37]/10 border border-[#d4af37]/30 flex items-center justify-center text-[#d4af37] font-serif text-xl font-bold">
+                                E
+                            </div>
+                            <div>
+                                <h3 id="profile-name" class="font-serif text-base font-bold text-white">Amina Luxury</h3>
+                                <p id="profile-email" class="text-xs text-[#a8a29e] mt-0.5">shop@essence.com</p>
+                            </div>
+                        </div>
+                        <div class="pt-4 border-t border-[#292524] space-y-2">
+                            <div class="flex justify-between text-xs">
+                                <span class="text-[#78716c]">Account Type</span>
+                                <span class="text-[#d4af37] font-medium">Boutique Owner</span>
+                            </div>
+                            <div class="flex justify-between text-xs">
+                                <span class="text-[#78716c]">Data Storage</span>
+                                <span class="text-emerald-400 font-medium">Supabase Cloud (Secured)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button onclick="handleSignOut()" class="w-full bg-[#292524] hover:bg-red-500/10 hover:border-red-500/30 hover:text-red-400 border border-[#292524] text-[#f5f5f4] font-medium py-3.5 px-4 rounded-xl text-xs uppercase tracking-wider transition-all flex items-center justify-center space-x-2">
+                        <i data-lucide="log-out" class="w-4 h-4"></i>
+                        <span>Sign Out of Account</span>
+                    </button>
+                </div>
+
+            </main>
+
+            <!-- Bottom Navigation Bar -->
+            <nav class="absolute bottom-0 left-0 right-0 bg-[#141210]/95 backdrop-blur-md border-t border-[#292524] px-6 py-2.5 flex items-center justify-between z-30">
+                <button onclick="switchNavTab('home')" id="nav-btn-home" class="flex flex-col items-center space-y-1 text-[#d4af37] transition-colors">
+                    <i data-lucide="home" class="w-5 h-5"></i>
+                    <span class="text-[10px] font-medium tracking-wide">Home</span>
+                </button>
+                <button onclick="switchNavTab('sales')" id="nav-btn-sales" class="flex flex-col items-center space-y-1 text-[#78716c] hover:text-[#f5f5f4] transition-colors">
+                    <i data-lucide="receipt" class="w-5 h-5"></i>
+                    <span class="text-[10px] font-medium tracking-wide">Sales</span>
+                </button>
+                <button onclick="switchNavTab('progress')" id="nav-btn-progress" class="flex flex-col items-center space-y-1 text-[#78716c] hover:text-[#f5f5f4] transition-colors">
+                    <i data-lucide="bar-chart-2" class="w-5 h-5"></i>
+                    <span class="text-[10px] font-medium tracking-wide">Progress</span>
+                </button>
+                <button onclick="switchNavTab('profile')" id="nav-btn-profile" class="flex flex-col items-center space-y-1 text-[#78716c] hover:text-[#f5f5f4] transition-colors">
+                    <i data-lucide="user" class="w-5 h-5"></i>
+                    <span class="text-[10px] font-medium tracking-wide">Profile</span>
+                </button>
+            </nav>
+
+        </div>
+
+        <!-- ================= 4. ADD / EDIT SALE MODAL ================= -->
+        <div id="modal-sale" class="absolute inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
+            <div class="bg-[#1c1917] border-t sm:border border-[#292524] w-full max-w-md rounded-t-3xl sm:rounded-2xl p-6 space-y-5 animate-fade-in max-h-[90vh] overflow-y-auto">
+                <div class="flex items-center justify-between pb-3 border-b border-[#292524]">
+                    <h3 id="modal-sale-title" class="font-serif text-lg font-bold text-white">Record Perfume Sale</h3>
+                    <button onclick="closeAddSaleModal()" class="w-8 h-8 rounded-full bg-[#292524] flex items-center justify-center text-[#a8a29e] hover:text-white transition-colors">
+                        <i data-lucide="x" class="w-4 h-4"></i>
+                    </button>
+                </div>
+
+                <form id="form-sale" onsubmit="saveSaleRecord(event)" class="space-y-4">
+                    <input type="hidden" id="sale-edit-id">
+
+                    <!-- Perfume Size Selection Buttons -->
+                    <div>
+                        <label class="block text-xs font-medium uppercase tracking-wider text-[#a8a29e] mb-2">Perfume Size</label>
+                        <div class="grid grid-cols-5 gap-2" id="size-selection-buttons">
+                            <button type="button" onclick="selectPerfumeSize('10ml')" class="size-btn py-2.5 rounded-xl border border-[#292524] bg-[#141210] text-xs font-medium text-[#f5f5f4] hover:border-[#d4af37] transition-all" data-size="10ml">10ml</button>
+                            <button type="button" onclick="selectPerfumeSize('20ml')" class="size-btn py-2.5 rounded-xl border border-[#292524] bg-[#141210] text-xs font-medium text-[#f5f5f4] hover:border-[#d4af37] transition-all" data-size="20ml">20ml</button>
+                            <button type="button" onclick="selectPerfumeSize('30ml')" class="size-btn py-2.5 rounded-xl border border-[#292524] bg-[#141210] text-xs font-medium text-[#f5f5f4] hover:border-[#d4af37] transition-all" data-size="30ml">30ml</button>
+                            <button type="button" onclick="selectPerfumeSize('50ml')" class="size-btn py-2.5 rounded-xl border border-[#292524] bg-[#141210] text-xs font-medium text-[#f5f5f4] hover:border-[#d4af37] transition-all" data-size="50ml">50ml</button>
+                            <button type="button" onclick="selectPerfumeSize('100ml')" class="size-btn py-2.5 rounded-xl border border-[#292524] bg-[#141210] text-xs font-medium text-[#f5f5f4] hover:border-[#d4af37] transition-all" data-size="100ml">100ml</button>
+                        </div>
+                        <input type="hidden" id="sale-size" required value="">
+                    </div>
+
+                    <!-- Quantity & Amount -->
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-medium uppercase tracking-wider text-[#a8a29e] mb-1.5">Quantity</label>
+                            <input type="number" id="sale-quantity" min="1" value="1" required oninput="calculateTotalSaleAmount()" class="w-full bg-[#141210] border border-[#292524] rounded-xl px-3 py-2.5 text-sm text-[#f5f5f4] focus:outline-none focus:border-[#d4af37]">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium uppercase tracking-wider text-[#a8a29e] mb-1.5">Amount Received</label>
+                            <input type="number" id="sale-amount" min="0" step="any" required class="w-full bg-[#141210] border border-[#292524] rounded-xl px-3 py-2.5 text-sm text-[#f5f5f4] focus:outline-none focus:border-[#d4af37]" placeholder="0.00">
+                        </div>
+                    </div>
+
+                    <!-- Payment Method -->
+                    <div>
+                        <label class="block text-xs font-medium uppercase tracking-wider text-[#a8a29e] mb-2">Payment Method</label>
+                        <div class="grid grid-cols-2 gap-3">
+                            <button type="button" onclick="selectPaymentMethod('Cash')" class="pay-btn py-2.5 rounded-xl border border-[#292524] bg-[#141210] text-xs font-medium text-[#f5f5f4] hover:border-[#d4af37] transition-all" data-pay="Cash">Cash</button>
+                            <button type="button" onclick="selectPaymentMethod('Mobile Money')" class="pay-btn py-2.5 rounded-xl border border-[#292524] bg-[#141210] text-xs font-medium text-[#f5f5f4] hover:border-[#d4af37] transition-all" data-pay="Mobile Money">Mobile Money</button>
+                        </div>
+                        <input type="hidden" id="sale-payment" required value="">
+                    </div>
+
+                    <!-- Delivery Option -->
+                    <div>
+                        <label class="block text-xs font-medium uppercase tracking-wider text-[#a8a29e] mb-2">Delivery</label>
+                        <div class="grid grid-cols-2 gap-3">
+                            <button type="button" onclick="selectDelivery('No')" class="del-btn py-2.5 rounded-xl border border-[#292524] bg-[#141210] text-xs font-medium text-[#f5f5f4] hover:border-[#d4af37] transition-all" data-del="No">No Delivery</button>
+                            <button type="button" onclick="selectDelivery('Yes')" class="del-btn py-2.5 rounded-xl border border-[#292524] bg-[#141210] text-xs font-medium text-[#f5f5f4] hover:border-[#d4af37] transition-all" data-del="Yes">Yes, Delivery</button>
+                        </div>
+                        <input type="hidden" id="sale-delivery" required value="No">
+                    </div>
+
+                    <!-- Delivery Cost (Conditional) -->
+                    <div id="delivery-cost-container" class="hidden">
+                        <label class="block text-xs font-medium uppercase tracking-wider text-[#a8a29e] mb-1.5">Delivery Cost</label>
+                        <input type="number" id="sale-delivery-cost" min="0" step="any" value="0" class="w-full bg-[#141210] border border-[#292524] rounded-xl px-3 py-2.5 text-sm text-[#f5f5f4] focus:outline-none focus:border-[#d4af37]" placeholder="0.00">
+                    </div>
+
+                    <!-- Customer Contact / Name -->
+                    <div>
+                        <label class="block text-xs font-medium uppercase tracking-wider text-[#a8a29e] mb-1.5">Customer Name / Contact (Optional)</label>
+                        <input type="text" id="sale-customer" class="w-full bg-[#141210] border border-[#292524] rounded-xl px-3 py-2.5 text-sm text-[#f5f5f4] focus:outline-none focus:border-[#d4af37]" placeholder="e.g. John Doe / 0712345678">
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" class="w-full bg-[#d4af37] text-black font-semibold py-3.5 px-4 rounded-xl text-sm tracking-wider uppercase hover:bg-[#c5a028] active:scale-[0.98] transition-all shadow-lg shadow-[#d4af37]/10 flex items-center justify-center space-x-2 mt-4">
+                        <i data-lucide="check" class="w-4 h-4"></i>
+                        <span>Save Sale Record</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Application JavaScript Logic -->
+    <script>
+        // --- Supabase Client Setup ---
+        const SUPABASE_URL = 'https://zudqubbglwphfxaviqsg.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp1ZHF1YmJnbHdwaGZ4YXZpcXNnIiwicm9sZSI6ImFub24iLCJpYXQiOjN9.eyJhcmciOg=='; // Standard public anon config placeholder or mock if needed
+        // We will initialize supabase client safely:
+        let supabaseClient = null;
+        try {
+            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        } catch (e) {
+            console.error('Supabase initialization error:', e);
+        }
+
+        // --- Application State ---
+        let currentUser = null;
+        let salesData = []; // InMemory cache synced with Supabase
+        
+        // Standard pricing guide defaults for quick calculation
+        const defaultPrices = { '10ml': 5000, '20ml': 10000, '30ml': 15000, '50ml': 25000, '100ml': 45000 };
+
+        // --- Initialization & Lifecycle ---
+        window.addEventListener('DOMContentLoaded', async () => {
+            lucide.createIcons();
+            initLoginTaglines();
+            
+            // Simulate Splash Screen transition (1.8 seconds)
+            setTimeout(async () => {
+                const splash = document.getElementById('screen-splash');
+                splash.classList.add('opacity-0');
+                setTimeout(() => splash.remove(), 700);
+
+                // Check Supabase session
+                if (supabaseClient) {
+                    try {
+                        const { data: { session } } = await supabaseClient.auth.getSession();
+                        if (session && session.user) {
+                            currentUser = session.user;
+                            await enterMainApp();
+                            return;
+                        }
+                    } catch (err) {
+                        console.error('Session check error:', err);
+                    }
+                }
+                
+                // Fallback to Auth Screen
+                showAuthScreen();
+            }, 1800);
+        });
+
+        // --- Tagline Animation for Login ---
+        let taglineInterval = null;
+        function initLoginTaglines() {
+            const taglines = [
+                "“Wear your presence.”",
+                "“Every scent tells a story.”",
+                "“Manage every sale.”",
+                "“Grow your perfume business.”"
+            ];
+            let index = 0;
+            const el = document.getElementById('auth-tagline');
+            if (!el) return;
+            
+            taglineInterval = setInterval(() => {
+                index = (index + 1) % taglines.length;
+                el.style.opacity = '0';
+                setTimeout(() => {
+                    el.textContent = taglines[index];
+                    el.style.opacity = '1';
+                }, 300);
+            }, 4000);
+        }
+
+        // --- Auth Navigation & Mode Switching ---
+        function showAuthScreen() {
+            document.getElementById('screen-auth').classList.remove('hidden');
+            document.getElementById('screen-main').classList.add('hidden');
+        }
+
+        function switchAuthMode(mode) {
+            const signinForm = document.getElementById('form-signin');
+            const signupForm = document.getElementById('form-signup');
+            const signinBtn = document.getElementById('tab-signin-btn');
+            const signupBtn = document.getElementById('tab-signup-btn');
+            hideAuthAlert();
+
+            if (mode === 'signin') {
+                signinForm.classList.remove('hidden');
+                signupForm.classList.add('hidden');
+                signinBtn.className = "flex-1 pb-3 text-sm font-medium tracking-wide text-[#d4af37] border-b-2 border-[#d4af37] transition-all";
+                signupBtn.className = "flex-1 pb-3 text-sm font-medium tracking-wide text-[#78716c] border-b-2 border-transparent transition-all";
+            } else {
+                signinForm.classList.add('hidden');
+                signupForm.classList.remove('hidden');
+                signupBtn.className = "flex-1 pb-3 text-sm font-medium tracking-wide text-[#d4af37] border-b-2 border-[#d4af37] transition-all";
+                signinBtn.className = "flex-1 pb-3 text-sm font-medium tracking-wide text-[#78716c] border-b-2 border-transparent transition-all";
+            }
+        }
+
+        function showAuthAlert(message, isError = true) {
+            const alertBox = document.getElementById('auth-alert');
+            alertBox.textContent = message;
+            alertBox.className = `mb-4 p-3 rounded-lg text-xs font-medium border ${isError ? 'bg-red-500/10 border-red-500/30 text-red-400' : 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'}`;
+            alertBox.classList.remove('hidden');
+        }
+
+        function hideAuthAlert() {
+            document.getElementById('auth-alert').classList.add('hidden');
+        }
+
+        // --- Authentication Handlers ---
+        async function handleSignIn(e) {
+            e.preventDefault();
+            hideAuthAlert();
+            const email = document.getElementById('signin-email').value.trim();
+            const password = document.getElementById('signin-password').value;
+
+            if (!supabaseClient) {
+                // Local mock fallback for instant offline testing if needed
+                currentUser = { id: 'mock-user-id', email };
+                await enterMainApp();
+                return;
+            }
+
+            try {
+                const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+                if (error) throw error;
+                currentUser = data.user;
+                await enterMainApp();
+            } catch (err) {
+                showAuthAlert(err.message || 'Failed to sign in. Please check your credentials.');
+            }
+        }
+
+        async function handleSignUp(e) {
+            e.preventDefault();
+            hideAuthAlert();
+            const name = document.getElementById('signup-name').value.trim();
+            const email = document.getElementById('signup-email').value.trim();
+            const password = document.getElementById('signup-password').value;
+            const confirmPassword = document.getElementById('signup-confirm-password').value;
+
+            if (password !== confirmPassword) {
+                showAuthAlert('Passwords do not match. Please verify.');
+                return;
+            }
+
+            if (!supabaseClient) {
+                currentUser = { id: 'mock-user-id', email };
+                await enterMainApp();
+                return;
+            }
+
+            try {
+                const { data, error } = await supabaseClient.auth.signUp({
+                    email,
+                    password,
+                    options: { data: { full_name: name } }
+                });
+                if (error) throw error;
+                if (data.session) {
+                    currentUser = data.session.user;
+                    await enterMainApp();
+                } else {
+                    showAuthAlert('Account created successfully! Please sign in.', false);
+                    switchAuthMode('signin');
+                }
+            } catch (err) {
+                showAuthAlert(err.message || 'Failed to create account.');
+            }
+        }
+
+        async function handleSignOut() {
+            if (supabaseClient) {
+                await supabaseClient.auth.signOut();
+            }
+            currentUser = null;
+            salesData = [];
+            document.getElementById('screen-main').classList.add('hidden');
+            showAuthScreen();
+        }
+
+        // --- Enter Main Application ---
+        async function enterMainApp() {
+            document.getElementById('screen-auth').classList.add('hidden');
+            document.getElementById('screen-splash').remove();
+            document.getElementById('screen-main').classList.remove('hidden');
+            
+            if (currentUser) {
+                document.getElementById('header-user-email').textContent = currentUser.email || 'Boutique Owner';
+                document.getElementById('profile-email').textContent = currentUser.email || 'shop@essence.com';
+                if (currentUser.user_metadata && currentUser.user_metadata.full_name) {
+                    document.getElementById('profile-name').textContent = currentUser.user_metadata.full_name;
+                    document.getElementById('home-greeting').textContent = `Welcome, ${currentUser.user_metadata.full_name}`;
+                }
+            }
+
+            await fetchSalesData();
+            switchNavTab('home');
+        }
+
+        // --- Data Persistence & Supabase Operations ---
+        async function fetchSalesData() {
+            if (!supabaseClient || !currentUser) {
+                // Load from localStorage mock if offline
+                const cached = localStorage.getItem('essence_sales_' + (currentUser ? currentUser.id : 'guest'));
+                salesData = cached ? JSON.parse(cached) : [];
+                updateAllUI();
+                return;
+            }
+
+            try {
+                const { data, error } = await supabaseClient
+                    .from('perfume_sales')
+                    .select('*')
+                    .eq('user_id', currentUser.id)
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+                salesData = data || [];
+                updateAllUI();
+            } catch (err) {
+                console.error('Error fetching sales from Supabase:', err);
+                // Fallback to local cache
+                const cached = localStorage.getItem('essence_sales_' + currentUser.id);
+                salesData = cached ? JSON.parse(cached) : [];
+                updateAllUI();
+            }
+        }
+
+        async function saveSaleToDatabase(saleRecord) {
+            if (!supabaseClient || !currentUser) {
+                // Local save
+                salesData.unshift(saleRecord);
+                localStorage.setItem('essence_sales_' + (currentUser ? currentUser.id : 'guest'), JSON.stringify(salesData));
+                updateAllUI();
+                return;
+            }
+
+            try {
+                if (saleRecord.id && saleRecord.id.toString().length > 15) {
+                    // Update existing record
+                    const { error } = await supabaseClient
+                        .from('perfume_sales')
+                        .update(saleRecord)
+                        .eq('id', saleRecord.id);
+                    if (error) throw error;
+                } else {
+                    // Insert new record
+                    const { data, error } = await supabaseClient
+                        .from('perfume_sales')
+                        .insert([saleRecord])
+                        .select();
+                    if (error) throw error;
+                    if (data && data[0]) {
+                        saleRecord.id = data[0].id;
+                    }
+                }
+                await fetchSalesData();
+            } catch (err) {
+                console.error('Error saving sale:', err);
+                alert('Error saving sale record. Stored locally.');
+                salesData.unshift(saleRecord);
+                updateAllUI();
+            }
+        }
+
+        async function deleteSaleFromDatabase(saleId) {
+            if (!supabaseClient || !currentUser) {
+                salesData = salesData.filter(s => s.id !== saleId);
+                localStorage.setItem('essence_sales_' + (currentUser ? currentUser.id : 'guest'), JSON.stringify(salesData));
+                updateAllUI();
+                return;
+            }
+
+            try {
+                const { error } = await supabaseClient
+                    .from('perfume_sales')
+                    .delete()
+                    .eq('id', saleId);
+                if (error) throw error;
+                await fetchSalesData();
+            } catch (err) {
+                console.error('Error deleting sale:', err);
+                salesData = salesData.filter(s => s.id !== saleId);
+                updateAllUI();
+            }
+        }
+
+        // --- Navigation Controller ---
+        function switchNavTab(tabName) {
+            const views = ['home', 'sales', 'progress', 'profile'];
+            views.forEach(v => {
+                const el = document.getElementById(`view-${v}`);
+                const btn = document.getElementById(`nav-btn-${v}`);
+                if (v === tabName) {
+                    el.classList.remove('hidden');
+                    if(btn) btn.className = "flex flex-col items-center space-y-1 text-[#d4af37] transition-colors";
+                } else {
+                    el.classList.add('hidden');
+                    if(btn) btn.className = "flex flex-col items-center space-y-1 text-[#78716c] hover:text-[#f5f5f4] transition-colors";
+                }
+            });
+
+            // Refresh specific view renderers
+            if (tabName === 'home') renderHomeView();
+            if (tabName === 'sales') renderSalesRecords();
+            if (tabName === 'progress') updateProgressView();
+            
+            // Scroll to top
+            document.querySelector('main').scrollTop = 0;
+        }
+
+        // --- Modal & Form Interaction ---
+        function openAddSaleModal(editId = null) {
+            const modal = document.getElementById('modal-sale');
+            modal.classList.remove('hidden');
+            document.getElementById('form-sale').reset();
+            document.getElementById('sale-edit-id').value = '';
+            document.getElementById('modal-sale-title').textContent = 'Record Perfume Sale';
+
+            // Reset buttons styling
+            document.querySelectorAll('.size-btn').forEach(b => b.className = "size-btn py-2.5 rounded-xl border border-[#292524] bg-[#141210] text-xs font-medium text-[#f5f5f4] hover:border-[#d4af37] transition-all");
+            document.querySelectorAll('.pay-btn').forEach(b => b.className = "pay-btn py-2.5 rounded-xl border border-[#292524] bg-[#141210] text-xs font-medium text-[#f5f5f4] hover:border-[#d4af37] transition-all");
+            document.querySelectorAll('.del-btn').forEach(b => b.className = "del-btn py-2.5 rounded-xl border border-[#292524] bg-[#141210] text-xs font-medium text-[#f5f5f4] hover:border-[#d4af37] transition-all");
+            
+            document.getElementById('sale-size').value = '';
+            document.getElementById('sale-payment').value = '';
+            document.getElementById('sale-delivery').value = 'No';
+            document.getElementById('delivery-cost-container').classList.add('hidden');
+            
+            // Default select 30ml and Cash for ultra quick entry
+            selectPerfumeSize('30ml');
+            selectPaymentMethod('Cash');
+            selectDelivery('No');
+
+            if (editId) {
+                const sale = salesData.find(s => s.id === editId || s.id == editId);
+                if (sale) {
+                    document.getElementById('modal-sale-title').textContent = 'Edit Perfume Sale';
+                    document.getElementById('sale-edit-id').value = sale.id;
+                    selectPerfumeSize(sale.perfume_size || sale.size);
+                    document.getElementById('sale-quantity').value = sale.quantity;
+                    document.getElementById('sale-amount').value = sale.amount_received || sale.amount;
+                    selectPaymentMethod(sale.payment_method);
+                    selectDelivery(sale.delivery);
+                    if (sale.delivery === 'Yes') {
+                        document.getElementById('sale-delivery-cost').value = sale.delivery_cost || 0;
+                    }
+                    document.getElementById('sale-customer').value = sale.customer || '';
+                }
+            }
+        }
+
+        function closeAddSaleModal() {
+            document.getElementById('modal-sale').classList.add('hidden');
+        }
+
+        function selectPerfumeSize(size) {
+            document.querySelectorAll('.size-btn').forEach(b => {
+                if (b.dataset.size === size) {
+                    b.className = "size-btn py-2.5 rounded-xl border-2 border-[#d4af37] bg-[#d4af37]/10 text-xs font-bold text-[#d4af37] transition-all shadow-sm";
+                } else {
+                    b.className = "size-btn py-2.5 rounded-xl border border-[#292524] bg-[#141210] text-xs font-medium text-[#f5f5f4] hover:border-[#d4af37] transition-all";
+                }
+            });
+            document.getElementById('sale-size').value = size;
+            calculateTotalSaleAmount();
+        }
+
+        function selectPaymentMethod(method) {
+            document.querySelectorAll('.pay-btn').forEach(b => {
+                if (b.dataset.pay === method) {
+                    b.className = "pay-btn py-2.5 rounded-xl border-2 border-[#d4af37] bg-[#d4af37]/10 text-xs font-bold text-[#d4af37] transition-all shadow-sm";
+                } else {
+                    b.className = "pay-btn py-2.5 rounded-xl border border-[#292524] bg-[#141210] text-xs font-medium text-[#f5f5f4] hover:border-[#d4af37] transition-all";
+                }
+            });
+            document.getElementById('sale-payment').value = method;
+        }
+
+        function selectDelivery(status) {
+            document.querySelectorAll('.del-btn').forEach(b => {
+                if (b.dataset.del === status) {
+                    b.className = "del-btn py-2.5 rounded-xl border-2 border-[#d4af37] bg-[#d4af37]/10 text-xs font-bold text-[#d4af37] transition-all shadow-sm";
+                } else {
+                    b.className = "del-btn py-2.5 rounded-xl border border-[#292524] bg-[#141210] text-xs font-medium text-[#f5f5f4] hover:border-[#d4af37] transition-all";
+                }
+            });
+            document.getElementById('sale-delivery').value = status;
+            const deliveryContainer = document.getElementById('delivery-cost-container');
+            if (status === 'Yes') {
+                deliveryContainer.classList.remove('hidden');
+            } else {
+                deliveryContainer.classList.add('hidden');
+                document.getElementById('sale-delivery-cost').value = 0;
+            }
+        }
+
+        function calculateTotalSaleAmount() {
+            const size = document.getElementById('sale-size').value;
+            const qty = parseInt(document.getElementById('sale-quantity').value) || 1;
+            if (size && defaultPrices[size]) {
+                const calculated = defaultPrices[size] * qty;
+                const amountInput = document.getElementById('sale-amount');
+                if (!amountInput.value || amountInput.value == 0) {
+                    amountInput.value = calculated;
+                }
+            }
+        }
+
+        async function saveSaleRecord(e) {
+            e.preventDefault();
+            const editId = document.getElementById('sale-edit-id').value;
+            const size = document.getElementById('sale-size').value;
+            const quantity = parseInt(document.getElementById('sale-quantity').value) || 1;
+            const amount = parseFloat(document.getElementById('sale-amount').value) || 0;
+            const payment = document.getElementById('sale-payment').value;
+            const delivery = document.getElementById('sale-delivery').value;
+            const deliveryCost = delivery === 'Yes' ? (parseFloat(document.getElementById('sale-delivery-cost').value) || 0) : 0;
+            const customer = document.getElementById('sale-customer').value.trim();
+
+            if (!size) {
+                alert('Please select a perfume size.');
+                return;
+            }
+            if (!payment) {
+                alert('Please select a payment method.');
+                return;
+            }
+
+            const now = new Date();
+            const saleRecord = {
+                id: editId ? (isNaN(editId) ? editId : Number(editId)) : 'sale_' + Date.now(),
+                user_id: currentUser ? currentUser.id : 'guest',
+                perfume_size: size,
+                quantity: quantity,
+                amount_received: amount,
+                payment_method: payment,
+                delivery: delivery,
+                delivery_cost: deliveryCost,
+                customer: customer,
+                transaction_id: 'TXN-' + Math.floor(100000 + Math.random() * 900000),
+                created_at: editId ? (salesData.find(s => s.id == editId)?.created_at || now.toISOString()) : now.toISOString()
+            };
+
+            await saveSaleToDatabase(saleRecord);
+            closeAddSaleModal();
+            updateAllUI();
+        }
+
+        async function removeSale(id) {
+            if (confirm('Are you sure you want to delete this sales transaction? All totals will update automatically.')) {
+                await deleteSaleFromDatabase(id);
+            }
+        }
+
+        // --- Automatic Calculations & UI Renderers ---
+        function updateAllUI() {
+            renderHomeView();
+            renderSalesRecords();
+            updateProgressView();
+            lucide.createIcons();
+        }
+
+        function renderHomeView() {
+            const todayStr = new Date().toISOString().split('T')[0];
+            
+            let todaysTotal = 0;
+            let perfumesSoldToday = 0;
+            let cashToday = 0;
+            let momoToday = 0;
+            let deliveryTodayCount = 0;
+            let monthlyTotalAmount = 0;
+
+            const currentMonthIndex = new Date().getMonth();
+            const currentYear = new Date().getFullYear();
+
+            salesData.forEach(sale => {
+                const saleDateObj = new Date(sale.created_at);
+                const saleDateStr = saleDateObj.toISOString().split('T')[0];
+                const amount = parseFloat(sale.amount_received || sale.amount || 0);
+                const qty = parseInt(sale.quantity || 1);
+
+                // Today's metrics
+                if (saleDateStr === todayStr) {
+                    todaysTotal += amount;
+                    perfumesSoldToday += qty;
+                    if (sale.payment_method === 'Cash') cashToday += amount;
+                    if (sale.payment_method === 'Mobile Money') momoToday += amount;
+                    if (sale.delivery === 'Yes') deliveryTodayCount++;
+                }
+
+                // Monthly metrics (Current month)
+                if (saleDateObj.getMonth() === currentMonthIndex && saleDateObj.getFullYear() === currentYear) {
+                    monthlyTotalAmount += amount;
+                }
+            });
+
+            // Update DOM Stats
+            document.getElementById('stat-todays-total').textContent = todaysTotal.toLocaleString();
+            document.getElementById('stat-perfumes-sold-today').textContent = perfumesSoldToday.toLocaleString();
+            document.getElementById('stat-cash-today').textContent = cashToday.toLocaleString();
+            document.getElementById('stat-momo-today').textContent = momoToday.toLocaleString();
+            document.getElementById('home-monthly-total').textContent = `${monthlyTotalAmount.toLocaleString()} Total Sold`;
+
+            // Recent Sales List (Top 5)
+            const recentListContainer = document.getElementById('home-recent-sales-list');
+            if (salesData.length === 0) {
+                recentListContainer.innerHTML = `
+                    <div class="bg-[#1c1917] border border-[#292524] rounded-2xl p-6 text-center space-y-2">
+                        <i data-lucide="receipt" class="w-8 h-8 text-[#78716c] mx-auto"></i>
+                        <p class="text-xs text-[#a8a29e]">No sales recorded yet today.</p>
+                        <button onclick="openAddSaleModal()" class="text-xs text-[#d4af37] font-semibold underline">Record your first sale</button>
+                    </div>
+                `;
+            } else {
+                recentListContainer.innerHTML = salesData.slice(0, 5).map(sale => {
+                    const timeStr = new Date(sale.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    const amt = parseFloat(sale.amount_received || sale.amount || 0);
+                    return `
+                        <div class="bg-[#1c1917] border border-[#292524] rounded-xl p-3.5 flex items-center justify-between hover:border-[#d4af37]/30 transition-all">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-9 h-9 rounded-xl bg-[#292524] border border-[#d4af37]/20 flex items-center justify-center text-[#d4af37] font-serif font-bold text-xs shrink-0">
+                                    ${sale.perfume_size || sale.size}
+                                </div>
+                                <div>
+                                    <div class="flex items-center space-x-2">
+                                        <span class="text-xs font-semibold text-white">${sale.quantity}x Perfume (${sale.perfume_size || sale.size})</span>
+                                        <span class="text-[10px] px-1.5 py-0.5 rounded bg-[#292524] text-[#a8a29e]">${sale.payment_method}</span>
+                                    </div>
+                                    <p class="text-[10px] text-[#78716c] mt-0.5">${timeStr} ${sale.delivery === 'Yes' ? '• Delivery' : ''} ${sale.customer ? '• ' + sale.customer : ''}</p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <span class="font-serif text-sm font-bold text-[#d4af37]">${amt.toLocaleString()}</span>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+
+        function renderSalesRecords() {
+            const listContainer = document.getElementById('sales-records-list');
+            const searchVal = document.getElementById('sales-search-input').value.toLowerCase();
+            const filterSize = document.getElementById('filter-size').value;
+            const filterPayment = document.getElementById('filter-payment').value;
+            const filterDelivery = document.getElementById('filter-delivery').value;
+
+            const filtered = salesData.filter(sale => {
+                const size = sale.perfume_size || sale.size || '';
+                const pay = sale.payment_method || '';
+                const del = sale.delivery || '';
+                const cust = sale.customer || '';
+                const txn = sale.transaction_id || '';
+                const matchSearch = !searchVal || size.toLowerCase().includes(searchVal) || pay.toLowerCase().includes(searchVal) || cust.toLowerCase().includes(searchVal) || txn.toLowerCase().includes(searchVal);
+                const matchSize = !filterSize || size === filterSize;
+                const matchPayment = !filterPayment || pay === filterPayment;
+                const matchDelivery = !filterDelivery || del === filterDelivery;
+                return matchSearch && matchSize && matchPayment && matchDelivery;
+            });
+
+            if (filtered.length === 0) {
+                listContainer.innerHTML = `
+                    <div class="bg-[#1c1917] border border-[#292524] rounded-2xl p-8 text-center space-y-3">
+                        <i data-lucide="search-x" class="w-10 h-10 text-[#78716c] mx-auto"></i>
+                        <h4 class="font-serif text-sm font-bold text-white">No transactions found</h4>
+                        <p class="text-xs text-[#a8a29e]">Try adjusting your search or filters, or add a new sale.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            listContainer.innerHTML = filtered.map(sale => {
+                const dateObj = new Date(sale.created_at);
+                const dateStr = dateObj.toLocaleDateString();
+                const timeStr = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                const amt = parseFloat(sale.amount_received || sale.amount || 0);
+                return `
+                    <div class="bg-[#1c1917] border border-[#292524] rounded-xl p-4 flex flex-col space-y-3 hover:border-[#d4af37]/40 transition-all">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-2.5">
+                                <div class="w-10 h-10 rounded-xl bg-[#292524] border border-[#d4af37]/30 flex items-center justify-center text-[#d4af37] font-serif font-bold text-xs">
+                                    ${sale.perfume_size || sale.size}
+                                </div>
+                                <div>
+                                    <div class="flex items-center space-x-2">
+                                        <h4 class="text-xs font-bold text-white">${sale.quantity}x Perfume Bottle</h4>
+                                        <span class="text-[10px] px-2 py-0.5 rounded-full ${sale.payment_method === 'Cash' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-blue-500/10 text-blue-400 border border-blue-500/20'}">${sale.payment_method}</span>
+                                    </div>
+                                    <p class="text-[10px] text-[#78716c] mt-0.5">${dateStr} at ${timeStr} ${sale.transaction_id ? '• ' + sale.transaction_id : ''}</p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <span class="font-serif text-base font-bold text-white">${amt.toLocaleString()}</span>
+                            </div>
+                        </div>
+
+                        ${sale.delivery === 'Yes' || sale.customer ? `
+                            <div class="pt-2.5 border-t border-[#292524] flex items-center justify-between text-[11px] text-[#a8a29e]">
+                                <span>${sale.delivery === 'Yes' ? `Delivery (Cost: ${sale.delivery_cost || 0})` : 'No Delivery'}</span>
+                                <span>${sale.customer ? 'Customer: ' + sale.customer : ''}</span>
+                            </div>
+                        ` : ''}
+
+                        <div class="pt-2 border-t border-[#292524] flex items-center justify-end space-x-3 text-xs">
+                            <button onclick="openAddSaleModal('${sale.id}')" class="text-[#d4af37] hover:underline font-medium flex items-center space-x-1">
+                                <i data-lucide="edit-2" class="w-3 h-3"></i>
+                                <span>Edit</span>
+                            </button>
+                            <span class="text-[#292524]">|</span>
+                            <button onclick="removeSale('${sale.id}')" class="text-red-400 hover:underline font-medium flex items-center space-x-1">
+                                <i data-lucide="trash-2" class="w-3 h-3"></i>
+                                <span>Delete</span>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateProgressView() {
+            const monthSelect = document.getElementById('progress-month-select');
+            const selectedMonthIndex = parseInt(monthSelect.value);
+            const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+            document.getElementById('progress-month-label').textContent = `${monthNames[selectedMonthIndex]} Progress`;
+
+            let totalAmount = 0;
+            let totalUnits = 0;
+            let cashTotal = 0;
+            let momoTotal = 0;
+            let deliveryCount = 0;
+            let sizeBreakdown = { '10ml': 0, '20ml': 0, '30ml': 0, '50ml': 0, '100ml': 0 };
+
+            salesData.forEach(sale => {
+                const saleDate = new Date(sale.created_at);
+                if (saleDate.getMonth() === selectedMonthIndex) {
+                    const amount = parseFloat(sale.amount_received || sale.amount || 0);
+                    const qty = parseInt(sale.quantity || 1);
+                    const size = sale.perfume_size || sale.size;
+
+                    totalAmount += amount;
+                    totalUnits += qty;
+                    if (sale.payment_method === 'Cash') cashTotal += amount;
+                    if (sale.payment_method === 'Mobile Money') momoTotal += amount;
+                    if (sale.delivery === 'Yes') deliveryCount++;
+                    if (size && sizeBreakdown[size] !== undefined) {
+                        sizeBreakdown[size] += qty;
+                    }
+                }
+            });
+
+            document.getElementById('progress-total-amount').textContent = totalAmount.toLocaleString();
+            document.getElementById('progress-total-units').textContent = `${totalUnits} units`;
+            document.getElementById('progress-total-deliveries').textContent = `${deliveryCount} deliveries`;
+            document.getElementById('progress-cash-amount').textContent = cashTotal.toLocaleString();
+            document.getElementById('progress-momo-amount').textContent = momoTotal.toLocaleString();
+
+            // Size Breakdown bars
+            const sizeContainer = document.getElementById('progress-size-breakdown');
+            const maxQty = Math.max(...Object.values(sizeBreakdown), 1);
+            
+            sizeContainer.innerHTML = Object.entries(sizeBreakdown).map(([size, count]) => {
+                const percentage = Math.round((count / maxQty) * 100);
+                return `
+                    <div class="space-y-1">
+                        <div class="flex justify-between text-xs">
+                            <span class="text-white font-medium">${size} Perfume</span>
+                            <span class="text-[#d4af37] font-bold">${count} sold</span>
+                        </div>
+                        <div class="w-full h-2 bg-[#141210] rounded-full overflow-hidden border border-[#292524]">
+                            <div class="h-full bg-[#d4af37] rounded-full transition-all duration-500" style="width: ${percentage}%"></div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+    </script>
+</body>
+</html>
