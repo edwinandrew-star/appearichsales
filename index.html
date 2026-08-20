@@ -2160,6 +2160,52 @@
 
     }
 
+/* GLAMO EXPENSES - Record Keeping Only */
+
+  .expenses-card { background:var(--card-bg); border:1px solid var(--card-border); border-radius:18px; padding:16px; margin-bottom:14px; box-shadow:0 4px 12px var(--shadow-color); }
+
+  .expense-item { background:var(--card-bg); border:1px solid var(--card-border); border-radius:14px; padding:12px; margin-bottom:10px; }
+
+  .expense-item-head { display:flex; justify-content:space-between; align-items:flex-start; gap:10px; }
+
+  .expense-name { font-size:.88rem; font-weight:900; }
+
+  .expense-meta { font-size:.7rem; color:var(--text-sub); margin-top:3px; }
+
+  .expense-amount { font-size:.9rem; font-weight:900; color:var(--accent-gold); white-space:nowrap; }
+
+  .expense-notes { font-size:.74rem; color:var(--text-sub); margin-top:7px; line-height:1.4; }
+
+  .expense-actions { display:flex; gap:7px; margin-top:9px; }
+
+  .expense-action { flex:1; padding:7px; border-radius:9px; border:1px solid var(--card-border); background:var(--card-bg-sub); color:var(--text-main); font-size:.72rem; font-weight:800; cursor:pointer; }
+
+  .expense-action.delete { color:#e74c3c; border-color:#e74c3c; }
+
+  .expense-empty { font-size:.78rem; color:var(--text-sub); text-align:center; padding:14px 4px; }
+
+  .expense-total-box { background:var(--card-bg-sub); border:1.5px solid var(--accent-gold); border-radius:12px; padding:11px 13px; margin-bottom:12px; display:flex; justify-content:space-between; align-items:center; }
+
+  .expense-total-label { font-size:.75rem; font-weight:800; color:var(--text-sub); }
+
+  .expense-total-value { font-size:1rem; font-weight:900; }
+
+  .sale-item-row { grid-template-columns:minmax(0,1.25fr) 54px 76px 86px 34px; }
+
+  .sale-item-amount { grid-column:1 / -1; font-size:.72rem; color:var(--text-sub); padding:2px 3px 0; }
+
+  .sale-item-amount strong { color:var(--accent-gold); font-weight:900; }
+
+  .sale-total-box { background:var(--card-bg-sub); border:1.5px solid var(--accent-gold); border-radius:12px; padding:10px 12px; margin-top:8px; display:flex; justify-content:space-between; align-items:center; }
+
+  .sale-total-label { font-size:.76rem; color:var(--text-sub); font-weight:800; }
+
+  .sale-total-value { font-size:1rem; color:var(--text-main); font-weight:900; }
+
+  #receivedAmount[readonly] { opacity:.95; cursor:default; }
+
+  @media (max-width:420px) { .sale-item-row { grid-template-columns:minmax(0,1fr) 50px 70px 80px 32px; gap:5px; } }
+
   </style>
 
 </head>
@@ -2330,6 +2376,20 @@
 
     </div>
 
+  <div class="offer-card" onclick="switchTab('screen-expenses'); renderExpenses();">
+
+    <div class="offer-card-bg" style="background-image:url('images/glamo2.jpg'); filter:brightness(.45);"></div>
+
+    <div class="offer-card-overlay">
+
+      <div class="offer-card-title">Expenses</div>
+
+      <div class="offer-card-desc">Record & Remember Spending</div>
+
+    </div>
+
+  </div>
+
     <div class="section-divider"></div>
 
     <div class="quick-reorder-section">
@@ -2377,6 +2437,58 @@
       <i class="fa-solid fa-right-from-bracket"></i> Log Out
 
     </button>
+
+  </div>
+
+  <!-- SCREEN: EXPENSES - Record Keeping Only -->
+
+  <div id="screen-expenses" class="app-screen">
+
+    <div class="section-title"><i class="fa-solid fa-receipt" style="color:var(--accent-gold);"></i> Expenses</div>
+
+    <div class="sales-entry-card">
+
+      <h3 id="expenseFormTitle">Record Expense</h3>
+
+      <div class="form-row">
+
+        <div class="form-group"><label for="expenseName">Expense Name</label><input id="expenseName" type="text" placeholder="e.g. Packaging"></div>
+
+        <div class="form-group"><label for="expenseDate">Date</label><input id="expenseDate" class="date-control" type="date"></div>
+
+      </div>
+
+      <div class="form-row">
+
+        <div class="form-group"><label for="expenseAmount">Amount (TZS)</label><input id="expenseAmount" class="number-control" type="number" min="0" step="100" placeholder="0"></div>
+
+        <div class="form-group"><label for="expenseCategory">Category</label>
+
+          <select id="expenseCategory" class="select-control">
+
+            <option value="General">General</option><option value="Stock">Stock</option><option value="Packaging">Packaging</option><option value="Delivery">Delivery</option><option value="Marketing">Marketing</option><option value="Transport">Transport</option><option value="Utilities">Utilities</option><option value="Other">Other</option>
+
+          </select>
+
+        </div>
+
+      </div>
+
+      <div class="form-group"><label for="expenseNotes">Description / Notes</label><textarea id="expenseNotes" rows="3" placeholder="Optional notes"></textarea></div>
+
+      <button id="expenseSaveBtn" class="sales-save-btn" onclick="saveExpense()"><i class="fa-solid fa-floppy-disk"></i> Save Expense</button>
+
+      <button id="expenseCancelBtn" class="reorder-btn" style="width:100%;margin-top:8px;display:none;" onclick="cancelExpenseEdit()">Cancel Edit</button>
+
+    </div>
+
+    <div class="expenses-card">
+
+      <div class="expense-total-box"><span class="expense-total-label">Recorded Expenses</span><span id="expenseTotalValue" class="expense-total-value">0 TZS</span></div>
+
+      <div id="expensesList"></div>
+
+    </div>
 
   </div>
 
@@ -2468,9 +2580,11 @@
 
         <div class="form-group" style="margin-top:10px;margin-bottom:0;">
 
-          <label for="receivedAmount">Received Amount (TZS)</label>
+          <label for="receivedAmount">Amount Received (TZS)</label>
 
-          <input id="receivedAmount" class="number-control" type="number" min="0" step="100" placeholder="Actual amount received">
+          <input id="receivedAmount" class="number-control" type="number" min="0" step="100" placeholder="Automatically calculated" readonly>
+
+          <div style="font-size:.7rem;color:var(--text-sub);margin-top:5px;">Calculated from quantity × price per perfume.</div>
 
         </div>
 
@@ -2912,6 +3026,8 @@
 
     let activeOrders = [];
 
+    let expenses = [];
+
   let archivedSales = [];
 
     let deletedSaleIds = [];
@@ -2962,13 +3078,14 @@
 
           quantity: Math.max(1, Number(item.quantity ?? item.qty ?? 1)),
 
-          size: String(item.size ?? '30 ML')
+          size: String(item.size ?? '30 ML'),
+        price: Math.max(0, Number(item.price ?? 0))
 
         }));
 
       }
 
-      if (s?.perfumeName) return [{ perfumeName:s.perfumeName, quantity:Math.max(1, Number(s.quantity ?? 1)), size:s.size || '30 ML' }];
+      if (s?.perfumeName) return [{ perfumeName:s.perfumeName, quantity:Math.max(1, Number(s.quantity ?? 1)), size:s.size || '30 ML', price:Math.max(0, Number(s.price ?? 0)) }];
 
       return [];
 
@@ -3050,6 +3167,10 @@
 
       initializeSaleItems();
 
+    loadExpenses();
+
+    document.getElementById('expenseDate').value = todayISO();
+
       const { data: { session } } = await supabaseClient.auth.getSession();
 
       setTimeout(async () => {
@@ -3067,6 +3188,8 @@
           await syncSalesFromSupabase();
 
           loadStock();
+
+    loadExpenses();
 
         } else {
 
@@ -3575,40 +3698,57 @@
     }
 
     function createPerfumeRow(item = {}) {
-
       const row = document.createElement('div');
-
       row.className = 'sale-item-row';
-
       const name = escapeHtml(item.perfumeName || '');
-
       const qty = Math.max(1, Number(item.quantity || 1));
-
       const size = item.size || '30 ML';
-
+      const price = Math.max(0, Number(item.price || 0));
       row.innerHTML = `
-
         <input class="sale-item-name" type="text" placeholder="Perfume name" value="${name}">
-
         <input class="sale-item-qty" type="number" min="1" step="1" value="${qty}" aria-label="Quantity">
-
-        <select class="sale-item-size" aria-label="ML / Size">
-
-          ${['10 ML','20 ML','30 ML','50 ML','100 ML'].map(v => `<option value="${v}" ${v === size ? 'selected' : ''}>${v}</option>`).join('')}
-
-        </select>
-
-        <button type="button" class="sale-item-remove" onclick="removePerfumeRow(this)" title="Remove perfume">
-
-          <i class="fa-solid fa-xmark"></i>
-
-        </button>`;
-
-      row.querySelectorAll('input,select').forEach(el => el.addEventListener('input', updateSaleItemsSummary));
-
+        <select class="sale-item-size" aria-label="ML / Size">${['10 ML','20 ML','30 ML','50 ML','100 ML'].map(v => `<option value="${v}" ${v === size ? 'selected' : ''}>${v}</option>`).join('')}</select>
+        <input class="sale-item-price" type="number" min="0" step="100" value="${price || ''}" placeholder="Price" aria-label="Price per perfume">
+        <button type="button" class="sale-item-remove" onclick="removePerfumeRow(this)" title="Remove perfume"><i class="fa-solid fa-xmark"></i></button>
+        <div class="sale-item-amount">Amount: <strong>0 TZS</strong></div>`;
+      row.querySelectorAll('input,select').forEach(el => { el.addEventListener('input', updateSaleItemsSummary); el.addEventListener('change', updateSaleItemsSummary); });
       return row;
-
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     function initializeSaleItems(items = []) {
 
@@ -3663,31 +3803,201 @@
     }
 
     function collectSaleItems() {
-
       return [...document.querySelectorAll('#saleItemsList .sale-item-row')].map(row => ({
-
         perfumeName: row.querySelector('.sale-item-name')?.value.trim() || '',
-
         quantity: Math.max(1, Number(row.querySelector('.sale-item-qty')?.value || 1)),
-
-        size: row.querySelector('.sale-item-size')?.value || '30 ML'
-
+        size: row.querySelector('.sale-item-size')?.value || '30 ML',
+        price: Math.max(0, Number(row.querySelector('.sale-item-price')?.value || 0))
       }));
-
+    }
+    function calculateSaleTotals(items = collectSaleItems()) {
+      return items.reduce((sum, item) => sum + Number(item.quantity || 0) * Number(item.price || 0), 0);
+    }
+    function updateSaleItemsSummary() {
+      const summary = document.getElementById('saleItemsSummary');
+      const totalInput = document.getElementById('receivedAmount');
+      if (!summary) return;
+      const allItems = collectSaleItems();
+      const items = allItems.filter(x => x.perfumeName);
+      const count = items.reduce((sum,item) => sum + item.quantity, 0);
+      document.querySelectorAll('#saleItemsList .sale-item-row').forEach((row, index) => {
+        const item = allItems[index];
+        const amount = Number(item.quantity || 0) * Number(item.price || 0);
+        const amountEl = row.querySelector('.sale-item-amount strong');
+        if (amountEl) amountEl.textContent = money(amount);
+      });
+      const total = calculateSaleTotals(items);
+      summary.textContent = `${items.length || 1} perfume item${items.length === 1 ? '' : 's'} • ${count} bottle${count === 1 ? '' : 's'} total`;
+      if (totalInput) totalInput.value = total || '';
     }
 
-    function updateSaleItemsSummary() {
 
-      const summary = document.getElementById('saleItemsSummary');
 
-      if (!summary) return;
 
-      const items = collectSaleItems().filter(x => x.perfumeName);
 
-      const count = items.reduce((sum,item) => sum + item.quantity, 0);
 
-      summary.textContent = `${items.length || 1} perfume item${items.length === 1 ? '' : 's'} • ${count} bottle${count === 1 ? '' : 's'} total`;
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    let editingExpenseId = null;
+    function getExpensesStorageKey() { return 'glamo_expenses_' + (currentUser?.id || 'guest'); }
+    function loadExpenses() {
+      try { const saved = JSON.parse(localStorage.getItem(getExpensesStorageKey()) || '[]'); expenses = Array.isArray(saved) ? saved : []; }
+      catch(e) { expenses = []; }
+      renderExpenses();
+    }
+    function saveExpenses() { localStorage.setItem(getExpensesStorageKey(), JSON.stringify(expenses)); renderExpenses(); }
+    function renderExpenses() {
+      const list = document.getElementById('expensesList'), totalEl = document.getElementById('expenseTotalValue');
+      if (!list) return;
+      const sorted = [...expenses].sort((a,b) => String(b.date || '').localeCompare(String(a.date || '')));
+      const total = sorted.reduce((sum,e) => sum + Number(e.amount || 0), 0);
+      if (totalEl) totalEl.textContent = money(total);
+      if (!sorted.length) { list.innerHTML = '<div class="expense-empty">No expenses recorded yet.</div>'; return; }
+      list.innerHTML = sorted.map(e => `
+        <div class="expense-item">
+          <div class="expense-item-head"><div><div class="expense-name">${escapeHtml(e.name)}</div><div class="expense-meta">${escapeHtml(e.date)} • ${escapeHtml(e.category)}</div></div><div class="expense-amount">${money(e.amount)}</div></div>
+          ${e.notes ? `<div class="expense-notes">${escapeHtml(e.notes)}</div>` : ''}
+          <div class="expense-actions"><button class="expense-action" onclick="editExpense('${e.id}')"><i class="fa-solid fa-pen"></i> Edit</button><button class="expense-action delete" onclick="deleteExpense('${e.id}')"><i class="fa-solid fa-trash"></i> Delete</button></div>
+        </div>`).join('');
+    }
+    function resetExpenseForm() {
+      editingExpenseId = null;
+      document.getElementById('expenseName').value = '';
+      document.getElementById('expenseDate').value = todayISO();
+      document.getElementById('expenseAmount').value = '';
+      document.getElementById('expenseCategory').value = 'General';
+      document.getElementById('expenseNotes').value = '';
+      document.getElementById('expenseFormTitle').textContent = 'Record Expense';
+      document.getElementById('expenseSaveBtn').innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Save Expense';
+      document.getElementById('expenseCancelBtn').style.display = 'none';
+    }
+    function saveExpense() {
+      const name = document.getElementById('expenseName').value.trim();
+      const date = document.getElementById('expenseDate').value;
+      const amount = Number(document.getElementById('expenseAmount').value || 0);
+      const category = document.getElementById('expenseCategory').value;
+      const notes = document.getElementById('expenseNotes').value.trim();
+      if (!name || !date || amount <= 0) { alert('Please enter an expense name, date and valid amount.'); return; }
+      const wasEditing = !!editingExpenseId;
+      if (wasEditing) {
+        const index = expenses.findIndex(e => e.id === editingExpenseId);
+        if (index >= 0) expenses[index] = {...expenses[index], name, date, amount, category, notes};
+      } else {
+        expenses.unshift({id:'EXP-' + Date.now().toString().slice(-8), name, date, amount, category, notes});
+      }
+      saveExpenses();
+      resetExpenseForm();
+      alert(wasEditing ? 'Expense updated successfully.' : 'Expense saved successfully.');
+    }
+    function editExpense(id) {
+      const e = expenses.find(x => x.id === id); if (!e) return;
+      editingExpenseId = id;
+      document.getElementById('expenseName').value = e.name || '';
+      document.getElementById('expenseDate').value = e.date || todayISO();
+      document.getElementById('expenseAmount').value = e.amount || '';
+      document.getElementById('expenseCategory').value = e.category || 'General';
+      document.getElementById('expenseNotes').value = e.notes || '';
+      document.getElementById('expenseFormTitle').textContent = 'Edit Expense';
+      document.getElementById('expenseSaveBtn').innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Save Changes';
+      document.getElementById('expenseCancelBtn').style.display = 'block';
+      document.getElementById('expenseName').focus();
+    }
+    function cancelExpenseEdit() { resetExpenseForm(); }
+    function deleteExpense(id) {
+      const e = expenses.find(x => x.id === id);
+      if (!e || !confirm('Delete this expense?')) return;
+      expenses = expenses.filter(x => x.id !== id);
+      saveExpenses();
     }
 
     async function saveSale() {
@@ -3816,7 +4126,7 @@
 
           order_id:sale.id, user_id:currentUser.id,
 
-          items:sale.items.map(item => ({name:item.perfumeName,size:item.size,qty:item.quantity})),
+          items:sale.items.map(item => ({name:item.perfumeName,size:item.size,qty:item.quantity,price:item.price})),
 
           total:saleTotal(sale), location:'', instructions:JSON.stringify(meta),
 
@@ -3938,7 +4248,7 @@
 
       document.getElementById('saleDate').value = s.date;
 
-      document.getElementById('receivedAmount').value = saleReceived(s);
+      updateSaleItemsSummary();
 
       document.getElementById('deliveryAmount').value = s.deliveryAmount || '';
 
@@ -4014,7 +4324,7 @@
 
         await supabaseClient.from('orders').update({
 
-          items:updated.items.map(item => ({name:item.perfumeName,size:item.size,qty:item.quantity})),
+          items:updated.items.map(item => ({name:item.perfumeName,size:item.size,qty:item.quantity,price:item.price})),
 
           total:saleTotal(updated), instructions:JSON.stringify(meta),
 
