@@ -1,2478 +1,4691 @@
 <!DOCTYPE html>
+
 <html lang="en">
+
 <head>
+
   <meta charset="UTF-8">
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <title>Glamo Scents - Perfume Sales Tracking</title>
+
   
+
   <!-- PWA Manifest & Meta Tags -->
+
   <link rel="manifest" href="manifest.json">
+
   <meta name="theme-color" content="#ffffff">
+
   <meta name="mobile-web-app-capable" content="yes">
+
   <meta name="apple-mobile-web-app-capable" content="yes">
+
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
+
   <meta name="apple-mobile-web-app-title" content="Glamo Scents">
+
   <link rel="apple-touch-icon" href="images/splash-logo.png">
+
   <link rel="icon" type="image/png" sizes="192x192" href="images/splash-logo.png">
+
   <link rel="icon" type="image/png" sizes="512x512" href="images/splash-logo.png">
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
   <!-- Supabase CDN Client -->
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   
+
   <style>
+
     :root {
+
       --bg-color: #f8f9fa;
+
       --card-bg: #ffffff;
+
       --card-bg-sub: #f1f3f5;
+
       --card-border: #e9ecef;
+
       --text-main: #111111;
+
       --text-sub: #666666;
+
       --accent-gold: #d4af37;
+
       --accent-gold-light: rgba(212, 175, 55, 0.15);
+
       --nav-bg: #ffffff;
+
       --nav-border: #e9ecef;
+
       --input-bg: #f1f3f5;
+
       --input-border: #ced4da;
+
       --modal-bg: #ffffff;
+
       --overlay-bg: rgba(0, 0, 0, 0.5);
+
       --shadow-color: rgba(0, 0, 0, 0.08);
+
     }
+
     [data-theme="dark"] {
+
       --bg-color: #0d0d0d;
+
       --card-bg: #181818;
+
       --card-bg-sub: #141414;
+
       --card-border: #282828;
+
       --text-main: #ffffff;
+
       --text-sub: #aaaaaa;
+
       --accent-gold: #FFD700;
+
       --accent-gold-light: rgba(255, 215, 0, 0.15);
+
       --nav-bg: #111111;
+
       --nav-border: #222222;
+
       --input-bg: #000000;
+
       --input-border: #333333;
+
       --modal-bg: #141414;
+
       --overlay-bg: rgba(0, 0, 0, 0.85);
+
       --shadow-color: rgba(0, 0, 0, 0.5);
+
     }
+
     * {
+
       box-sizing: border-box;
+
       margin: 0;
+
       padding: 0;
+
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+
       -webkit-tap-highlight-color: transparent;
+
       transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease;
+
     }
+
     body {
+
       background: var(--bg-color);
+
       color: var(--text-main);
+
       min-height: 100vh;
+
       display: flex;
+
       flex-direction: column;
+
       align-items: center;
+
       padding-top: 70px;
+
       padding-bottom: 80px;
+
       overflow-x: hidden;
+
     }
+
     
+
     /* SPLASH SCREEN - Pure White Background with Clean Transparent Logo */
+
     #splash-screen {
+
       position: fixed;
+
       inset: 0;
-      background: #FFFFFF;
+
+      background: #000000;
+
       z-index: 99999;
+
       display: flex;
+
       flex-direction: column;
+
       align-items: center;
+
       justify-content: center;
+
       transition: opacity 0.5s ease;
+
     }
+
     .splash-logo {
+
       width: 140px;
+
       height: 140px;
+
       object-fit: contain;
+
       background: transparent;
+
       border: none;
+
       outline: none;
+
       box-shadow: none;
+
       animation: pulseLogo 1.5s infinite alternate;
+
     }
+
     @keyframes pulseLogo {
+
       from { transform: scale(0.95); opacity: 0.85; }
+
       to { transform: scale(1.05); opacity: 1; }
+
     }
+
     
+
     /* AUTH SCREEN & ANIMATIONS */
+
     @keyframes slideInFromLeft {
+
       0% {
+
         opacity: 0;
+
         transform: translateX(-15px);
+
       }
+
       100% {
+
         opacity: 1;
+
         transform: translateX(0);
+
       }
+
     }
+
     .auth-container {
+
       max-width: 400px;
+
       width: 90%;
+
       background: transparent;
+
       border: none;
+
       border-radius: 0;
+
       padding: 24px 24px;
+
       box-shadow: none;
+
       margin: 20px auto 0 auto;
+
       text-align: center;
+
     }
+
     
+
     .auth-title { 
+
       font-size: 1.6rem; 
+
       font-weight: 800; 
+
       color: var(--text-main); 
+
       margin-bottom: 8px; 
+
       letter-spacing: -0.5px; 
+
       opacity: 0;
+
       animation: slideInFromLeft 0.4s ease forwards;
+
       animation-delay: 0.05s;
+
     }
+
     .auth-sub { 
+
       font-size: 0.85rem; 
+
       color: var(--text-sub); 
+
       margin-bottom: 24px; 
+
       opacity: 0;
+
       animation: slideInFromLeft 0.4s ease forwards;
+
       animation-delay: 0.12s;
+
     }
+
     
+
     .auth-container .form-group:nth-of-type(1) {
+
       opacity: 0;
+
       animation: slideInFromLeft 0.4s ease forwards;
+
       animation-delay: 0.19s;
+
     }
+
     .auth-container .form-group:nth-of-type(2) {
+
       opacity: 0;
+
       animation: slideInFromLeft 0.4s ease forwards;
+
       animation-delay: 0.26s;
+
     }
+
     .auth-container .form-group:nth-of-type(3) {
+
       opacity: 0;
+
       animation: slideInFromLeft 0.4s ease forwards;
+
       animation-delay: 0.33s;
+
     }
+
     .auth-container .form-group:nth-of-type(4) {
+
       opacity: 0;
+
       animation: slideInFromLeft 0.4s ease forwards;
+
       animation-delay: 0.40s;
+
     }
+
     .auth-btn {
+
       width: 100%;
+
       background: var(--accent-gold);
+
       color: #000;
+
       border: none;
+
       padding: 12px;
+
       border-radius: 12px;
+
       font-weight: 800;
+
       font-size: 0.95rem;
+
       cursor: pointer;
+
       margin-top: 12px;
+
       opacity: 0;
+
       animation: slideInFromLeft 0.4s ease forwards;
+
       animation-delay: 0.47s;
+
     }
+
     .auth-switch { 
+
       font-size: 0.82rem; 
+
       color: var(--text-sub); 
+
       margin-top: 18px; 
+
       cursor: pointer; 
+
       opacity: 0;
+
       animation: slideInFromLeft 0.4s ease forwards;
+
       animation-delay: 0.54s;
+
     }
+
     .auth-switch span { color: var(--accent-gold); font-weight: 700; }
+
     
+
     /* Main Application Screens */
+
     .app-screen {
+
       display: none;
+
       width: 100%;
+
       max-width: 480px;
+
       min-height: calc(100vh - 150px);
+
       padding: 20px 16px;
+
       flex-direction: column;
+
       position: relative;
+
       animation: fadeIn 0.3s ease-in-out;
+
     }
+
     .app-screen.active { display: flex; }
+
     #screen-home {
+
       padding-top: 0px;
+
     }
+
     @keyframes fadeIn {
+
       from { opacity: 0; transform: translateY(6px); }
+
       to { opacity: 1; transform: translateY(0); }
+
     }
+
     /* In-App Header - Updated Pure White Background */
+
     .app-header {
+
       position: fixed;
+
       top: 0;
+
       left: 50%;
+
       transform: translateX(-50%);
+
       max-width: 480px;
+
       width: 100%;
+
       height: 70px;
+
       padding: 0 16px;
+
       display: flex;
+
       justify-content: space-between;
+
       align-items: center;
+
       background: #FFFFFF;
+
       border-bottom: 1px solid #e9ecef;
+
       box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+
       z-index: 1500;
+
     }
+
     .header-left { display: flex; align-items: center; gap: 12px; }
+
     .back-btn {
+
       background: #f8f9fa;
+
       border: 1px solid #e0e0e0;
+
       color: #111111;
+
       width: 38px;
+
       height: 38px;
+
       border-radius: 50%;
+
       display: flex !important;
+
       align-items: center;
+
       justify-content: center;
+
       font-size: 1rem;
+
       cursor: pointer;
+
     }
+
     .brand-logo-wrap { display: flex; align-items: center; gap: 10px; }
+
     .brand-logo-img {
+
       width: 38px;
+
       height: 38px;
+
       border-radius: 8px;
+
       background: transparent;
+
       object-fit: contain;
+
     }
+
     .brand-name {
+
       font-size: 1.35rem;
+
       font-weight: 800;
+
       letter-spacing: 0.5px;
+
       color: #111111;
+
       text-transform: capitalize;
+
     }
+
     .theme-toggle-btn {
+
       background: #f8f9fa;
+
       border: 1px solid #e0e0e0;
+
       color: #111111;
+
       width: 38px;
+
       height: 38px;
+
       border-radius: 50%;
+
       display: flex;
+
       align-items: center;
+
       justify-content: center;
+
       font-size: 1rem;
+
       cursor: pointer;
+
     }
+
     .hero-banner {
+
       width: calc(100% + 32px);
+
       margin-left: -16px;
+
       margin-right: -16px;
+
       margin-top: 0;
+
       height: 160px;
+
       border-radius: 0 0 20px 20px;
+
       background: linear-gradient(135deg, rgba(212, 175, 55, 0.3) 0%, rgba(0, 0, 0, 0.7) 100%), 
+
                   url('images/home-hero.jpg') center/cover;
+
       position: relative;
+
       overflow: hidden;
+
       display: flex;
+
       flex-direction: column;
+
       justify-content: flex-end;
+
       padding: 18px;
+
       border: 1px solid var(--card-border);
+
       border-top: none;
+
       box-shadow: 0 10px 25px var(--shadow-color);
+
       margin-bottom: 24px;
+
     }
+
     .hero-greeting { font-size: 1.5rem; font-weight: 800; color: #ffffff; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
+
     .hero-tagline { font-size: 0.85rem; color: #FFD700; font-weight: 600; margin-top: 4px; letter-spacing: 0.5px; }
+
     .section-title {
+
       font-size: 1.1rem;
+
       font-weight: 800;
+
       text-transform: uppercase;
+
       letter-spacing: 1.5px;
+
       color: var(--text-main);
+
       margin-bottom: 14px;
+
       display: flex;
+
       align-items: center;
+
       gap: 8px;
+
     }
+
     .offerings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 24px; }
+
     .offer-card {
+
       background: var(--card-bg);
+
       border-radius: 18px;
+
       height: 160px;
+
       position: relative;
+
       overflow: hidden;
+
       border: 1.5px solid var(--card-border);
+
       cursor: pointer;
+
       transition: all 0.25s ease;
+
       display: flex;
+
       flex-direction: column;
+
       justify-content: flex-end;
+
       padding: 14px;
+
       box-shadow: 0 4px 12px var(--shadow-color);
+
     }
+
     .offer-card-bg {
+
       position: absolute;
+
       inset: 0;
+
       background-size: cover;
+
       background-position: center;
+
       filter: brightness(0.85);
+
     }
+
     .offer-card-overlay { position: relative; z-index: 2; }
+
     .offer-card-title { font-size: 1.15rem; font-weight: 800; color: #ffffff; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
+
     .offer-card-desc { font-size: 0.72rem; color: #FFD700; margin-top: 2px; font-weight: 600; text-shadow: 0 1px 2px rgba(0,0,0,0.8); }
+
     .section-divider {
+
       width: 100%;
+
       height: 1px;
+
       background: linear-gradient(90deg, transparent, var(--accent-gold), transparent);
+
       margin: 10px 0 24px 0;
+
     }
+
     .inquiry-box {
+
       background: var(--card-bg);
+
       border: 1px solid var(--card-border);
+
       border-radius: 16px;
+
       padding: 16px;
+
       margin-bottom: 24px;
+
       box-shadow: 0 4px 12px var(--shadow-color);
+
     }
+
     .inquiry-box h4 { font-size: 0.95rem; color: var(--text-main); margin-bottom: 6px; }
+
     .inquiry-box p { font-size: 0.8rem; color: var(--text-sub); margin-bottom: 12px; line-height: 1.4; }
+
     .inquiry-input-wrap { display: flex; gap: 8px; }
+
     .inquiry-input {
+
       flex: 1;
+
       background: var(--input-bg);
+
       border: 1px solid var(--input-border);
+
       border-radius: 10px;
+
       padding: 10px 12px;
+
       color: var(--text-main);
+
       font-size: 0.85rem;
+
       outline: none;
+
     }
+
     .inquiry-btn {
+
       background: var(--accent-gold);
+
       color: #000;
+
       border: none;
+
       padding: 0 16px;
+
       border-radius: 10px;
+
       font-weight: 800;
+
       font-size: 0.85rem;
+
       cursor: pointer;
+
     }
+
     .quick-reorder-section {
+
       background: var(--card-bg);
+
       border-radius: 16px;
+
       padding: 14px;
+
       border: 1px solid var(--card-border);
+
       display: flex;
+
       align-items: center;
+
       justify-content: space-between;
+
       margin-bottom: 20px;
+
       box-shadow: 0 4px 12px var(--shadow-color);
+
     }
+
     .quick-reorder-info { display: flex; align-items: center; gap: 12px; }
+
     .quick-reorder-icon {
+
       width: 40px;
+
       height: 40px;
+
       border-radius: 50%;
+
       background: var(--accent-gold-light);
+
       color: var(--accent-gold);
+
       display: flex;
+
       align-items: center;
+
       justify-content: center;
+
       font-size: 1.1rem;
+
     }
+
     .reorder-text-main { font-size: 0.9rem; font-weight: 700; color: var(--text-main); }
+
     .reorder-text-sub { font-size: 0.75rem; color: var(--text-sub); }
+
     .reorder-btn {
+
       background: transparent;
+
       border: 1px solid var(--accent-gold);
+
       color: var(--accent-gold);
+
       padding: 6px 14px;
+
       border-radius: 20px;
+
       font-size: 0.75rem;
+
       font-weight: 700;
+
       cursor: pointer;
+
     }
+
     .logout-main-btn {
+
       width: 100%;
+
       background: transparent;
+
       border: 2px solid #e74c3c;
+
       color: #e74c3c;
+
       padding: 14px;
+
       border-radius: 16px;
+
       font-weight: 800;
+
       font-size: 0.95rem;
+
       cursor: pointer;
+
       display: flex;
+
       align-items: center;
+
       justify-content: center;
+
       gap: 10px;
+
       margin-top: 20px;
+
       margin-bottom: 20px;
+
     }
+
     .logout-main-btn:hover { background: rgba(231, 76, 60, 0.1); }
+
     .perfumes-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; width: 100%; margin-bottom: 20px; }
+
     .perfume-card {
+
       height: 180px;
+
       border-radius: 16px;
+
       background-size: cover;
+
       background-position: center;
+
       position: relative;
+
       overflow: hidden;
+
       box-shadow: 0 8px 20px var(--shadow-color);
+
       cursor: pointer;
+
       border: 2px solid var(--card-border);
+
     }
+
     .perfume-card-overlay {
+
       position: absolute;
+
       bottom: 0; left: 0; right: 0;
+
       padding: 10px;
+
       background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.5) 60%, transparent 100%);
+
     }
+
     .perfume-card-title { font-size: 1rem; font-weight: 800; color: #ffffff; }
+
     .perfume-card-sub { font-size: 0.7rem; color: #FFC107; font-weight: 600; }
+
     .action-container { display: flex; justify-content: center; width: 100%; margin-top: 10px; margin-bottom: 20px; }
+
     .order-main-btn {
+
       background: var(--text-main);
+
       border: 2px solid var(--accent-gold);
+
       color: var(--bg-color);
+
       font-size: 0.95rem;
+
       font-weight: 900;
+
       letter-spacing: 1px;
+
       padding: 14px 28px;
+
       border-radius: 50px;
+
       cursor: pointer;
+
       box-shadow: 0 8px 20px var(--shadow-color);
+
       display: flex;
+
       align-items: center;
+
       gap: 10px;
+
       text-transform: uppercase;
+
       width: 100%;
+
       justify-content: center;
+
     }
+
     .modal-overlay {
+
       display: none;
+
       position: fixed;
+
       inset: 0;
+
       background: var(--overlay-bg);
+
       backdrop-filter: blur(8px);
+
       justify-content: center;
+
       align-items: flex-end;
+
       z-index: 2000;
+
     }
+
     .modal-overlay.active { display: flex; }
+
     .sheet-content {
+
       background: var(--modal-bg);
+
       border: 2px solid var(--card-border);
+
       border-top-left-radius: 24px;
+
       border-top-right-radius: 24px;
+
       width: 100%;
+
       max-width: 480px;
+
       max-height: 88vh;
+
       overflow-y: auto;
+
       padding: 24px 20px;
+
       position: relative;
+
     }
+
     .sheet-content.full-screen {
+
       height: 100vh;
+
       max-height: 100vh;
+
       border-radius: 0;
+
       border: none;
+
       max-width: 480px;
+
       padding: 0 18px 40px 18px;
+
     }
+
     .sheet-close {
+
       position: absolute;
+
       top: 16px;
+
       right: 18px;
+
       font-size: 1.4rem;
+
       color: var(--text-sub);
+
       cursor: pointer;
+
       z-index: 20;
+
     }
+
     .modal-sticky-header {
+
       position: sticky;
+
       top: 0;
+
       background: var(--modal-bg);
+
       padding: 18px 0 12px 0;
+
       z-index: 15;
+
       border-bottom: 1px solid var(--card-border);
+
       margin-bottom: 16px;
+
     }
+
     .sheet-title { font-size: 1.4rem; font-weight: 900; color: var(--text-main); text-align: center; }
+
     .food-selection-grid {
+
       display: grid;
+
       grid-template-columns: repeat(2, 1fr);
+
       gap: 10px;
+
       margin-top: 12px;
+
       margin-bottom: 16px;
+
       max-height: 320px;
+
       overflow-y: auto;
+
       padding-right: 4px;
+
     }
+
     .food-selection-card {
+
       height: 110px;
+
       border-radius: 14px;
+
       position: relative;
+
       overflow: hidden;
+
       border: 2px solid var(--card-border);
+
       cursor: pointer;
+
       display: flex;
+
       flex-direction: column;
+
       justify-content: flex-end;
+
       transition: transform 0.15s ease, border-color 0.15s ease;
+
     }
+
     .food-selection-card:active {
+
       transform: scale(0.97);
+
       border-color: var(--accent-gold);
+
     }
+
     .food-selection-card img {
+
       position: absolute;
+
       inset: 0;
+
       width: 100%;
+
       height: 100%;
+
       object-fit: cover;
+
     }
+
     .food-card-overlay-label {
+
       position: relative;
+
       z-index: 2;
+
       background: linear-gradient(to top, rgba(0,0,0,0.95) 20%, rgba(0,0,0,0.7) 80%, transparent);
+
       padding: 6px;
+
       text-align: center;
+
       display: flex;
+
       flex-direction: column;
+
       align-items: center;
+
       justify-content: center;
+
     }
+
     .food-name-text { font-size: 0.82rem; font-weight: 800; color: #ffffff; }
+
     .food-price-text { font-size: 0.72rem; color: var(--accent-gold); font-weight: 700; }
+
     .selected-items-box {
+
       background: var(--card-bg-sub);
+
       border: 1px solid var(--card-border);
+
       border-radius: 14px;
+
       padding: 12px;
+
       margin-bottom: 14px;
+
     }
+
     .selected-item-row {
+
       display: flex;
+
       align-items: center;
+
       justify-content: space-between;
+
       padding: 8px 0;
+
       border-bottom: 1px dashed var(--card-border);
+
     }
+
     .selected-item-info { font-size: 0.85rem; font-weight: 800; color: var(--text-main); }
+
     .selected-item-ctrls { display: flex; align-items: center; gap: 8px; }
+
     .selected-item-ctrls input {
+
       width: 55px;
+
       background: var(--input-bg);
+
       border: 1px solid var(--input-border);
+
       border-radius: 6px;
+
       padding: 4px 6px;
+
       color: var(--text-main);
+
       font-weight: bold;
+
       text-align: center;
+
     }
+
     .calculation-summary-box {
+
       background: var(--card-bg-sub);
+
       border: 1.5px solid var(--accent-gold);
+
       border-radius: 14px;
+
       padding: 12px 14px;
+
       margin-top: 12px;
+
       margin-bottom: 14px;
+
     }
+
     .calc-row {
+
       display: flex;
+
       justify-content: space-between;
+
       align-items: center;
+
       font-size: 0.82rem;
+
       color: var(--text-sub);
+
       margin-bottom: 6px;
+
     }
+
     .calc-row.total-row {
+
       font-size: 1rem;
+
       font-weight: 900;
+
       color: var(--text-main);
+
       border-top: 1px dashed var(--card-border);
+
       padding-top: 8px;
+
     }
+
     .form-row { display: flex; gap: 10px; }
+
     .form-group { margin-bottom: 14px; text-align: left; flex: 1; }
+
     .form-group label { display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-sub); margin-bottom: 5px; }
+
     .form-group input, .form-group textarea {
+
       width: 100%;
+
       background: var(--input-bg);
+
       border: 1.5px solid var(--input-border);
+
       border-radius: 10px;
+
       padding: 10px 12px;
+
       color: var(--text-main);
+
       font-size: 0.85rem;
+
       outline: none;
+
     }
+
     .payment-selection-box {
+
       background: var(--card-bg-sub);
+
       border: 1.5px solid var(--card-border);
+
       border-radius: 14px;
+
       padding: 14px;
+
       margin-top: 12px;
+
       margin-bottom: 16px;
+
     }
+
     .payment-options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px; }
+
     .pay-option-btn {
+
       background: var(--card-bg);
+
       border: 2px solid var(--card-border);
+
       border-radius: 12px;
+
       padding: 12px 8px;
+
       display: flex;
+
       flex-direction: column;
+
       align-items: center;
+
       gap: 6px;
+
       cursor: pointer;
+
       font-size: 0.82rem;
+
       font-weight: 800;
+
       color: var(--text-main);
+
     }
+
     .pay-option-btn.active { border-color: var(--accent-gold); background: var(--accent-gold-light); }
+
     .mobile-unfold-box {
+
       display: none;
+
       background: var(--card-bg);
+
       border: 1.5px solid var(--accent-gold);
+
       border-radius: 12px;
+
       padding: 12px;
+
       margin-top: 12px;
+
     }
+
     .mobile-unfold-box.active { display: block; }
+
     .lipa-tag { background: var(--accent-gold); color: #000; font-weight: 900; padding: 2px 6px; border-radius: 6px; }
+
     .submit-order-btn {
+
       width: 100%;
+
       background: #25D366;
+
       color: #fff;
+
       border: none;
+
       padding: 14px;
+
       border-radius: 12px;
+
       font-weight: 900;
+
       font-size: 0.95rem;
+
       cursor: pointer;
+
       display: flex;
+
       align-items: center;
+
       justify-content: center;
+
       gap: 8px;
+
       margin-top: 8px;
+
     }
+
     .price-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 15px; }
+
     .price-card {
+
       background: var(--input-bg);
+
       border: 1.5px solid var(--input-border);
+
       border-radius: 10px;
+
       padding: 10px 4px;
+
       text-align: center;
+
       cursor: pointer;
+
     }
+
     .price-card.active { border-color: var(--accent-gold); background: var(--accent-gold-light); }
+
     .size-title { font-size: 0.8rem; color: var(--text-main); font-weight: bold; }
+
     .size-price { font-size: 0.75rem; font-weight: bold; color: var(--accent-gold); margin-top: 2px; }
+
     .loyalty-card {
+
       background: var(--card-bg);
+
       border: 1.5px solid var(--accent-gold);
+
       border-radius: 18px;
+
       padding: 16px;
+
       margin-bottom: 20px;
+
       box-shadow: 0 4px 12px var(--shadow-color);
+
     }
+
     .loyalty-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+
     .loyalty-title { font-size: 0.95rem; font-weight: 800; color: var(--accent-gold); }
+
     .loyalty-badge { font-size: 0.7rem; background: var(--accent-gold); color: #000; font-weight: 900; padding: 3px 8px; border-radius: 10px; }
+
     .stamps-row { display: flex; justify-content: space-between; margin-top: 10px; }
+
     .stamp-dot {
+
       width: 44px;
+
       height: 44px;
+
       border-radius: 50%;
+
       background: var(--card-bg-sub);
+
       border: 2px dashed var(--input-border);
+
       display: flex;
+
       align-items: center;
+
       justify-content: center;
+
       font-size: 0.85rem;
+
       color: var(--text-sub);
+
       font-weight: 800;
+
     }
+
     .stamp-dot.filled { background: var(--accent-gold); border-style: solid; border-color: var(--accent-gold); color: #000; }
+
     .ai-screen-wrap {
+
       text-align: center;
+
       display: flex;
+
       flex-direction: column;
+
       align-items: center;
+
       justify-content: center;
+
       min-height: calc(100vh - 170px);
+
     }
+
     .ambient-glow {
+
       position: absolute;
+
       width: 260px;
+
       height: 260px;
+
       background: radial-gradient(circle, var(--accent-gold-light) 0%, rgba(0,0,0,0) 70%);
+
       top: 15%;
+
       pointer-events: none;
+
     }
+
     .teaser-image-card {
+
       position: relative;
+
       width: 100%;
+
       max-width: 360px;
+
       height: 230px;
+
       border-radius: 22px;
+
       overflow: hidden;
+
       margin-bottom: 24px;
+
       box-shadow: 0 15px 35px var(--shadow-color);
+
       background: var(--card-bg);
+
       cursor: pointer;
+
     }
+
     .teaser-image-card img { width: 100%; height: 100%; object-fit: cover; }
+
     .image-overlay { position: absolute; inset: 0; background: linear-gradient(to top, var(--bg-color) 10%, rgba(0,0,0,0.2) 60%, rgba(0,0,0,0) 100%); }
+
     .ai-badge {
+
       display: inline-flex;
+
       align-items: center;
+
       gap: 8px;
+
       background: var(--card-bg-sub);
+
       color: var(--text-main);
+
       padding: 6px 14px;
+
       border-radius: 50px;
+
       font-size: 11px;
+
       font-weight: 800;
+
       text-transform: uppercase;
+
       margin-bottom: 16px;
+
       border: 1px solid var(--card-border);
+
     }
+
     .ai-title { font-size: 2.2rem; font-weight: 900; line-height: 1.1; margin-bottom: 8px; color: var(--text-main); }
+
     .ai-title span { color: var(--accent-gold); }
+
     .ai-sub { font-size: 0.85rem; color: var(--text-sub); max-width: 300px; margin-bottom: 24px; line-height: 1.5; }
+
     .status-pill-btn {
+
       background: var(--accent-gold);
+
       color: #111111;
+
       border: none;
+
       padding: 14px 28px;
+
       border-radius: 16px;
+
       font-weight: 800;
+
       font-size: 0.9rem;
+
       display: inline-flex;
+
       align-items: center;
+
       gap: 10px;
+
       cursor: pointer;
+
     }
+
     .coming-soon-toast {
+
       position: fixed;
+
       top: -100px;
+
       left: 50%;
+
       transform: translateX(-50%);
+
       width: calc(100% - 32px);
+
       max-width: 440px;
+
       background: var(--accent-gold);
+
       color: #111111;
+
       padding: 16px;
+
       border-radius: 18px;
+
       box-shadow: 0 15px 30px var(--shadow-color);
+
       display: flex;
+
       align-items: center;
+
       gap: 12px;
+
       z-index: 3000;
+
       opacity: 0;
+
       transition: all 0.4s ease;
+
     }
+
     .coming-soon-toast.trigger-fly { top: 20px; opacity: 1; }
+
     .toast-icon-wrap {
+
       background: #111;
+
       color: var(--accent-gold);
+
       width: 40px;
+
       height: 40px;
+
       border-radius: 50%;
+
       display: flex;
+
       align-items: center;
+
       justify-content: center;
+
       font-size: 1.1rem;
+
       flex-shrink: 0;
+
     }
+
     .order-card-track {
+
       background: var(--card-bg);
+
       border: 1.5px solid var(--card-border);
+
       border-radius: 16px;
+
       padding: 16px;
+
       margin-bottom: 14px;
+
       box-shadow: 0 4px 12px var(--shadow-color);
+
     }
+
     .track-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px dashed var(--card-border); padding-bottom: 8px; }
+
     .order-id { font-size: 0.85rem; font-weight: 800; color: var(--text-main); }
+
     .status-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 0.75rem; font-weight: 800; padding: 4px 10px; border-radius: 20px; }
+
     .status-badge.pending { background: rgba(255, 193, 7, 0.15); color: #d97706; border: 1px solid #d97706; }
+
     .status-badge.verified { background: rgba(40, 167, 69, 0.15); color: #28a745; border: 1px solid #28a745; }
+
     .track-details p { font-size: 0.82rem; color: var(--text-sub); margin-bottom: 4px; }
+
     .profile-header-card {
+
       background: var(--card-bg);
+
       border: 1.5px solid var(--card-border);
+
       border-radius: 20px;
+
       padding: 20px;
+
       text-align: center;
+
       margin-bottom: 20px;
+
       box-shadow: 0 4px 12px var(--shadow-color);
+
     }
+
     .profile-avatar {
+
       width: 70px;
+
       height: 70px;
+
       border-radius: 50%;
+
       background: var(--accent-gold);
+
       color: #000;
+
       font-size: 1.8rem;
+
       font-weight: 900;
+
       display: flex;
+
       align-items: center;
+
       justify-content: center;
+
       margin: 0 auto 12px auto;
+
     }
+
     .profile-name { font-size: 1.2rem; font-weight: 800; color: var(--text-main); }
+
     .profile-phone { font-size: 0.85rem; color: var(--text-sub); margin-top: 2px; }
+
     .whatsapp-support-btn {
+
       width: 100%;
+
       background: #25D366;
+
       color: #fff;
+
       border: none;
+
       padding: 14px;
+
       border-radius: 14px;
+
       font-size: 0.95rem;
+
       font-weight: 800;
+
       display: flex;
+
       align-items: center;
+
       justify-content: center;
+
       gap: 10px;
+
       cursor: pointer;
+
       margin-bottom: 20px;
+
       text-decoration: none;
+
     }
+
     .bottom-nav {
+
       position: fixed;
+
       bottom: 0; left: 0; right: 0;
+
       height: 70px;
+
       background: var(--nav-bg);
+
       border-top: 1.5px solid var(--nav-border);
+
       display: flex;
+
       justify-content: space-around;
+
       align-items: center;
+
       z-index: 1000;
+
     }
+
     .nav-item {
+
       display: flex;
+
       flex-direction: column;
+
       align-items: center;
+
       gap: 4px;
+
       color: var(--text-sub);
+
       text-decoration: none;
+
       font-size: 0.72rem;
+
       font-weight: 700;
+
       background: none;
+
       border: none;
+
       cursor: pointer;
+
     }
+
     .nav-item i { font-size: 1.3rem; }
+
     .nav-item.active { color: var(--accent-gold); }
+
     .pwa-install-btn {
+
       background: var(--accent-gold-light);
+
       border: 1px solid var(--accent-gold);
+
       color: var(--accent-gold);
+
       padding: 6px 12px;
+
       border-radius: 20px;
+
       font-size: 0.75rem;
+
       font-weight: 800;
+
       cursor: pointer;
+
       display: none;
+
       align-items: center;
+
       gap: 6px;
+
     }
 
     /* GLAMO SCENTS LOGIN HERO */
+
     #screen-auth {
+
       position: relative;
+
       width: 100%;
+
       max-width: 100%;
+
       min-height: 100vh;
+
       overflow: hidden;
+
       background: #fff;
+
     }
+
     .auth-hero-video {
+
       position: absolute;
+
       inset: 0;
+
       width: 100%;
+
       height: 100%;
+
       object-fit: cover;
+
       object-position: center;
+
       background: #fff;
+
       z-index: 0;
+
     }
+
     .auth-video-wash {
+
       position: absolute;
+
       inset: 0;
+
       background: rgba(255,255,255,0.18);
+
       z-index: 1;
+
       pointer-events: none;
+
     }
+
     .auth-container {
+
       position: relative;
+
       z-index: 2;
+
       width: min(400px, 90%);
+
     }
 
     /* GLAMO SALES */
+
     .sales-entry-card, .progress-panel, .stock-panel, .review-card {
+
       background: var(--card-bg);
+
       border: 1px solid var(--card-border);
+
       border-radius: 18px;
+
       padding: 16px;
+
       margin-bottom: 14px;
+
       box-shadow: 0 4px 12px var(--shadow-color);
+
     }
+
     .sales-entry-card h3, .progress-panel h3, .stock-panel h3 {
+
       font-size: 1rem;
+
       font-weight: 900;
+
       margin-bottom: 12px;
+
     }
+
     .select-control, .date-control, .number-control {
+
       width: 100%;
+
       background: var(--input-bg);
+
       border: 1.5px solid var(--input-border);
+
       border-radius: 10px;
+
       padding: 10px 12px;
+
       color: var(--text-main);
+
       font-size: .85rem;
+
       outline: none;
+
     }
+
     .size-grid {
+
       display:grid;
+
       grid-template-columns:repeat(5,1fr);
+
       gap:7px;
+
     }
+
     .size-option {
+
       padding:10px 4px;
+
       border-radius:10px;
+
       border:1.5px solid var(--input-border);
+
       background:var(--input-bg);
+
       text-align:center;
+
       cursor:pointer;
+
       font-size:.75rem;
+
       font-weight:800;
+
     }
+
     .size-option.active { border-color:var(--accent-gold); background:var(--accent-gold-light); }
+
     .payment-main-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+
     .conditional-box {
+
       display:none;
+
       margin-top:10px;
+
       padding:12px;
+
       border:1px solid var(--accent-gold);
+
       border-radius:12px;
+
       background:var(--card-bg-sub);
+
     }
+
     .conditional-box.active { display:block; }
+
     .sales-save-btn {
+
       width:100%;
+
       background:var(--accent-gold);
+
       color:#111;
+
       border:none;
+
       border-radius:12px;
+
       padding:14px;
+
       font-weight:900;
+
       cursor:pointer;
+
       margin-top:4px;
+
     }
+
     .review-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+
     .metric-card {
+
       background:var(--card-bg-sub);
+
       border:1px solid var(--card-border);
+
       border-radius:14px;
+
       padding:12px;
+
     }
+
     .metric-label { font-size:.7rem; color:var(--text-sub); font-weight:700; }
+
     .metric-value { font-size:1.05rem; font-weight:900; margin-top:4px; }
+
     .filter-row { display:flex; gap:8px; align-items:end; }
+
     .filter-row > .form-group { margin-bottom:0; }
+
     .review-tabs { display:grid; grid-template-columns:repeat(3,1fr); gap:7px; margin-bottom:12px; }
+
     .review-tab {
+
       border:1px solid var(--card-border);
+
       background:var(--card-bg-sub);
+
       border-radius:10px;
+
       padding:9px 5px;
+
       font-size:.72rem;
+
       font-weight:800;
+
       cursor:pointer;
+
       color:var(--text-main);
+
     }
+
     .review-tab.active { border-color:var(--accent-gold); color:var(--accent-gold); }
+
     .rank-row { margin:10px 0; }
+
     .rank-head { display:flex; justify-content:space-between; font-size:.78rem; font-weight:800; margin-bottom:5px; }
+
     .progress-track { height:8px; border-radius:20px; background:var(--card-bg-sub); overflow:hidden; }
+
     .progress-fill { height:100%; border-radius:20px; background:var(--accent-gold); }
+
     .performance-pill {
+
       display:inline-flex; align-items:center; gap:6px;
+
       padding:5px 9px; border-radius:20px; background:var(--accent-gold-light);
+
       color:var(--accent-gold); font-size:.7rem; font-weight:900;
+
     }
+
     .stock-item {
+
       display:flex; align-items:center; justify-content:space-between; gap:10px;
+
       padding:11px 0; border-bottom:1px dashed var(--card-border);
+
     }
+
     .stock-item:last-child { border-bottom:none; }
+
     .stock-name { font-size:.82rem; font-weight:900; }
+
     .stock-meta { font-size:.7rem; color:var(--text-sub); margin-top:2px; }
+
     .stock-status { font-size:.68rem; font-weight:900; padding:4px 8px; border-radius:15px; white-space:nowrap; }
+
     .stock-status.low { color:#d97706; background:rgba(217,119,6,.12); }
+
     .stock-status.out { color:#e74c3c; background:rgba(231,76,60,.12); }
+
     .stock-status.ok { color:#28a745; background:rgba(40,167,69,.12); }
+
     .sale-actions { display:flex; gap:7px; margin-top:10px; }
+
     .small-action {
+
       flex:1; padding:8px; border-radius:9px; border:1px solid var(--card-border);
+
       background:var(--card-bg-sub); color:var(--text-main); font-size:.72rem; font-weight:800; cursor:pointer;
+
     }
+
     .small-action.delete { color:#e74c3c; border-color:#e74c3c; }
+
     .monthly-review-btn {
+
       background:var(--accent-gold); color:#111; border:none; padding:8px 12px;
+
       border-radius:20px; font-size:.72rem; font-weight:900; cursor:pointer;
+
     }
+
     .archive-card {
+
     background:var(--card-bg);
+
     border:1px solid var(--card-border);
+
     border-radius:18px;
+
     padding:16px;
+
     margin-bottom:14px;
+
     box-shadow:0 4px 12px var(--shadow-color);
+
     opacity:.92;
+
   }
+
   .archive-card .sale-actions { margin-top:10px; }
 
-
     /* Compact multiple-perfume sale rows */
+
     .sale-items-list { display:flex; flex-direction:column; gap:8px; }
+
     .sale-item-row {
+
       display:grid; grid-template-columns:minmax(0,1.5fr) 62px 92px 34px; gap:6px;
+
       align-items:center; padding:8px; border:1px solid var(--card-border);
+
       border-radius:12px; background:var(--card-bg-sub);
+
     }
+
     .sale-item-row input, .sale-item-row select {
+
       width:100%; min-width:0; background:var(--input-bg); border:1px solid var(--input-border);
+
       border-radius:8px; padding:8px 7px; color:var(--text-main); font-size:.74rem; outline:none;
+
     }
+
     .sale-item-remove {
+
       width:34px; height:34px; border-radius:9px; border:1px solid #e74c3c;
+
       background:transparent; color:#e74c3c; cursor:pointer; font-size:.78rem;
+
     }
+
     .add-perfume-btn {
+
       width:100%; margin-top:8px; padding:9px 10px; border-radius:10px;
+
       border:1px dashed var(--accent-gold); background:var(--accent-gold-light);
+
       color:var(--accent-gold); font-size:.76rem; font-weight:900; cursor:pointer;
+
     }
+
     .sale-items-summary { font-size:.72rem; color:var(--text-sub); margin-top:7px; line-height:1.4; }
+
     .archive-toggle {
+
       width:100%; display:flex; justify-content:space-between; align-items:center;
+
       background:var(--card-bg); border:1px solid var(--card-border); border-radius:14px;
+
       padding:11px 13px; color:var(--text-main); font-weight:900; cursor:pointer;
+
     }
+
     .archive-list-collapsed { display:none; }
+
     .archive-list-collapsed.open { display:block; margin-top:10px; }
+
     @media (max-width:420px) {
+
       .sale-item-row { grid-template-columns:minmax(0,1fr) 58px 82px 32px; gap:5px; }
+
       .sale-item-row input, .sale-item-row select { padding:8px 5px; font-size:.7rem; }
+
     }
 
   @media (max-width:420px) {
+
       .size-grid { grid-template-columns:repeat(3,1fr); }
+
       .filter-row { flex-direction:column; align-items:stretch; }
+
     }
 
   </style>
+
 </head>
+
 <body>
-  <!-- PURE WHITE SPLASH SCREEN -->
+
+  <!-- PURE BLACK SPLASH SCREEN -->
+
   <div id="splash-screen">
+
     <img src="images/splash-logo.png" alt="Glamo Scents Splash Logo" class="splash-logo">
+
   </div>
+
   <!-- AUTH SCREEN -->
+
   <div id="screen-auth" class="app-screen" style="display:none; justify-content:center; align-items:center;">
+
     <video class="auth-hero-video" autoplay muted loop playsinline preload="auto">
+
       <source src="login-hero.mp4" type="video/mp4">
+
     </video>
+
     <div class="auth-video-wash"></div>
+
     <div class="auth-container">
+
       <div id="authTitle" class="auth-title">Welcome Back</div>
+
       <div id="authSub" class="auth-sub">Sign in to your Glamo Scents account</div>
+
       
+
       <div class="form-group" id="usernameGroup" style="display:none;">
+
         <label for="authUsername">Username</label>
+
         <input type="text" id="authUsername" placeholder="e.g. Edwin or John">
+
       </div>
+
       <div class="form-group">
+
         <label for="authEmail">Email Address</label>
+
         <input type="email" id="authEmail" placeholder="e.g. user@glamo.com">
+
       </div>
+
       <div class="form-group" id="phoneGroup" style="display:none;">
+
         <label for="authPhone">Phone Number</label>
+
         <input type="tel" id="authPhone" placeholder="e.g. 0764519027">
+
       </div>
+
       <div class="form-group">
+
         <label for="authPassword">Password</label>
+
         <input type="password" id="authPassword" placeholder="••••••••">
+
       </div>
+
       
+
       <button id="authSubmitBtn" class="auth-btn" onclick="handleAuthSubmit()">Sign In</button>
+
       <div class="auth-switch" onclick="toggleAuthMode()">
+
         <span id="authSwitchText">Don't have an account? Register here</span>
+
       </div>
+
     </div>
+
   </div>
+
   <!-- FIXED WHITE HEADER -->
+
   <header class="app-header" id="mainHeader" style="display:none;">
+
     <div class="header-left">
+
       <button id="globalBackBtn" class="back-btn" onclick="goBack()" title="Back to Home">
+
         <i class="fa-solid fa-arrow-left"></i>
+
       </button>
+
       <div class="brand-logo-wrap">
+
         <img src="images/splash-logo.png" alt="Header Logo" class="brand-logo-img">
+
         <div class="brand-name">Glamo Scents</div>
+
       </div>
+
     </div>
+
     <div style="display:flex; align-items:center; gap:8px;">
+
       <button id="pwaInstallBtn" class="pwa-install-btn" onclick="installPWA()">
+
         <i class="fa-solid fa-download"></i> Install
+
       </button>
+
       <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()" title="Switch Light/Dark Mode">
+
         <i class="fa-solid fa-moon"></i>
+
       </button>
+
     </div>
+
   </header>
+
   <!-- SCREEN 1: HOME -->
+
   <div id="screen-home" class="app-screen">
+
     <div class="hero-banner">
+
       <div class="hero-greeting" id="heroGreeting">Welcome!</div>
+
       <div class="hero-tagline">Glamo Scents — Track Every Sale. Grow Every Scent.</div>
+
     </div>
 
     <div class="section-title">
+
       <i class="fa-solid fa-layer-group" style="color:var(--accent-gold);"></i> Glamo Sales
+
     </div>
 
     <div class="offerings-grid">
+
       <div class="offer-card" onclick="switchTab('screen-perfumes')">
+
         <div class="offer-card-bg" style="background-image:url('images/glamo1.jpg');"></div>
+
         <div class="offer-card-overlay">
+
           <div class="offer-card-title">Perfume</div>
+
           <div class="offer-card-desc">Record a New Sale</div>
+
         </div>
+
       </div>
 
       <div class="offer-card" onclick="switchTab('screen-sales-progress'); renderSalesProgress();">
+
         <div class="offer-card-bg" style="background-image:url('images/glamo2.jpg'); filter:brightness(.55);"></div>
+
         <div class="offer-card-overlay">
+
           <div class="offer-card-title">Sales Progress</div>
+
           <div class="offer-card-desc">Review & Analyse Sales</div>
+
         </div>
+
       </div>
+
     </div>
 
     <div class="section-divider"></div>
+
     <div class="quick-reorder-section">
+
       <div class="quick-reorder-info">
+
         <div class="quick-reorder-icon"><i class="fa-solid fa-chart-line"></i></div>
+
         <div>
+
           <div class="reorder-text-main">Quick Sales Review</div>
+
           <div class="reorder-text-sub">Daily, weekly, monthly or custom range</div>
+
         </div>
+
       </div>
+
       <button class="reorder-btn" onclick="switchTab('screen-sales-progress'); renderSalesProgress();">Review</button>
+
     </div>
 
     <div class="quick-reorder-section">
+
       <div class="quick-reorder-info">
+
         <div class="quick-reorder-icon"><i class="fa-solid fa-calendar-days"></i></div>
+
         <div>
+
           <div class="reorder-text-main">Monthly Review</div>
+
           <div class="reorder-text-sub">Open this month's complete summary</div>
+
         </div>
+
       </div>
+
       <button class="monthly-review-btn" onclick="openMonthlyReview()">Monthly Review</button>
+
     </div>
 
     <button class="logout-main-btn" onclick="handleLogout()">
+
       <i class="fa-solid fa-right-from-bracket"></i> Log Out
+
     </button>
+
   </div>
 
   <!-- SCREEN 2: PERFUME SALE ENTRY -->
+
   <div id="screen-perfumes" class="app-screen">
+
     <div class="section-title">
+
       <i class="fa-solid fa-spray-can-sparkles" style="color:var(--accent-gold);"></i> Perfume Sale
+
     </div>
 
     <div class="sales-entry-card">
+
       <h3>Record Sale</h3>
 
       <div class="form-group">
+
         <label>Date</label>
+
         <input id="saleDate" class="date-control" type="date">
+
       </div>
 
       <div class="form-group">
+
         <label>Perfumes in this Sale</label>
+
         <div id="saleItemsList" class="sale-items-list"></div>
+
         <button type="button" class="add-perfume-btn" onclick="addPerfumeRow()">
+
           <i class="fa-solid fa-plus"></i> Add Perfume
+
         </button>
+
         <div id="saleItemsSummary" class="sale-items-summary">1 perfume item</div>
+
       </div>
 
       <div class="form-group">
+
         <label>Method of Payment</label>
+
         <div class="payment-main-grid">
+
           <button id="saleCashBtn" type="button" class="pay-option-btn active" onclick="selectSalePayment('cash')">
+
             <i class="fa-solid fa-money-bill-wave" style="color:var(--accent-gold);"></i>
+
             <span>Cash</span>
+
           </button>
+
           <button id="saleMobileBtn" type="button" class="pay-option-btn" onclick="selectSalePayment('mobile')">
+
             <i class="fa-solid fa-mobile-screen-button" style="color:var(--accent-gold);"></i>
+
             <span>Mobile Money</span>
+
           </button>
+
         </div>
 
         <div id="saleCashBox" class="conditional-box active">
+
           <div style="font-size:.74rem;color:var(--text-sub);">Cash payment selected.</div>
+
         </div>
 
         <div id="saleMobileBox" class="conditional-box">
+
           <label style="font-size:.8rem;font-weight:800;">Mobile Money Network</label>
+
           <div class="payment-main-grid" style="margin-top:8px;">
+
             <button type="button" class="pay-option-btn" onclick="selectMobileProvider(this,'CRDB')">CRDB</button>
+
             <button type="button" class="pay-option-btn" onclick="selectMobileProvider(this,'M-PESA')">M-PESA</button>
+
             <button type="button" class="pay-option-btn" onclick="selectMobileProvider(this,'Mixx by Yas')">Mixx by Yas</button>
+
             <button type="button" class="pay-option-btn" onclick="selectMobileProvider(this,'HaloPesa')">HaloPesa</button>
+
           </div>
+
         </div>
 
         <div class="form-group" style="margin-top:10px;margin-bottom:0;">
+
           <label for="receivedAmount">Received Amount (TZS)</label>
+
           <input id="receivedAmount" class="number-control" type="number" min="0" step="100" placeholder="Actual amount received">
+
         </div>
+
       </div>
 
       <div class="form-group">
+
         <label>Delivery</label>
+
         <div class="payment-main-grid">
+
           <button id="deliveryNoBtn" type="button" class="pay-option-btn active" onclick="selectDelivery(false)">No</button>
+
           <button id="deliveryYesBtn" type="button" class="pay-option-btn" onclick="selectDelivery(true)">Yes</button>
+
         </div>
+
         <div id="deliveryBox" class="conditional-box">
+
           <div class="form-group" style="margin-bottom:0;">
+
             <label for="deliveryAmount">Delivery Amount (TZS)</label>
+
             <input id="deliveryAmount" class="number-control" type="number" min="0" step="100" placeholder="Enter delivery amount">
+
           </div>
+
         </div>
+
       </div>
 
       <button class="sales-save-btn" onclick="saveSale()">
+
         <i class="fa-solid fa-floppy-disk"></i> Save Sale
+
       </button>
+
     </div>
 
     <div class="stock-panel">
+
       <h3><i class="fa-solid fa-boxes-stacked" style="color:var(--accent-gold);"></i> Stock</h3>
+
       <p style="font-size:.76rem;color:var(--text-sub);margin-bottom:10px;">Record stock here so saved sales can reduce the quantity automatically.</p>
+
       <button class="reorder-btn" style="width:100%;" onclick="openStockManager()">Manage Stock</button>
+
     </div>
+
   </div>
 
   <!-- SCREEN 3: AI GUIDE -->
+
   <div id="screen-ai" class="app-screen">
+
     <div class="ambient-glow"></div>
+
     <div id="soonToast" class="coming-soon-toast">
+
       <div class="toast-icon-wrap"><i class="fas fa-bolt"></i></div>
+
       <div class="toast-info">
+
         <h4 style="font-weight:900; text-transform:uppercase;">Coming Soon!</h4>
+
         <p style="font-size:0.78rem;">Our intelligent AI curator is currently running final model training loops.</p>
+
       </div>
+
     </div>
+
     <div class="ai-screen-wrap">
+
       <div class="teaser-image-card" onclick="igniteTeaserToast()">
+
         <img src="images/glamo3.jpg" alt="AI Neural Guide">
+
         <div class="image-overlay"></div>
+
       </div>
+
       <div class="ai-badge">
+
         <i class="fas fa-circle-nodes" style="color:#FFA500;"></i> Smart Engine v2.0
+
       </div>
+
       <h1 class="ai-title">Glamo Scents <br><span>AI Guide</span></h1>
+
       <p class="ai-sub">Tap anywhere on the teaser card above or below to test the matrix preparation status.</p>
+
       <button class="status-pill-btn" onclick="igniteTeaserToast()">
+
         <i class="fas fa-robot"></i> Initialize AI Exploration
+
       </button>
+
     </div>
+
   </div>
+
   <!-- SALES PROGRESS -->
+
   <div id="screen-sales-progress" class="app-screen">
+
     <div class="section-title">
+
       <i class="fa-solid fa-chart-column" style="color:var(--accent-gold);"></i> Sales Progress
+
     </div>
 
     <div class="progress-panel">
+
       <div class="review-tabs">
+
         <button id="tabDaily" class="review-tab active" onclick="setReviewMode('daily')">Daily</button>
+
         <button id="tabWeekly" class="review-tab" onclick="setReviewMode('weekly')">Weekly</button>
+
         <button id="tabMonthly" class="review-tab" onclick="setReviewMode('monthly')">Monthly</button>
+
       </div>
 
       <div id="dailyFilters">
+
         <div class="form-group">
+
           <label for="dailyDate">Choose Date</label>
+
           <input id="dailyDate" class="date-control" type="date" onchange="renderSalesProgress()">
+
         </div>
+
       </div>
 
       <div id="monthlyFilters" style="display:none;">
+
         <div class="form-group">
+
           <label for="reviewMonth">Choose Month</label>
+
           <input id="reviewMonth" class="date-control" type="month" onchange="renderSalesProgress()">
+
         </div>
+
       </div>
 
       <div id="customFilters" style="display:none;">
+
         <div class="form-row">
+
           <div class="form-group">
+
             <label for="rangeFrom">From</label>
+
             <input id="rangeFrom" class="date-control" type="date" onchange="renderSalesProgress()">
+
           </div>
+
           <div class="form-group">
+
             <label for="rangeTo">To</label>
+
             <input id="rangeTo" class="date-control" type="date" onchange="renderSalesProgress()">
+
           </div>
+
         </div>
+
       </div>
 
       <button class="reorder-btn" style="width:100%;margin-bottom:12px;" onclick="showCustomRange()">Custom Date Range</button>
 
       <div id="progressMetrics" class="review-grid"></div>
+
       <div id="progressPerformance" style="margin-top:12px;"></div>
+
     </div>
 
     <div class="progress-panel">
+
       <h3>Best Sellers</h3>
+
       <div id="bestSellersList"></div>
+
       <div id="lowestSeller" style="margin-top:14px;"></div>
+
     </div>
 
     <div class="progress-panel">
+
       <h3>Overall Sales Growth</h3>
+
       <div id="growthSummary"></div>
+
     </div>
 
     <div class="stock-panel">
+
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+
         <h3 style="margin-bottom:0;">Stock Alerts</h3>
+
         <button class="reorder-btn" onclick="openStockManager()">Manage</button>
+
       </div>
+
       <div id="stockAlerts"></div>
+
     </div>
+
   </div>
 
   <!-- SCREEN 4: SALES -->
+
   <div id="screen-bookings" class="app-screen">
+
     <div class="section-title">
+
       <i class="fa-solid fa-receipt" style="color:var(--accent-gold);"></i> Sales
+
     </div>
+
     <div id="bookingsListContainer"></div>
+
     <div style="margin-top:12px;margin-bottom:10px;">
+
       <button id="archiveToggleBtn" class="archive-toggle" onclick="toggleArchive()">
+
         <span><i class="fa-solid fa-box-archive" style="color:var(--accent-gold);"></i> Archive</span>
+
         <span id="archiveToggleIcon">▸</span>
+
       </button>
+
     </div>
+
     <div id="archiveListContainer" class="archive-list-collapsed"></div>
+
   </div>
 
   <!-- SCREEN 5: PROFILE -->
+
   <!-- SCREEN 5: PROFILE -->
+
   <div id="screen-profile" class="app-screen">
+
     <div class="profile-header-card">
+
       <div class="profile-avatar" id="profAvatar">U</div>
+
       <div class="profile-name" id="profName">Logged-in User</div>
+
       <div class="profile-phone" id="profPhone">+255 764 519 027</div>
+
     </div>
+
     <a href="https://wa.me/255764519027?text=Hello%20Glamo Scents%20Help%20Center!%20I%20need%20assistance." target="_blank" class="whatsapp-support-btn">
+
       <i class="fa-brands fa-whatsapp" style="font-size:1.3rem;"></i> WhatsApp Help Center
+
     </a>
+
     <div class="loyalty-card">
+
       <div class="loyalty-header">
+
         <span class="loyalty-title"><i class="fa-solid fa-crown"></i> Loyalty Rewards</span>
+
         <span class="loyalty-badge" id="loyaltyCountBadge">Total Orders: 0</span>
+
       </div>
+
       <p style="font-size:0.75rem; color:var(--text-sub); margin-bottom:8px;" id="loyaltySubText">Every 5th order receives FREE DELIVERY!</p>
+
       <div class="stamps-row" id="stampsRow">
+
         <div class="stamp-dot">1</div>
+
         <div class="stamp-dot">2</div>
+
         <div class="stamp-dot">3</div>
+
         <div class="stamp-dot">4</div>
+
         <div class="stamp-dot"><i class="fa-solid fa-gift"></i></div>
+
       </div>
+
     </div>
+
     <button class="logout-main-btn" onclick="handleLogout()">
+
       <i class="fa-solid fa-right-from-bracket"></i> Log Out
+
     </button>
+
     <div class="section-title" style="margin-top:10px;">
+
       <i class="fa-solid fa-history" style="color:var(--accent-gold);"></i> Order History
+
     </div>
+
     <div id="historyListContainer"></div>
+
   </div>
+
   <!-- STOCK MANAGER MODAL -->
+
   <div id="stockModal" class="modal-overlay">
+
     <div class="sheet-content full-screen">
+
       <span class="sheet-close" onclick="closeSheet('stockModal')">&times;</span>
+
       <div class="modal-sticky-header"><div class="sheet-title">Stock Management</div></div>
 
       <div class="sales-entry-card">
+
         <h3>Add / Update Perfume Stock</h3>
+
         <div class="form-group">
+
           <label for="stockPerfumeName">Perfume Name</label>
+
           <input id="stockPerfumeName" type="text" placeholder="Enter perfume name">
+
         </div>
+
         <div class="form-row">
+
           <div class="form-group">
+
             <label for="stockQuantity">Current Stock</label>
+
             <input id="stockQuantity" class="number-control" type="number" min="0" step="1" placeholder="0">
+
           </div>
+
           <div class="form-group">
+
             <label for="stockThreshold">Low-Stock Threshold</label>
+
             <input id="stockThreshold" class="number-control" type="number" min="0" step="1" placeholder="5">
+
           </div>
+
         </div>
+
         <button class="sales-save-btn" onclick="saveStockItem()">Save Stock</button>
+
       </div>
 
       <div class="stock-panel">
+
         <h3>Current Inventory</h3>
+
         <div id="stockList"></div>
+
       </div>
+
     </div>
+
   </div>
 
   <!-- MONTHLY REVIEW MODAL -->
+
   <div id="monthlyReviewModal" class="modal-overlay">
+
     <div class="sheet-content full-screen">
+
       <span class="sheet-close" onclick="closeSheet('monthlyReviewModal')">&times;</span>
+
       <div class="modal-sticky-header"><div class="sheet-title">Monthly Review</div></div>
+
       <div id="monthlyReviewContent"></div>
+
     </div>
+
   </div>
 
   <!-- BOTTOM NAVIGATION -->
+
   <nav class="bottom-nav" id="mainNavBar" style="display:none;">
+
     <button id="nav-home-btn" class="nav-item active" onclick="switchTab('screen-home', this)">
+
       <i class="fa-solid fa-house"></i>
+
       <span>Home</span>
+
     </button>
+
     <button class="nav-item" onclick="switchTab('screen-ai', this)">
+
       <i class="fa-solid fa-robot"></i>
+
       <span>AI Guide</span>
+
     </button>
+
     <button class="nav-item" onclick="switchTab('screen-bookings', this); renderBookings()">
+
       <i class="fa-solid fa-receipt"></i>
+
       <span>Sales</span>
+
     </button>
+
     <button class="nav-item" onclick="switchTab('screen-profile', this)">
+
       <i class="fa-solid fa-user"></i>
+
       <span>Profile</span>
+
     </button>
+
   </nav>
+
   <!-- LOGIC SCRIPT -->
+
   <script>
+
     const SUPABASE_URL = 'https://zudqubbglwphfxaviqsg.supabase.co';
+
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp1ZHF1YmJnbHdwaGZ4YXZpcXNnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI0NjcyNTUsImV4cCI6MjA5ODA0MzI1NX0.7pRbRqz9-5gN8SG_ALn5ecHOWQofykPvhbrE2HQROCE';
+
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     let currentUser = null;
+
     let currentUsername = "";
+
     let currentUserPhone = "";
+
     let isRegisterMode = false;
+
     let deferredPrompt = null;
 
     let activeOrders = [];
+
   let archivedSales = [];
+
     let deletedSaleIds = [];
+
     let archiveOpen = false;
+
     let completedHistory = [];
+
     let completedOrdersCount = 0;
 
     let selectedSaleSize = '30 ML';
+
     let selectedSalePayment = 'cash';
+
     let selectedMobileProvider = '';
+
     let selectedDelivery = false;
+
     let reviewMode = 'daily';
+
     let customRangeMode = false;
+
     let stockItems = [];
 
     const todayISO = () => new Date().toISOString().slice(0,10);
+
     const monthISO = () => new Date().toISOString().slice(0,7);
 
     function escapeHtml(value) {
+
       return String(value ?? '').replace(/[&<>"']/g, c => ({
+
         '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'
+
       }[c]));
+
     }
+
     function money(v) { return Number(v || 0).toLocaleString() + ' TZS'; }
+
     function getSaleItems(s) {
+
       if (Array.isArray(s?.items) && s.items.length) {
+
         return s.items.map(item => ({
+
           perfumeName: String(item.perfumeName ?? item.name ?? 'Unknown'),
+
           quantity: Math.max(1, Number(item.quantity ?? item.qty ?? 1)),
+
           size: String(item.size ?? '30 ML')
+
         }));
+
       }
+
       if (s?.perfumeName) return [{ perfumeName:s.perfumeName, quantity:Math.max(1, Number(s.quantity ?? 1)), size:s.size || '30 ML' }];
+
       return [];
+
     }
+
     function getSalePerfumeCount(s) { return getSaleItems(s).reduce((sum,item) => sum + Number(item.quantity || 0), 0); }
+
     function getSaleNames(s) { return getSaleItems(s).map(item => item.perfumeName).join(', '); }
+
     function saleReceived(s) { return Number(s.receivedAmount ?? s.saleAmount ?? s.cashReceived ?? 0); }
+
     function saleTotal(s) { return saleReceived(s) + Number(s.deliveryAmount || 0); }
+
     function saleDate(s) {
+
       if (s.date) return s.date;
+
       if (s.dateTime) {
+
         const d = new Date(s.dateTime);
+
         if (!isNaN(d)) return d.toISOString().slice(0,10);
+
       }
+
       return todayISO();
+
     }
 
     if ('serviceWorker' in navigator) {
+
       window.addEventListener('load', () => {
+
         navigator.serviceWorker.register('service-worker.js')
+
           .then(reg => console.log('ServiceWorker registered:', reg.scope))
+
           .catch(err => console.log('ServiceWorker failed:', err));
+
       });
+
     }
 
     window.addEventListener('beforeinstallprompt', (e) => {
+
       e.preventDefault();
+
       deferredPrompt = e;
+
       const btn = document.getElementById('pwaInstallBtn');
+
       if (btn) btn.style.display = 'flex';
+
     });
 
     function installPWA() {
+
       if (!deferredPrompt) return;
+
       deferredPrompt.prompt();
+
       deferredPrompt.userChoice.then((choiceResult) => {
+
         if (choiceResult.outcome === 'accepted') document.getElementById('pwaInstallBtn').style.display = 'none';
+
         deferredPrompt = null;
+
       });
+
     }
 
     window.addEventListener('DOMContentLoaded', async () => {
+
       document.getElementById('saleDate').value = todayISO();
+
       document.getElementById('dailyDate').value = todayISO();
+
       document.getElementById('reviewMonth').value = monthISO();
+
       initializeSaleItems();
 
       const { data: { session } } = await supabaseClient.auth.getSession();
 
       setTimeout(async () => {
+
         document.getElementById('splash-screen').style.opacity = '0';
+
         setTimeout(() => document.getElementById('splash-screen').style.display = 'none', 500);
+
         if (session && session.user) {
+
           currentUser = session.user;
+
           await fetchAndSetupUserData(currentUser.id);
+
           await syncSalesFromSupabase();
+
           loadStock();
+
         } else {
+
           showAuthScreen();
+
         }
+
       }, 800);
 
       renderSalesProgress();
+
     });
 
     async function fetchAndSetupUserData(userId) {
+
       const { data } = await supabaseClient
+
         .from('profiles')
+
         .select('username, phone')
+
         .eq('id', userId)
+
         .single();
 
       if (data) {
+
         if (data.username) currentUsername = data.username;
+
         if (data.phone) currentUserPhone = data.phone;
+
       }
+
       if (!currentUsername && currentUser) currentUsername = currentUser.email.split('@')[0];
+
       setupUserInterface();
+
     }
 
     function getSalesStorageKey() {
+
       return 'glamo_sales_' + (currentUser?.id || 'guest');
+
     }
+
     function getStockStorageKey() {
+
       return 'glamo_stock_' + (currentUser?.id || 'guest');
+
     }
 
     function getArchiveStorageKey() {
+
       return 'glamo_sales_archive_' + (currentUser?.id || 'guest');
+
     }
+
     function getDeletedStorageKey() {
+
       return 'glamo_sales_deleted_' + (currentUser?.id || 'guest');
+
     }
 
     function saveLocalSales() {
+
       localStorage.setItem(getSalesStorageKey(), JSON.stringify(activeOrders));
+
       localStorage.setItem(getArchiveStorageKey(), JSON.stringify(archivedSales));
+
       localStorage.setItem(getDeletedStorageKey(), JSON.stringify(deletedSaleIds));
+
     }
 
     function loadLocalSales() {
+
       try {
+
         const savedActive = JSON.parse(localStorage.getItem(getSalesStorageKey()) || '[]');
+
         const savedArchive = JSON.parse(localStorage.getItem(getArchiveStorageKey()) || '[]');
+
         const savedDeleted = JSON.parse(localStorage.getItem(getDeletedStorageKey()) || '[]');
+
         activeOrders = Array.isArray(savedActive) ? savedActive : [];
+
         archivedSales = Array.isArray(savedArchive) ? savedArchive : [];
+
         deletedSaleIds = Array.isArray(savedDeleted) ? savedDeleted : [];
+
         activeOrders = activeOrders.filter(s => s && !deletedSaleIds.includes(s.id));
+
         archivedSales = archivedSales.filter(s => s && !deletedSaleIds.includes(s.id));
+
         completedHistory = [...activeOrders];
+
         completedOrdersCount = activeOrders.length;
+
       } catch {
+
         activeOrders = [];
+
         archivedSales = [];
+
         deletedSaleIds = [];
+
         completedHistory = [];
+
         completedOrdersCount = 0;
+
       }
+
     }
 
     async function syncSalesFromSupabase() {
+
       if (!currentUser) return;
+
       loadLocalSales();
+
       try {
+
         const { data, error } = await supabaseClient
+
           .from('orders')
+
           .select('*')
+
           .eq('user_id', currentUser.id)
+
           .order('created_at', { ascending: false });
 
         if (error) throw error;
 
         const cloudSales = (data || []).map(row => {
+
           let meta = {};
+
           try { meta = JSON.parse(row.instructions || '{}'); } catch {}
+
           if (meta.type !== 'glamo_sale') return null;
+
           const cloudItems = Array.isArray(meta.items) && meta.items.length
+
             ? meta.items
+
             : (Array.isArray(row.items) && row.items.length ? row.items : [{
+
                 name: meta.perfumeName || 'Unknown', qty:1, size:meta.size || '30 ML'
+
               }]);
+
           const items = cloudItems.map(item => ({
+
             perfumeName: String(item.perfumeName ?? item.name ?? 'Unknown'),
+
             quantity: Math.max(1, Number(item.quantity ?? item.qty ?? 1)),
+
             size: String(item.size ?? '30 ML')
+
           }));
+
           const receivedAmount = Number(meta.receivedAmount ?? meta.saleAmount ?? row.total ?? 0);
+
           return {
+
             id: row.order_id,
+
             dbId: row.id,
+
             items,
+
             perfumeName: items[0]?.perfumeName || 'Unknown',
+
             size: items[0]?.size || '30 ML',
+
             quantity: getSalePerfumeCount({items}),
+
             date: meta.date || new Date(row.created_at).toISOString().slice(0,10),
+
             paymentMethod: meta.paymentMethod || row.payment_method || 'Cash',
+
             paymentProvider: meta.paymentProvider || '',
+
             receivedAmount,
+
             saleAmount: receivedAmount,
+
             deliveryAmount: Number(meta.deliveryAmount ?? 0),
+
             cashReceived: Number(meta.cashReceived ?? (meta.paymentMethod === 'Cash' ? receivedAmount : 0)),
+
             dateTime: new Date(row.created_at).toLocaleString(),
+
             status: row.status || 'confirmed'
+
           };
+
         }).filter(Boolean);
 
         const localIds = new Set([...activeOrders, ...archivedSales].map(x => x.id));
+
         for (const sale of cloudSales) {
+
           if (deletedSaleIds.includes(sale.id)) continue;
+
           if (localIds.has(sale.id)) continue;
+
           if (sale.status === 'archived') archivedSales.push(sale);
+
           else activeOrders.push(sale);
+
         }
 
         activeOrders = activeOrders.filter(s => s && !deletedSaleIds.includes(s.id) && !archivedSales.some(a => a.id === s.id));
+
         archivedSales = archivedSales.filter((s, i, arr) => s && !deletedSaleIds.includes(s.id) && arr.findIndex(x => x.id === s.id) === i);
+
         activeOrders = activeOrders.sort((a,b) => new Date(b.dateTime || b.date) - new Date(a.dateTime || a.date));
+
         archivedSales = archivedSales.sort((a,b) => new Date(b.dateTime || b.date) - new Date(a.dateTime || a.date));
 
         completedHistory = [...activeOrders];
+
         completedOrdersCount = activeOrders.length;
+
         saveLocalSales();
+
       } catch (e) {
+
         console.log('Using local sales cache:', e);
+
       }
 
       renderBookings();
+
       renderHistory();
+
       renderArchive();
+
       renderSalesProgress();
+
       updateLoyaltyUI();
+
     }
 
     function showAuthScreen() {
+
       document.getElementById('screen-auth').style.display = 'flex';
+
       document.getElementById('mainHeader').style.display = 'none';
+
       document.getElementById('mainNavBar').style.display = 'none';
+
       document.querySelectorAll('.app-screen').forEach(s => s.classList.remove('active'));
+
     }
 
     function setupUserInterface() {
+
       document.getElementById('screen-auth').style.display = 'none';
+
       document.getElementById('mainHeader').style.display = 'flex';
+
       document.getElementById('mainNavBar').style.display = 'flex';
+
       switchTab('screen-home', document.getElementById('nav-home-btn'));
+
       document.getElementById('heroGreeting').innerText = `Welcome, ${currentUsername}!`;
+
       document.getElementById('profName').innerText = currentUsername;
+
       document.getElementById('profAvatar').innerText = currentUsername.charAt(0).toUpperCase();
+
       document.getElementById('profPhone').innerText = currentUserPhone || '';
+
       if (navigator.vibrate) { try { navigator.vibrate(40); } catch {} }
+
     }
 
     function toggleAuthMode() {
+
       isRegisterMode = !isRegisterMode;
+
       document.getElementById('authTitle').innerText = isRegisterMode ? "Create Account" : "Welcome Back";
+
       document.getElementById('authSub').innerText = isRegisterMode ? "Sign up to start using Glamo Scents" : "Sign in to your Glamo Scents account";
+
       document.getElementById('authSubmitBtn').innerText = isRegisterMode ? "Register" : "Sign In";
+
       document.getElementById('authSwitchText').innerHTML = isRegisterMode ? "Already have an account? <span>Sign In</span>" : "Don't have an account? <span>Register here</span>";
+
       document.getElementById('usernameGroup').style.display = isRegisterMode ? "block" : "none";
+
       document.getElementById('phoneGroup').style.display = isRegisterMode ? "block" : "none";
+
     }
 
     async function handleAuthSubmit() {
+
       const email = document.getElementById('authEmail').value.trim();
+
       const password = document.getElementById('authPassword').value.trim();
+
       const username = document.getElementById('authUsername').value.trim();
+
       const phone = document.getElementById('authPhone').value.trim();
 
       if (!email || !password) { alert("Please enter both email and password."); return; }
 
       if (isRegisterMode) {
+
         if (!username || !phone) { alert("Please provide both a username and a phone number."); return; }
+
         const { data, error } = await supabaseClient.auth.signUp({ email, password });
+
         if (error) { alert("Registration Error: " + error.message); return; }
 
         currentUser = data.user;
+
         currentUsername = username;
+
         currentUserPhone = phone;
+
         if (currentUser) {
+
           await supabaseClient.from('profiles').upsert([{ id: currentUser.id, username, email, phone }]);
+
         }
+
         alert("Registration successful! Welcome, " + username);
+
         loadLocalSales();
+
         loadStock();
+
         renderSalesProgress();
+
         setupUserInterface();
+
       } else {
+
         const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+
         if (error) { alert("Login Error: " + error.message); return; }
+
         currentUser = data.user;
+
         await fetchAndSetupUserData(currentUser.id);
+
         await syncSalesFromSupabase();
+
         loadStock();
+
       }
+
     }
 
     async function handleLogout() {
+
       await supabaseClient.auth.signOut();
+
       currentUser = null;
+
       currentUsername = "";
+
       currentUserPhone = "";
+
       activeOrders = [];
+
       completedHistory = [];
+
       completedOrdersCount = 0;
+
       stockItems = [];
+
       document.getElementById('authEmail').value = '';
+
       document.getElementById('authPassword').value = '';
+
       document.getElementById('authUsername').value = '';
+
       document.getElementById('authPhone').value = '';
+
       renderBookings();
+
       renderHistory();
+
       renderSalesProgress();
+
       showAuthScreen();
+
     }
 
     function toggleTheme() {
+
       const currentTheme = document.documentElement.getAttribute('data-theme');
+
       const icon = document.querySelector('#themeToggleBtn i');
+
       if (currentTheme === 'dark') {
+
         document.documentElement.removeAttribute('data-theme');
+
         icon.className = 'fa-solid fa-moon';
+
       } else {
+
         document.documentElement.setAttribute('data-theme', 'dark');
+
         icon.className = 'fa-solid fa-sun';
+
       }
+
     }
 
     function switchTab(screenId, element) {
+
       document.querySelectorAll('.app-screen').forEach(s => s.classList.remove('active'));
+
       document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+
       const targetScreen = document.getElementById(screenId);
+
       if (targetScreen) targetScreen.classList.add('active');
+
       if (element) element.classList.add('active');
+
       if (screenId === 'screen-sales-progress') renderSalesProgress();
+
       if (screenId === 'screen-bookings') renderBookings();
+
     }
 
     function goBack() {
+
       switchTab('screen-home', document.getElementById('nav-home-btn'));
+
     }
 
     function openMonthlyReview() {
+
       const now = monthISO();
+
       document.getElementById('reviewMonth').value = now;
+
       setReviewMode('monthly');
+
       document.getElementById('monthlyReviewModal').classList.add('active');
+
       renderMonthlyReview();
+
     }
 
     function closeSheet(id) {
+
       const el = document.getElementById(id);
+
       if (el) el.classList.remove('active');
+
     }
 
     function selectSaleSize(el, size) {
+
       document.querySelectorAll('.size-option').forEach(x => x.classList.remove('active'));
+
       el.classList.add('active');
+
       selectedSaleSize = size;
+
     }
 
     function selectSalePayment(type) {
+
       selectedSalePayment = type;
+
       document.getElementById('saleCashBtn').classList.toggle('active', type === 'cash');
+
       document.getElementById('saleMobileBtn').classList.toggle('active', type === 'mobile');
+
       document.getElementById('saleCashBox').classList.toggle('active', type === 'cash');
+
       document.getElementById('saleMobileBox').classList.toggle('active', type === 'mobile');
+
     }
 
     function selectMobileProvider(el, provider) {
+
       document.querySelectorAll('#saleMobileBox .pay-option-btn').forEach(x => x.classList.remove('active'));
+
       el.classList.add('active');
+
       selectedMobileProvider = provider;
+
     }
 
     function selectDelivery(value) {
+
       selectedDelivery = value;
+
       document.getElementById('deliveryYesBtn').classList.toggle('active', value);
+
       document.getElementById('deliveryNoBtn').classList.toggle('active', !value);
+
       document.getElementById('deliveryBox').classList.toggle('active', value);
+
     }
 
     function createPerfumeRow(item = {}) {
+
       const row = document.createElement('div');
+
       row.className = 'sale-item-row';
+
       const name = escapeHtml(item.perfumeName || '');
+
       const qty = Math.max(1, Number(item.quantity || 1));
+
       const size = item.size || '30 ML';
+
       row.innerHTML = `
+
         <input class="sale-item-name" type="text" placeholder="Perfume name" value="${name}">
+
         <input class="sale-item-qty" type="number" min="1" step="1" value="${qty}" aria-label="Quantity">
+
         <select class="sale-item-size" aria-label="ML / Size">
+
           ${['10 ML','20 ML','30 ML','50 ML','100 ML'].map(v => `<option value="${v}" ${v === size ? 'selected' : ''}>${v}</option>`).join('')}
+
         </select>
+
         <button type="button" class="sale-item-remove" onclick="removePerfumeRow(this)" title="Remove perfume">
+
           <i class="fa-solid fa-xmark"></i>
+
         </button>`;
+
       row.querySelectorAll('input,select').forEach(el => el.addEventListener('input', updateSaleItemsSummary));
+
       return row;
+
     }
 
     function initializeSaleItems(items = []) {
+
       const list = document.getElementById('saleItemsList');
+
       if (!list) return;
+
       list.innerHTML = '';
+
       const normalized = Array.isArray(items) && items.length ? items : [{perfumeName:'', quantity:1, size:'30 ML'}];
+
       normalized.forEach(item => list.appendChild(createPerfumeRow(item)));
+
       updateSaleItemsSummary();
+
     }
 
     function addPerfumeRow() {
+
       const list = document.getElementById('saleItemsList');
+
       if (!list) return;
+
       list.appendChild(createPerfumeRow({perfumeName:'', quantity:1, size:'30 ML'}));
+
       updateSaleItemsSummary();
+
       list.lastElementChild.querySelector('.sale-item-name')?.focus();
+
     }
 
     function removePerfumeRow(button) {
+
       const list = document.getElementById('saleItemsList');
+
       if (!list) return;
+
       if (list.children.length <= 1) {
+
         const row = list.firstElementChild;
+
         if (row) { row.querySelector('.sale-item-name').value=''; row.querySelector('.sale-item-qty').value='1'; row.querySelector('.sale-item-size').value='30 ML'; }
+
       } else {
+
         button.closest('.sale-item-row')?.remove();
+
       }
+
       updateSaleItemsSummary();
+
     }
 
     function collectSaleItems() {
+
       return [...document.querySelectorAll('#saleItemsList .sale-item-row')].map(row => ({
+
         perfumeName: row.querySelector('.sale-item-name')?.value.trim() || '',
+
         quantity: Math.max(1, Number(row.querySelector('.sale-item-qty')?.value || 1)),
+
         size: row.querySelector('.sale-item-size')?.value || '30 ML'
+
       }));
+
     }
 
     function updateSaleItemsSummary() {
+
       const summary = document.getElementById('saleItemsSummary');
+
       if (!summary) return;
+
       const items = collectSaleItems().filter(x => x.perfumeName);
+
       const count = items.reduce((sum,item) => sum + item.quantity, 0);
+
       summary.textContent = `${items.length || 1} perfume item${items.length === 1 ? '' : 's'} • ${count} bottle${count === 1 ? '' : 's'} total`;
+
     }
 
     async function saveSale() {
+
       const date = document.getElementById('saleDate').value;
+
       const items = collectSaleItems();
+
       const receivedAmount = Number(document.getElementById('receivedAmount').value || 0);
+
       const deliveryAmount = selectedDelivery ? Number(document.getElementById('deliveryAmount').value || 0) : 0;
 
       if (!date || !items.length || items.some(item => !item.perfumeName)) {
+
         alert('Please enter a date and complete every perfume row.');
+
         return;
+
       }
+
       if (!receivedAmount) {
+
         alert('Please enter the actual amount received.');
+
         return;
+
       }
+
       if (selectedSalePayment === 'mobile' && !selectedMobileProvider) {
+
         alert('Please select CRDB, M-PESA, Mixx by Yas or HaloPesa.');
+
         return;
+
       }
+
       if (selectedDelivery && deliveryAmount < 0) {
+
         alert('Please enter a valid delivery amount.');
+
         return;
+
       }
 
       const id = 'GLM-' + Date.now().toString().slice(-8);
+
       const sale = {
+
         id, items,
+
         perfumeName:items[0].perfumeName,
+
         size:items[0].size,
+
         quantity:getSalePerfumeCount({items}),
+
         date,
+
         paymentMethod:selectedSalePayment === 'cash' ? 'Cash' : 'Mobile Money',
+
         paymentProvider:selectedSalePayment === 'mobile' ? selectedMobileProvider : '',
+
         receivedAmount,
+
         saleAmount:receivedAmount,
+
         deliveryAmount,
+
         cashReceived:selectedSalePayment === 'cash' ? receivedAmount : 0,
+
         dateTime:new Date().toLocaleString(),
+
         status:'confirmed'
+
       };
 
       activeOrders.unshift(sale);
+
       completedHistory = [...activeOrders];
+
       completedOrdersCount = activeOrders.length;
+
       saveLocalSales();
+
       adjustStockForSale(sale, 1);
+
       await persistSaleToSupabase(sale);
 
       renderBookings();
+
       renderHistory();
+
       renderSalesProgress();
+
       updateLoyaltyUI();
 
       alert('Sale saved successfully.');
+
       resetSaleForm();
+
       switchTab('screen-bookings', document.querySelector('#mainNavBar .nav-item:nth-child(3)'));
+
     }
 
     async function persistSaleToSupabase(sale) {
+
       if (!currentUser) return;
+
       const meta = {
+
         type:'glamo_sale', date:sale.date, items:sale.items,
+
         perfumeName:sale.perfumeName, size:sale.size,
+
         paymentMethod:sale.paymentMethod, paymentProvider:sale.paymentProvider,
+
         receivedAmount:sale.receivedAmount, saleAmount:sale.receivedAmount,
+
         deliveryAmount:sale.deliveryAmount, cashReceived:sale.cashReceived
+
       };
+
       try {
+
         const { data, error } = await supabaseClient.from('orders').insert([{
+
           order_id:sale.id, user_id:currentUser.id,
+
           items:sale.items.map(item => ({name:item.perfumeName,size:item.size,qty:item.quantity})),
+
           total:saleTotal(sale), location:'', instructions:JSON.stringify(meta),
+
           payment_method:sale.paymentMethod + (sale.paymentProvider ? ' - ' + sale.paymentProvider : ''),
+
           status:'confirmed'
+
         }]).select('id').single();
+
         if (!error && data) { sale.dbId = data.id; saveLocalSales(); }
+
       } catch(e) { console.log('Sale cloud sync unavailable; kept locally.', e); }
+
     }
 
     function resetSaleForm() {
+
       document.getElementById('saleDate').value = todayISO();
+
       document.getElementById('receivedAmount').value = '';
+
       document.getElementById('deliveryAmount').value = '';
+
       initializeSaleItems();
+
       selectedSalePayment = 'cash';
+
       selectedMobileProvider = '';
+
       selectedDelivery = false;
+
       selectSalePayment('cash');
+
       selectDelivery(false);
+
       document.querySelectorAll('#saleMobileBox .pay-option-btn').forEach(x => x.classList.remove('active'));
+
     }
 
     function renderBookings() {
+
       const container = document.getElementById('bookingsListContainer');
+
       if (!container) return;
+
       if (!activeOrders.length) {
+
         container.innerHTML = '<div style="text-align:center;padding:30px;color:var(--text-sub);">No sales recorded yet.</div>';
+
         return;
+
       }
+
       container.innerHTML = activeOrders.map(s => {
+
         const items = getSaleItems(s);
+
         const itemText = items.map(item => `${escapeHtml(item.perfumeName)} • ${item.quantity} × ${escapeHtml(item.size)}`).join('<br>');
+
         return `<div class="order-card-track">
+
           <div class="track-header"><span class="order-id">${itemText}</span><span class="status-badge verified"><i class="fa-solid fa-check"></i> Sale</span></div>
+
           <div class="track-details">
+
             <p><strong>Date:</strong> ${escapeHtml(s.date)}</p>
+
             <p><strong>Payment:</strong> ${escapeHtml(s.paymentMethod)}${s.paymentProvider ? ' • ' + escapeHtml(s.paymentProvider) : ''}</p>
+
             <p><strong>Received:</strong> ${money(saleReceived(s))}</p>
+
             <p><strong>Delivery:</strong> ${money(s.deliveryAmount)}</p>
+
             <p><strong>Total:</strong> ${money(saleTotal(s))}</p>
+
           </div>
+
           <div class="sale-actions">
+
             <button class="small-action" onclick="editSale('${s.id}')"><i class="fa-solid fa-pen"></i> Edit</button>
+
             <button class="small-action delete" onclick="deleteSale('${s.id}')"><i class="fa-solid fa-trash"></i> Delete</button>
+
           </div>
+
         </div>`;
+
       }).join('');
+
     }
 
     function renderHistory() {
+
       const container = document.getElementById('historyListContainer');
+
       if (!container) return;
+
       container.innerHTML = activeOrders.length
+
         ? activeOrders.slice(0,20).map(s => `<div class="order-card-track" style="opacity:.85;">
+
             <div class="track-header"><span class="order-id">${escapeHtml(getSaleNames(s))}</span><span class="status-badge verified">Sale</span></div>
+
             <div class="track-details"><p><strong>Date:</strong> ${escapeHtml(s.date)}</p><p><strong>Perfumes:</strong> ${getSalePerfumeCount(s)}</p><p><strong>Total:</strong> ${money(saleTotal(s))}</p></div>
+
           </div>`).join('')
+
         : '<p style="font-size:.8rem;color:var(--text-sub);">No sales logged yet.</p>';
+
     }
 
     async function editSale(id) {
+
       const s = activeOrders.find(x => x.id === id);
+
       if (!s) return;
+
       initializeSaleItems(getSaleItems(s));
+
       document.getElementById('saleDate').value = s.date;
+
       document.getElementById('receivedAmount').value = saleReceived(s);
+
       document.getElementById('deliveryAmount').value = s.deliveryAmount || '';
+
       selectedSalePayment = s.paymentMethod === 'Cash' ? 'cash' : 'mobile';
+
       selectedMobileProvider = s.paymentProvider || '';
+
       selectedDelivery = Number(s.deliveryAmount || 0) > 0;
+
       selectSalePayment(selectedSalePayment);
+
       selectDelivery(selectedDelivery);
+
       document.querySelectorAll('#saleMobileBox .pay-option-btn').forEach(x => x.classList.toggle('active', x.textContent.trim() === selectedMobileProvider));
+
       const btn = document.querySelector('.sales-save-btn');
+
       btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Save Changes';
+
       btn.onclick = () => updateSale(id);
+
       switchTab('screen-perfumes');
+
     }
 
     async function updateSale(id) {
+
       const old = activeOrders.find(x => x.id === id);
+
       if (!old) return;
+
       const date = document.getElementById('saleDate').value;
+
       const items = collectSaleItems();
+
       const receivedAmount = Number(document.getElementById('receivedAmount').value || 0);
+
       const deliveryAmount = selectedDelivery ? Number(document.getElementById('deliveryAmount').value || 0) : 0;
+
       if (!date || !items.length || items.some(item => !item.perfumeName) || !receivedAmount) { alert('Please complete the sale fields.'); return; }
+
       if (selectedSalePayment === 'mobile' && !selectedMobileProvider) { alert('Please select a mobile money provider.'); return; }
 
       adjustStockForSale(old, -1);
+
       const updated = { ...old, items, perfumeName:items[0].perfumeName, size:items[0].size, quantity:getSalePerfumeCount({items}), date,
+
         paymentMethod:selectedSalePayment === 'cash' ? 'Cash' : 'Mobile Money',
+
         paymentProvider:selectedSalePayment === 'mobile' ? selectedMobileProvider : '',
+
         receivedAmount, saleAmount:receivedAmount, deliveryAmount,
+
         cashReceived:selectedSalePayment === 'cash' ? receivedAmount : 0 };
+
       const idx = activeOrders.findIndex(x => x.id === id);
+
       activeOrders[idx] = updated;
+
       completedHistory = [...activeOrders];
+
       saveLocalSales();
+
       adjustStockForSale(updated, 1);
 
       if (currentUser && old.dbId) {
+
         const meta = { type:'glamo_sale', date:updated.date, items:updated.items, perfumeName:updated.perfumeName, size:updated.size,
+
           paymentMethod:updated.paymentMethod, paymentProvider:updated.paymentProvider, receivedAmount:updated.receivedAmount,
+
           saleAmount:updated.receivedAmount, deliveryAmount:updated.deliveryAmount, cashReceived:updated.cashReceived };
+
         await supabaseClient.from('orders').update({
+
           items:updated.items.map(item => ({name:item.perfumeName,size:item.size,qty:item.quantity})),
+
           total:saleTotal(updated), instructions:JSON.stringify(meta),
+
           payment_method:updated.paymentMethod + (updated.paymentProvider ? ' - ' + updated.paymentProvider : '')
+
         }).eq('id', old.dbId);
+
       }
+
       resetSaleForm();
+
       const btn = document.querySelector('.sales-save-btn');
+
       btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Save Sale'; btn.onclick = saveSale;
+
       renderBookings(); renderHistory(); renderSalesProgress();
+
       alert('Sale updated successfully.');
+
       switchTab('screen-bookings', document.querySelector('#mainNavBar .nav-item:nth-child(3)'));
+
     }
 
     async function deleteSale(id) {
+
       const sale = activeOrders.find(x => x.id === id);
+
       if (!sale || !confirm('Move this sale to Archive?')) return;
+
       adjustStockForSale(sale, -1);
+
       sale.archivedAt = new Date().toISOString();
+
       sale.status = 'archived';
+
       activeOrders = activeOrders.filter(x => x.id !== id);
+
       archivedSales.unshift(sale);
+
       completedHistory = [...activeOrders];
+
       completedOrdersCount = activeOrders.length;
+
       saveLocalSales();
+
       if (currentUser && sale.dbId) {
+
         try { await supabaseClient.from('orders').update({status:'archived'}).eq('id', sale.dbId); } catch {}
+
       }
+
       renderBookings(); renderHistory(); renderArchive(); renderSalesProgress(); updateLoyaltyUI();
+
     }
 
     async function unarchiveSale(id) {
+
       const sale = archivedSales.find(x => x.id === id);
+
       if (!sale || !confirm('Restore this sale to active Sales?')) return;
+
       sale.status = 'confirmed'; delete sale.archivedAt;
+
       archivedSales = archivedSales.filter(x => x.id !== id);
+
       activeOrders.unshift(sale);
+
       completedHistory = [...activeOrders]; completedOrdersCount = activeOrders.length;
+
       saveLocalSales(); adjustStockForSale(sale, 1);
+
       if (currentUser && sale.dbId) {
+
         try { await supabaseClient.from('orders').update({status:'confirmed'}).eq('id', sale.dbId); } catch {}
+
       }
+
       renderBookings(); renderHistory(); renderArchive(); renderSalesProgress(); updateLoyaltyUI();
+
     }
 
     async function deleteArchivedSale(id) {
+
       const sale = archivedSales.find(x => x.id === id);
+
       if (!sale || !confirm('Delete this archived sale permanently? This cannot be undone.')) return;
+
       deletedSaleIds = [...new Set([...deletedSaleIds, id])];
+
       archivedSales = archivedSales.filter(x => x.id !== id);
+
       activeOrders = activeOrders.filter(x => x.id !== id);
+
       completedHistory = [...activeOrders]; completedOrdersCount = activeOrders.length;
+
       saveLocalSales();
+
       if (currentUser && sale.dbId) {
+
         try { await supabaseClient.from('orders').delete().eq('id', sale.dbId); } catch {}
+
       }
+
       renderBookings(); renderHistory(); renderArchive(); renderSalesProgress(); updateLoyaltyUI();
+
     }
 
     function toggleArchive() {
+
       archiveOpen = !archiveOpen;
+
       const container = document.getElementById('archiveListContainer');
+
       const icon = document.getElementById('archiveToggleIcon');
+
       if (container) container.classList.toggle('open', archiveOpen);
+
       if (icon) icon.textContent = archiveOpen ? '▾' : '▸';
+
       renderArchive();
+
     }
 
     function renderArchive() {
+
       const container = document.getElementById('archiveListContainer');
+
       if (!container) return;
+
       container.classList.toggle('open', archiveOpen);
+
       const icon = document.getElementById('archiveToggleIcon');
+
       if (icon) icon.textContent = archiveOpen ? '▾' : '▸';
+
       if (!archivedSales.length) {
+
         container.innerHTML = archiveOpen ? '<div style="padding:12px;text-align:center;color:var(--text-sub);font-size:.76rem;">Archive is empty.</div>' : '';
+
         return;
+
       }
+
       if (!archiveOpen) { container.innerHTML = ''; return; }
+
       container.innerHTML = archivedSales.map(s => {
+
         const items = getSaleItems(s);
+
         return `<div class="archive-card">
+
           <div class="track-header"><span class="order-id">${items.map(item => `${escapeHtml(item.perfumeName)} • ${item.quantity} × ${escapeHtml(item.size)}`).join('<br>')}</span>
+
             <span class="status-badge pending"><i class="fa-solid fa-box-archive"></i> Archived</span></div>
+
           <div class="track-details">
+
             <p><strong>Date:</strong> ${escapeHtml(s.date)}</p>
+
             <p><strong>Payment:</strong> ${escapeHtml(s.paymentMethod)}${s.paymentProvider ? ' • ' + escapeHtml(s.paymentProvider) : ''}</p>
+
             <p><strong>Received:</strong> ${money(saleReceived(s))}</p>
+
             <p><strong>Delivery:</strong> ${money(s.deliveryAmount)}</p>
+
             <p><strong>Total:</strong> ${money(saleTotal(s))}</p>
+
           </div>
+
           <div class="sale-actions">
+
             <button class="small-action" onclick="unarchiveSale('${s.id}')"><i class="fa-solid fa-box-open"></i> Unarchive</button>
+
             <button class="small-action delete" onclick="deleteArchivedSale('${s.id}')"><i class="fa-solid fa-trash-can"></i> Delete Permanently</button>
+
           </div>
+
         </div>`;
+
       }).join('');
+
     }
 
     function getFilteredSales() {
+
       const valid = activeOrders.filter(s => s && s.date);
+
       if (customRangeMode) {
+
         const from = document.getElementById('rangeFrom').value;
+
         const to = document.getElementById('rangeTo').value;
+
         return valid.filter(s => (!from || s.date >= from) && (!to || s.date <= to));
+
       }
 
       if (reviewMode === 'daily') {
+
         const d = document.getElementById('dailyDate').value || todayISO();
+
         return valid.filter(s => s.date === d);
+
       }
+
       if (reviewMode === 'monthly') {
+
         const m = document.getElementById('reviewMonth').value || monthISO();
+
         return valid.filter(s => s.date.startsWith(m));
+
       }
+
       if (reviewMode === 'weekly') {
+
         const now = new Date();
+
         const day = now.getDay();
+
         const mondayOffset = day === 0 ? -6 : 1 - day;
+
         const monday = new Date(now);
+
         monday.setDate(now.getDate() + mondayOffset);
+
         const sunday = new Date(monday);
+
         sunday.setDate(monday.getDate() + 6);
+
         const from = monday.toISOString().slice(0,10);
+
         const to = sunday.toISOString().slice(0,10);
+
         return valid.filter(s => s.date >= from && s.date <= to);
+
       }
+
       return valid;
+
     }
 
     function calculateMetrics(sales) {
+
       const totalSales = sales.reduce((a,s) => a + saleReceived(s), 0);
+
       const totalDelivery = sales.reduce((a,s) => a + Number(s.deliveryAmount || 0), 0);
+
       const totalRevenue = totalSales + totalDelivery;
+
       const perfumes = sales.reduce((a,s) => a + getSalePerfumeCount(s), 0);
+
       return { totalSales, totalDelivery, totalRevenue, count:sales.length, perfumes };
+
     }
 
     function performanceText(metrics) {
+
       if (!metrics.count) return '<span class="performance-pill"><i class="fa-solid fa-minus"></i> No sales in this period</span>';
+
       if (metrics.count >= 10) return '<span class="performance-pill"><i class="fa-solid fa-fire"></i> Strong performance</span>';
+
       if (metrics.count >= 5) return '<span class="performance-pill"><i class="fa-solid fa-arrow-up"></i> Good performance</span>';
+
       return '<span class="performance-pill"><i class="fa-solid fa-chart-line"></i> Building momentum</span>';
+
     }
 
     function setReviewMode(mode) {
+
       reviewMode = mode;
+
       customRangeMode = false;
+
       ['tabDaily','tabWeekly','tabMonthly'].forEach(id => document.getElementById(id).classList.remove('active'));
+
       document.getElementById(mode === 'daily' ? 'tabDaily' : mode === 'weekly' ? 'tabWeekly' : 'tabMonthly').classList.add('active');
+
       document.getElementById('dailyFilters').style.display = mode === 'daily' ? 'block' : 'none';
+
       document.getElementById('monthlyFilters').style.display = mode === 'monthly' ? 'block' : 'none';
+
       document.getElementById('customFilters').style.display = 'none';
+
       renderSalesProgress();
+
     }
 
     function showCustomRange() {
+
       customRangeMode = true;
+
       document.getElementById('dailyFilters').style.display = 'none';
+
       document.getElementById('monthlyFilters').style.display = 'none';
+
       document.getElementById('customFilters').style.display = 'block';
+
       document.querySelectorAll('.review-tab').forEach(x => x.classList.remove('active'));
+
       renderSalesProgress();
+
     }
 
     function renderSalesProgress() {
+
       const sales = getFilteredSales();
+
       const metrics = calculateMetrics(sales);
+
       const metricsEl = document.getElementById('progressMetrics');
+
       if (!metricsEl) return;
 
       metricsEl.innerHTML = `
+
         <div class="metric-card"><div class="metric-label">Total Sales</div><div class="metric-value">${money(metrics.totalSales)}</div></div>
+
         <div class="metric-card"><div class="metric-label">Number of Sales</div><div class="metric-value">${metrics.count}</div></div>
+
         <div class="metric-card"><div class="metric-label">Perfumes Sold</div><div class="metric-value">${metrics.perfumes}</div></div>
+
         <div class="metric-card"><div class="metric-label">Delivery Total</div><div class="metric-value">${money(metrics.totalDelivery)}</div></div>
+
       `;
+
       document.getElementById('progressPerformance').innerHTML =
+
         `<div style="display:flex;justify-content:space-between;align-items:center;"><strong>${reviewMode === 'daily' ? 'Daily' : reviewMode === 'weekly' ? 'Weekly' : customRangeMode ? 'Custom Range' : 'Monthly'} Performance</strong>${performanceText(metrics)}</div>
+
          <p style="font-size:.75rem;color:var(--text-sub);margin-top:8px;">Revenue including delivery: <strong>${money(metrics.totalRevenue)}</strong></p>`;
 
       renderBestSellers(sales);
+
       renderGrowth();
+
       renderStockAlerts();
+
     }
 
     function renderBestSellers(sales = activeOrders) {
+
       const counts = {};
+
       sales.forEach(s => getSaleItems(s).forEach(item => { counts[item.perfumeName] = (counts[item.perfumeName] || 0) + Number(item.quantity || 0); }));
+
       const rows = Object.entries(counts).sort((a,b) => b[1]-a[1]);
+
       const el = document.getElementById('bestSellersList');
+
       if (!el) return;
+
       if (!rows.length) { el.innerHTML = '<p style="font-size:.78rem;color:var(--text-sub);">No sales data yet.</p>'; }
+
       else {
+
         const max = rows[0][1] || 1;
+
         el.innerHTML = rows.slice(0,10).map(([name,count],i) => `<div class="rank-row">
+
           <div class="rank-head"><span>${i+1}. ${escapeHtml(name)}</span><span>${count} sold</span></div>
+
           <div class="progress-track"><div class="progress-fill" style="width:${(count/max)*100}%"></div></div>
+
         </div>`).join('');
+
       }
+
       const low = rows.length ? rows[rows.length - 1] : null;
+
       const lowEl = document.getElementById('lowestSeller');
+
       if (lowEl) lowEl.innerHTML = low
+
         ? `<div class="metric-card"><div class="metric-label">Lowest-Selling Perfume</div><div class="metric-value">${escapeHtml(low[0])}</div><p style="font-size:.72rem;color:var(--text-sub);margin-top:4px;">${low[1]} sold in the selected period</p></div>`
+
         : '';
+
     }
 
     function renderGrowth() {
+
       const el = document.getElementById('growthSummary');
+
       if (!el) return;
+
       const thisMonth = monthISO();
+
       const cur = activeOrders.filter(s => s.date.startsWith(thisMonth));
+
       const d = new Date();
+
       d.setMonth(d.getMonth()-1);
+
       const prevMonth = d.toISOString().slice(0,7);
+
       const prev = activeOrders.filter(s => s.date.startsWith(prevMonth));
+
       const curRevenue = calculateMetrics(cur).totalSales;
+
       const prevRevenue = calculateMetrics(prev).totalSales;
+
       const hasPrevious = prev.length > 0;
+
       const pct = hasPrevious && prevRevenue ? ((curRevenue-prevRevenue)/prevRevenue)*100 : 0;
+
       const sign = pct > 0 ? '+' : '';
+
       el.innerHTML = `<div class="metric-card"><div class="metric-label">Current Month Sales</div><div class="metric-value">${money(curRevenue)}</div></div>
+
         <div class="metric-card" style="margin-top:8px;"><div class="metric-label">Previous Month Sales</div><div class="metric-value">${money(prevRevenue)}</div></div>
+
         <p style="font-size:.76rem;margin-top:10px;">Overall sales growth: <strong>${hasPrevious ? sign + pct.toFixed(1) + '%' : 'No previous-month data yet'}</strong></p>`;
+
     }
 
     function renderMonthlyReview() {
+
       const m = document.getElementById('reviewMonth').value || monthISO();
+
       const sales = activeOrders.filter(s => s.date.startsWith(m));
+
       const metrics = calculateMetrics(sales);
+
       const counts = {};
+
       sales.forEach(s => counts[s.perfumeName]=(counts[s.perfumeName]||0)+1);
+
       const best = Object.entries(counts).sort((a,b)=>b[1]-a[1])[0];
+
       const prevDate = new Date(m + '-01');
+
       prevDate.setMonth(prevDate.getMonth()-1);
+
       const prevM = prevDate.toISOString().slice(0,7);
+
       const prev = calculateMetrics(activeOrders.filter(s => s.date.startsWith(prevM)));
+
       const hasPrevious = prev.count > 0;
+
       const growth = prev.totalSales ? ((metrics.totalSales-prev.totalSales)/prev.totalSales)*100 : 0;
 
       document.getElementById('monthlyReviewContent').innerHTML = `
+
         <div class="review-card">
+
           <h3>Monthly Summary</h3>
+
           <div class="review-grid">
+
             <div class="metric-card"><div class="metric-label">Perfumes Sold</div><div class="metric-value">${metrics.perfumes}</div></div>
+
             <div class="metric-card"><div class="metric-label">Total Sales</div><div class="metric-value">${money(metrics.totalSales)}</div></div>
+
             <div class="metric-card"><div class="metric-label">Delivery</div><div class="metric-value">${money(metrics.totalDelivery)}</div></div>
+
             <div class="metric-card"><div class="metric-label">Revenue</div><div class="metric-value">${money(metrics.totalRevenue)}</div></div>
+
           </div>
+
         </div>
+
         <div class="review-card">
+
           <h3>Best-Selling Perfume</h3>
+
           <p style="font-size:1rem;font-weight:900;">${best ? escapeHtml(best[0]) : 'No sales yet'}</p>
+
           <p style="font-size:.75rem;color:var(--text-sub);margin-top:4px;">${best ? best[1] + ' sold' : 'Record sales to see a ranking.'}</p>
+
         </div>
+
         <div class="review-card">
+
           <h3>Monthly Performance</h3>
+
           ${performanceText(metrics)}
+
           <p style="font-size:.76rem;margin-top:10px;">Compared with previous month: <strong>${hasPrevious ? (growth >= 0 ? '+' : '') + growth.toFixed(1) + '%' : 'No previous-month data yet'}</strong></p>
+
         </div>
+
       `;
+
     }
 
     function loadStock() {
+
       try { stockItems = JSON.parse(localStorage.getItem(getStockStorageKey()) || '[]'); } catch { stockItems = []; }
+
       renderStockList();
+
       renderStockAlerts();
+
     }
 
     function saveStock() {
+
       localStorage.setItem(getStockStorageKey(), JSON.stringify(stockItems));
+
       renderStockList();
+
       renderStockAlerts();
+
       renderSalesProgress();
+
     }
 
     function openStockManager() {
+
       loadStock();
+
       document.getElementById('stockModal').classList.add('active');
+
     }
 
     function saveStockItem() {
+
       const name = document.getElementById('stockPerfumeName').value.trim();
+
       const qty = Number(document.getElementById('stockQuantity').value);
+
       const threshold = Number(document.getElementById('stockThreshold').value);
 
       if (!name || qty < 0 || threshold < 0) { alert('Enter a perfume name, stock quantity and threshold.'); return; }
 
       const existing = stockItems.find(x => x.name.toLowerCase() === name.toLowerCase());
+
       if (existing) {
+
         existing.name = name;
+
         existing.quantity = qty;
+
         existing.threshold = threshold;
+
       } else {
+
         stockItems.push({ name, quantity:qty, threshold });
+
       }
+
       saveStock();
+
       document.getElementById('stockPerfumeName').value = '';
+
       document.getElementById('stockQuantity').value = '';
+
       document.getElementById('stockThreshold').value = '';
+
       alert('Stock updated.');
+
     }
 
     function adjustStockForSale(sale, direction) {
+
       const items = getSaleItems(sale);
+
       if (!items.length) return;
+
       let changed = false;
+
       items.forEach(saleItem => {
+
         const item = stockItems.find(x => x.name.toLowerCase() === saleItem.perfumeName.toLowerCase());
+
         if (!item) return;
+
         const qty = Math.max(1, Number(saleItem.quantity || 1));
+
         item.quantity = Math.max(0, Number(item.quantity || 0) - (qty * direction));
+
         changed = true;
+
       });
+
       if (changed) saveStock();
+
     }
 
     function renderStockList() {
+
       const el = document.getElementById('stockList');
+
       if (!el) return;
+
       if (!stockItems.length) { el.innerHTML = '<p style="font-size:.78rem;color:var(--text-sub);">No stock items recorded yet.</p>'; return; }
+
       el.innerHTML = stockItems.map((x,i) => {
+
         const status = x.quantity === 0 ? 'out' : x.quantity <= x.threshold ? 'low' : 'ok';
+
         const label = status === 'out' ? 'Out of Stock' : status === 'low' ? 'Low Stock' : 'In Stock';
+
         return `<div class="stock-item">
+
           <div><div class="stock-name">${escapeHtml(x.name)}</div><div class="stock-meta">Current: ${x.quantity} • Threshold: ${x.threshold}</div></div>
+
           <span class="stock-status ${status}">${label}</span>
+
         </div>`;
+
       }).join('');
+
     }
 
     function renderStockAlerts() {
+
       const el = document.getElementById('stockAlerts');
+
       if (!el) return;
+
       const alerts = stockItems.filter(x => Number(x.quantity) <= Number(x.threshold));
+
       if (!alerts.length) {
+
         el.innerHTML = '<p style="font-size:.76rem;color:var(--text-sub);">No low-stock or out-of-stock alerts.</p>';
+
         return;
+
       }
+
       el.innerHTML = alerts.map(x => `<div class="stock-item">
+
         <div><div class="stock-name">${escapeHtml(x.name)}</div><div class="stock-meta">Current stock: ${x.quantity}</div></div>
+
         <span class="stock-status ${x.quantity === 0 ? 'out' : 'low'}">${x.quantity === 0 ? 'Out of Stock' : 'Low Stock'}</span>
+
       </div>`).join('');
+
     }
 
     function updateLoyaltyUI() {
+
       const badge = document.getElementById('loyaltyCountBadge');
+
       if (!badge) return;
+
       badge.innerText = `Total Sales: ${completedOrdersCount}`;
+
       const sub = document.getElementById('loyaltySubText');
+
       if (sub) sub.innerText = `Glamo Scents has ${completedOrdersCount} recorded sale${completedOrdersCount === 1 ? '' : 's'}.`;
+
       document.querySelectorAll('.stamp-dot').forEach((stamp,idx) => stamp.classList.toggle('filled', idx < Math.min(completedOrdersCount % 5 || (completedOrdersCount ? 5 : 0), 5)));
+
     }
 
     function sendCustomInquiry() {
+
       const val = document.getElementById('customInquiryInput')?.value.trim();
+
       if (!val) return;
+
       window.open(`https://wa.me/255764519027?text=${encodeURIComponent("Glamo Scents inquiry from " + currentUsername + ": " + val)}`, '_blank');
+
       document.getElementById('customInquiryInput').value = '';
+
     }
 
     function igniteTeaserToast() {
+
       const toast = document.getElementById("soonToast");
+
       toast.classList.add("trigger-fly");
+
       setTimeout(() => toast.classList.remove("trigger-fly"), 3500);
+
     }
+
   </script>
+
 </body>
+
 </html>
