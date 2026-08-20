@@ -277,7 +277,7 @@
       height: 160px;
       border-radius: 0 0 20px 20px;
       background: linear-gradient(135deg, rgba(212, 175, 55, 0.3) 0%, rgba(0, 0, 0, 0.7) 100%), 
-                  url('home-hero.png') center/cover;
+                  url('home-hero.jpg') center/cover;
       position: relative;
       overflow: hidden;
       display: flex;
@@ -1036,7 +1036,18 @@
       background:var(--accent-gold); color:#111; border:none; padding:8px 12px;
       border-radius:20px; font-size:.72rem; font-weight:900; cursor:pointer;
     }
-    @media (max-width:420px) {
+    .archive-card {
+    background:var(--card-bg);
+    border:1px solid var(--card-border);
+    border-radius:18px;
+    padding:16px;
+    margin-bottom:14px;
+    box-shadow:0 4px 12px var(--shadow-color);
+    opacity:.92;
+  }
+  .archive-card .sale-actions { margin-top:10px; }
+
+  @media (max-width:420px) {
       .size-grid { grid-template-columns:repeat(3,1fr); }
       .filter-row { flex-direction:column; align-items:stretch; }
     }
@@ -1114,7 +1125,7 @@
 
     <div class="offerings-grid">
       <div class="offer-card" onclick="switchTab('screen-perfumes')">
-        <div class="offer-card-bg" style="background-image:url('glamo1.png');"></div>
+        <div class="offer-card-bg" style="background-image:url('glamo1.jpg');"></div>
         <div class="offer-card-overlay">
           <div class="offer-card-title">Perfume</div>
           <div class="offer-card-desc">Record a New Sale</div>
@@ -1122,7 +1133,7 @@
       </div>
 
       <div class="offer-card" onclick="switchTab('screen-sales-progress'); renderSalesProgress();">
-        <div class="offer-card-bg" style="background-image:url('glamo1.png'); filter:brightness(.55);"></div>
+        <div class="offer-card-bg" style="background-image:url('glamo2.jpg'); filter:brightness(.55);"></div>
         <div class="offer-card-overlay">
           <div class="offer-card-title">Sales Progress</div>
           <div class="offer-card-desc">Review & Analyse Sales</div>
@@ -1131,16 +1142,6 @@
     </div>
 
     <div class="section-divider"></div>
-
-    <div class="inquiry-box">
-      <h4><i class="fa-solid fa-circle-question" style="color:var(--accent-gold);"></i> Need Anything Specific?</h4>
-      <p>Describe a sales issue, stock note, or anything you want to review.</p>
-      <div class="inquiry-input-wrap">
-        <input type="text" id="customInquiryInput" class="inquiry-input" placeholder="Type your note here...">
-        <button class="inquiry-btn" onclick="sendCustomInquiry()">Ask</button>
-      </div>
-    </div>
-
     <div class="quick-reorder-section">
       <div class="quick-reorder-info">
         <div class="quick-reorder-icon"><i class="fa-solid fa-chart-line"></i></div>
@@ -1273,7 +1274,7 @@
     </div>
     <div class="ai-screen-wrap">
       <div class="teaser-image-card" onclick="igniteTeaserToast()">
-        <img src="images/heroo-ai.jpg" alt="AI Neural Guide">
+        <img src="glamo3.jpg" alt="AI Neural Guide">
         <div class="image-overlay"></div>
       </div>
       <div class="ai-badge">
@@ -1358,6 +1359,11 @@
       <i class="fa-solid fa-receipt" style="color:var(--accent-gold);"></i> Sales
     </div>
     <div id="bookingsListContainer"></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;margin-bottom:10px;">
+      <h3 style="font-size:1rem;font-weight:900;margin:0;">Archive</h3>
+      <button class="reorder-btn" onclick="renderArchive()">View Archive</button>
+    </div>
+    <div id="archiveListContainer" style="display:none;"></div>
   </div>
 
   <!-- SCREEN 5: PROFILE -->
@@ -1466,6 +1472,7 @@
     let deferredPrompt = null;
 
     let activeOrders = [];
+  let archivedSales = [];
     let completedHistory = [];
     let completedOrdersCount = 0;
 
@@ -1565,18 +1572,26 @@
       return 'glamo_stock_' + (currentUser?.id || 'guest');
     }
 
+    function getArchiveStorageKey() {
+      return 'glamo_sales_archive_' + (currentUser?.id || 'guest');
+    }
+
     function saveLocalSales() {
       localStorage.setItem(getSalesStorageKey(), JSON.stringify(activeOrders));
+      localStorage.setItem(getArchiveStorageKey(), JSON.stringify(archivedSales));
     }
 
     function loadLocalSales() {
       try {
-        const saved = JSON.parse(localStorage.getItem(getSalesStorageKey()) || '[]');
-        activeOrders = Array.isArray(saved) ? saved : [];
+        const savedActive = JSON.parse(localStorage.getItem(getSalesStorageKey()) || '[]');
+        const savedArchive = JSON.parse(localStorage.getItem(getArchiveStorageKey()) || '[]');
+        activeOrders = Array.isArray(savedActive) ? savedActive : [];
+        archivedSales = Array.isArray(savedArchive) ? savedArchive : [];
         completedHistory = [...activeOrders];
         completedOrdersCount = activeOrders.length;
       } catch {
         activeOrders = [];
+        archivedSales = [];
         completedHistory = [];
         completedOrdersCount = 0;
       }
@@ -1615,11 +1630,18 @@
           };
         }).filter(Boolean);
 
-        const merged = [...cloudSales];
-        for (const local of activeOrders) {
-          if (!merged.some(x => x.id === local.id)) merged.push(local);
+        const knownIds = new Set([...activeOrders, ...archivedSales].map(x => x.id));
+        for (const sale of cloudSales) {
+          if (knownIds.has(sale.id)) continue;
+          if (sale.status === 'archived') archivedSales.push(sale);
+          else activeOrders.push(sale);
         }
-        activeOrders = merged.sort((a,b) => new Date(b.dateTime || b.date) - new Date(a.dateTime || a.date));
+
+        activeOrders = activeOrders.filter(s => !archivedSales.some(a => a.id === s.id));
+        archivedSales = archivedSales.filter((s, i, arr) => arr.findIndex(x => x.id === s.id) === i);
+        activeOrders = activeOrders.sort((a,b) => new Date(b.dateTime || b.date) - new Date(a.dateTime || a.date));
+        archivedSales = archivedSales.sort((a,b) => new Date(b.dateTime || b.date) - new Date(a.dateTime || a.date));
+
         completedHistory = [...activeOrders];
         completedOrdersCount = activeOrders.length;
         saveLocalSales();
@@ -1629,6 +1651,7 @@
 
       renderBookings();
       renderHistory();
+      renderArchive();
       renderSalesProgress();
       updateLoyaltyUI();
     }
@@ -2018,18 +2041,81 @@
       if (!confirm('Delete this sale?')) return;
 
       adjustStockForSale(sale, -1);
+      sale.archivedAt = new Date().toISOString();
+      sale.status = 'archived';
       activeOrders = activeOrders.filter(x => x.id !== id);
+      archivedSales.unshift(sale);
       completedHistory = [...activeOrders];
       completedOrdersCount = activeOrders.length;
       saveLocalSales();
 
       if (currentUser && sale.dbId) {
-        try { await supabaseClient.from('orders').delete().eq('id', sale.dbId); } catch {}
+        try {
+          await supabaseClient.from('orders').update({ status:'archived' }).eq('id', sale.dbId);
+        } catch {}
       }
+
       renderBookings();
       renderHistory();
+      renderArchive();
       renderSalesProgress();
       updateLoyaltyUI();
+    }
+
+    async function unarchiveSale(id) {
+      const sale = archivedSales.find(x => x.id === id);
+      if (!sale) return;
+      if (!confirm('Restore this sale to active Sales?')) return;
+
+      sale.status = 'confirmed';
+      delete sale.archivedAt;
+      archivedSales = archivedSales.filter(x => x.id !== id);
+      activeOrders.unshift(sale);
+      completedHistory = [...activeOrders];
+      completedOrdersCount = activeOrders.length;
+      saveLocalSales();
+      adjustStockForSale(sale, 1);
+
+      if (currentUser && sale.dbId) {
+        try {
+          await supabaseClient.from('orders').update({ status:'confirmed' }).eq('id', sale.dbId);
+        } catch {}
+      }
+
+      renderBookings();
+      renderHistory();
+      renderArchive();
+      renderSalesProgress();
+      updateLoyaltyUI();
+    }
+
+    function renderArchive() {
+      const container = document.getElementById('archiveListContainer');
+      if (!container) return;
+      if (!archivedSales.length) {
+        container.style.display = 'none';
+        container.innerHTML = '';
+        return;
+      }
+      container.style.display = 'block';
+      container.innerHTML = archivedSales.map(s => `
+        <div class="archive-card">
+          <div class="track-header">
+            <span class="order-id">${escapeHtml(s.perfumeName)} • ${escapeHtml(s.size)}</span>
+            <span class="status-badge pending"><i class="fa-solid fa-box-archive"></i> Archived</span>
+          </div>
+          <div class="track-details">
+            <p><strong>Date:</strong> ${escapeHtml(s.date)}</p>
+            <p><strong>Payment:</strong> ${escapeHtml(s.paymentMethod)}${s.paymentProvider ? ' • ' + escapeHtml(s.paymentProvider) : ''}</p>
+            <p><strong>Sale:</strong> ${money(s.saleAmount)}</p>
+            <p><strong>Delivery:</strong> ${money(s.deliveryAmount)}</p>
+            <p><strong>Total:</strong> ${money(saleTotal(s))}</p>
+          </div>
+          <div class="sale-actions">
+            <button class="small-action" onclick="unarchiveSale('${s.id}')"><i class="fa-solid fa-box-open"></i> Unarchive</button>
+          </div>
+        </div>
+      `).join('');
     }
 
     function getFilteredSales() {
