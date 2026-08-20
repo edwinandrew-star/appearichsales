@@ -1,2611 +1,774 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Perfume Sales</title>
-<meta name="theme-color" content="#000000">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<style>
-*{
-    box-sizing:border-box;
-    margin:0;
-    padding:0;
-}
-html{
-    scroll-behavior:smooth;
-}
-body{
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
-    background:#f7f8fa;
-    color:#111;
-    min-height:100vh;
-    overflow-x:hidden;
-}
-button,input,select{
-    font:inherit;
-}
-button{
-    cursor:pointer;
-}
-.hidden{
-    display:none!important;
-}
-/* =========================
-   SPLASH
-========================= */
-#splash{
-    position:fixed;
-    inset:0;
-    z-index:99999;
-    background:#000;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    transition:opacity .7s ease,visibility .7s ease;
-}
-#splash.hide{
-    opacity:0;
-    visibility:hidden;
-}
-#splashLogo{
-    width:min(210px,55vw);
-    height:auto;
-    object-fit:contain;
-    opacity:0;
-    transform:scale(.55);
-    animation:splashPop 1.15s cubic-bezier(.2,.8,.2,1) forwards;
-}
-@keyframes splashPop{
-    0%{
-        opacity:0;
-        transform:scale(.55);
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Maison de Parfum - Sales Management System</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- React & ReactDOM CDN -->
+  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+  <!-- Babel for JSX compilation in browser -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            gold: {
+              DEFAULT: '#D4AF37',
+              dark: '#b3922c',
+              light: '#f3e5ab'
+            }
+          },
+          fontFamily: {
+            serif: ['Georgia', 'serif']
+          }
+        }
+      }
     }
-    55%{
-        opacity:1;
-        transform:scale(1.08);
-    }
-    100%{
-        opacity:1;
-        transform:scale(1);
-    }
-}
-/* =========================
-   AUTH
-========================= */
-#authScreen{
-    min-height:100vh;
-    background:#fff;
-}
-.auth-page{
-    min-height:100vh;
-    display:flex;
-    flex-direction:column;
-}
-/* Completely independent hero */
-.login-hero-wrap{
-    width:100%;
-    background:#000;
-    overflow:hidden;
-}
-.login-hero-video{
-    width:100%;
-    height:42vh;
-    min-height:250px;
-    max-height:520px;
-    display:block;
-    object-fit:cover;
-    object-position:center center;
-    background:#000;
-}
-/* Login content is separate */
-.auth-content{
-    width:100%;
-    max-width:460px;
-    margin:0 auto;
-    padding:28px 22px 40px;
-    background:#fff;
-}
-.auth-copy{
-    text-align:center;
-    min-height:27px;
-    overflow:hidden;
-    margin-bottom:20px;
-}
-.animated-sentence{
-    font-size:15px;
-    color:#555;
-    font-weight:600;
-    animation:sentenceIn .65s ease;
-}
-@keyframes sentenceIn{
-    from{
-        opacity:0;
-        transform:translateX(80px);
-    }
-    to{
-        opacity:1;
-        transform:translateX(0);
-    }
-}
-.auth-title{
-    font-size:31px;
-    line-height:1.05;
-    font-weight:850;
-    letter-spacing:-1px;
-    text-align:center;
-    margin-bottom:8px;
-}
-.auth-subtitle{
-    color:#777;
-    font-size:14px;
-    text-align:center;
-    margin-bottom:23px;
-}
-.field{
-    margin-bottom:14px;
-}
-.field label{
-    display:block;
-    font-size:13px;
-    font-weight:700;
-    margin-bottom:7px;
-}
-.field input,
-.field select{
-    width:100%;
-    height:52px;
-    border:1px solid #e4e4e4;
-    border-radius:15px;
-    padding:0 15px;
-    outline:none;
-    background:#fff;
-    transition:.2s;
-}
-.field input:focus,
-.field select:focus{
-    border-color:#111;
-    box-shadow:0 0 0 3px rgba(0,0,0,.05);
-}
-.primary-btn{
-    width:100%;
-    min-height:53px;
-    border:none;
-    border-radius:16px;
-    background:#111;
-    color:#fff;
-    font-weight:800;
-    transition:.15s;
-}
-.primary-btn:active{
-    transform:scale(.98);
-}
-.primary-btn:disabled{
-    opacity:.55;
-}
-.auth-switch{
-    text-align:center;
-    margin-top:18px;
-    font-size:14px;
-    color:#777;
-}
-.auth-switch button{
-    border:none;
-    background:none;
-    color:#111;
-    font-weight:800;
-}
-.error-box{
-    background:#fff1f1;
-    color:#b32626;
-    border-radius:13px;
-    padding:11px 13px;
-    font-size:13px;
-    margin-bottom:14px;
-}
-.success-box{
-    background:#effff4;
-    color:#23723d;
-    border-radius:13px;
-    padding:11px 13px;
-    font-size:13px;
-    margin-bottom:14px;
-}
-/* =========================
-   APP
-========================= */
-#app{
-    min-height:100vh;
-    padding-bottom:90px;
-}
-.topbar{
-    position:sticky;
-    top:0;
-    z-index:100;
-    background:rgba(255,255,255,.96);
-    backdrop-filter:blur(15px);
-    border-bottom:1px solid #eee;
-    padding:15px 18px;
-}
-.topbar-row{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-}
-.brand{
-    display:flex;
-    align-items:center;
-    gap:10px;
-}
-.brand img{
-    width:39px;
-    height:39px;
-    object-fit:contain;
-    border-radius:10px;
-}
-.brand-name{
-    font-size:18px;
-    font-weight:850;
-}
-.page-content{
-    width:100%;
-    max-width:900px;
-    margin:auto;
-    padding:18px;
-}
-
-/* =========================================
-   REDESIGNED HOME SCREEN (HUMAN & CREATIVE)
-========================================= */
-.dashboard-header {
-    background: linear-gradient(135deg, #111 0%, #2c2c2c 100%);
-    color: #fff;
-    border-radius: 24px;
-    padding: 24px;
-    margin-bottom: 20px;
-    position: relative;
-    overflow: hidden;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-}
-.dashboard-header::after {
-    content: '';
-    position: absolute;
-    right: -20px;
-    bottom: -20px;
-    width: 140px;
-    height: 140px;
-    background: rgba(255,255,255,0.04);
-    border-radius: 50%;
-}
-.greeting-bubble {
-    display: inline-block;
-    background: rgba(255,255,255,0.12);
-    padding: 5px 12px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 600;
-    letter-spacing: .5px;
-    margin-bottom: 8px;
-    text-transform: uppercase;
-}
-.dashboard-header h1 {
-    font-size: 26px;
-    font-weight: 800;
-    letter-spacing: -.5px;
-}
-
-.creative-action-row {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    gap: 12px;
-    margin-bottom: 20px;
-}
-.add-sale-main{
-    width:100%;
-    min-height:56px;
-    border:none;
-    border-radius:18px;
-    background:#111;
-    color:#fff;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    gap:10px;
-    font-size:15px;
-    font-weight:800;
-    box-shadow:0 6px 20px rgba(0,0,0,.15);
-    transition: transform .1s ease;
-}
-.add-sale-main:active {
-    transform: scale(.98);
-}
-.add-sale-main span{
-    width:28px;
-    height:28px;
-    border-radius:50%;
-    background:#fff;
-    color:#111;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-size:20px;
-}
-
-/* Metrics & Credentials Grid (NO REVENUE) */
-.metrics-flow-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
-    margin-bottom: 20px;
-}
-.metric-tile {
-    background: #fff;
-    border: 1px solid #eaeaea;
-    border-radius: 20px;
-    padding: 18px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    position: relative;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.02);
-}
-.metric-tile-icon {
-    width: 36px;
-    height: 36px;
-    border-radius: 12px;
-    background: #f4f4f4;
-    display: flex;
-    align-items:center;
-    justify-content:center;
-    font-size: 16px;
-    margin-bottom: 12px;
-}
-.metric-tile small {
-    color: #777;
-    font-size: 12px;
-    font-weight: 600;
-    margin-bottom: 4px;
-}
-.metric-tile strong {
-    font-size: 22px;
-    font-weight: 850;
-    color: #111;
-    letter-spacing: -.5px;
-}
-
-/* Quick Add Bar */
-.quick-card{
-    background:#fff;
-    border:1px solid #eaeaea;
-    border-radius:20px;
-    padding:18px;
-    margin-bottom:20px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.02);
-}
-.section-title{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    margin:21px 0 12px;
-}
-.section-title h2{
-    font-size:18px;
-    font-weight: 800;
-}
-.quick-title{
-    font-size:14px;
-    font-weight:750;
-    color: #444;
-    margin-bottom:12px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-.quick-size-grid{
-    display:grid;
-    grid-template-columns:repeat(5,1fr);
-    gap:8px;
-}
-.quick-size{
-    border:1px solid #e5e5e5;
-    background:#fafafa;
-    border-radius:12px;
-    min-height:45px;
-    font-weight:800;
-    font-size: 13px;
-    transition: all .15s ease;
-}
-.quick-size:hover {
-    border-color: #111;
-}
-.quick-size:active{
-    background:#111;
-    color:#fff;
-}
-
-/* =========================
-   SALES
-========================= */
-.sale-list{
-    display:flex;
-    flex-direction:column;
-    gap:9px;
-}
-.sale-item{
-    background:#fff;
-    border:1px solid #eee;
-    border-radius:17px;
-    padding:14px;
-    display:flex;
-    justify-content:space-between;
-    gap:12px;
-}
-.sale-main strong{
-    display:block;
-    margin-bottom:5px;
-}
-.sale-main small{
-    display:block;
-    color:#777;
-    font-size:12px;
-    margin-top:3px;
-}
-.sale-right{
-    text-align:right;
-    min-width:95px;
-}
-.sale-right strong{
-    display:block;
-    margin-bottom:6px;
-}
-.action-btn{
-    border:none;
-    background:none;
-    font-size:11px;
-    font-weight:750;
-    margin-left:5px;
-}
-.delete-btn{
-    color:#c33;
-}
-/* =========================
-   CARD
-========================= */
-.card{
-    background:#fff;
-    border:1px solid #eee;
-    border-radius:21px;
-    padding:18px;
-}
-/* =========================
-   SIZE
-========================= */
-.size-grid{
-    display:grid;
-    grid-template-columns:repeat(5,1fr);
-    gap:7px;
-}
-.size-btn,
-.choice-btn{
-    border:1px solid #e5e5e5;
-    background:#fff;
-    min-height:48px;
-    border-radius:13px;
-    font-weight:750;
-}
-.size-btn.active,
-.choice-btn.active{
-    background:#111;
-    color:#fff;
-    border-color:#111;
-}
-.choice-grid{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:8px;
-}
-/* =========================
-   PROGRESS
-========================= */
-.month-select{
-    width:100%;
-    height:50px;
-    border:1px solid #ddd;
-    border-radius:14px;
-    background:#fff;
-    padding:0 14px;
-    margin-bottom:15px;
-}
-.progress-bar{
-    height:9px;
-    background:#eee;
-    border-radius:99px;
-    overflow:hidden;
-}
-.progress-fill{
-    height:100%;
-    width:0;
-    background:#111;
-    border-radius:inherit;
-    transition:width .5s ease;
-}
-.size-row{
-    margin-bottom:15px;
-}
-.size-row-top{
-    display:flex;
-    justify-content:space-between;
-    font-size:13px;
-    margin-bottom:7px;
-}
-/* =========================
-   EMPTY
-========================= */
-.empty{
-    background:#fff;
-    border:1px dashed #ddd;
-    border-radius:18px;
-    padding:30px 20px;
-    text-align:center;
-    color:#777;
-}
-/* =========================
-   BOTTOM NAV
-========================= */
-.bottom-nav{
-    position:fixed;
-    left:0;
-    right:0;
-    bottom:0;
-    height:74px;
-    background:rgba(255,255,255,.97);
-    backdrop-filter:blur(15px);
-    border-top:1px solid #eee;
-    display:grid;
-    grid-template-columns:repeat(4,1fr);
-    z-index:200;
-    padding-bottom:env(safe-area-inset-bottom);
-}
-.nav-btn{
-    border:none;
-    background:transparent;
-    color:#888;
-    font-size:11px;
-    font-weight:650;
-}
-.nav-btn.active{
-    color:#111;
-}
-.nav-icon{
-    display:block;
-    font-size:20px;
-    margin-bottom:3px;
-}
-/* =========================
-   MODAL
-========================= */
-.modal{
-    position:fixed;
-    inset:0;
-    z-index:1000;
-    background:rgba(0,0,0,.45);
-    display:flex;
-    align-items:flex-end;
-    justify-content:center;
-}
-.modal-box{
-    width:100%;
-    max-width:600px;
-    max-height:92vh;
-    overflow-y:auto;
-    background:#fff;
-    border-radius:25px 25px 0 0;
-    padding:20px;
-    animation:modalUp .3s ease;
-}
-@keyframes modalUp{
-    from{
-        transform:translateY(100%);
-    }
-    to{
-        transform:translateY(0);
-    }
-}
-.modal-head{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    margin-bottom:18px;
-}
-.close-btn{
-    border:none;
-    background:#f2f2f2;
-    width:37px;
-    height:37px;
-    border-radius:50%;
-    font-size:20px;
-}
-.form-actions{
-    display:flex;
-    gap:9px;
-}
-.secondary-btn{
-    flex:1;
-    min-height:52px;
-    border:1px solid #ddd;
-    background:#fff;
-    border-radius:15px;
-    font-weight:750;
-}
-.form-actions .primary-btn{
-    flex:2;
-}
-/* =========================
-   PROFILE
-========================= */
-.profile-card{
-    text-align:center;
-    padding:30px 20px;
-}
-.profile-avatar{
-    width:78px;
-    height:78px;
-    border-radius:50%;
-    background:#111;
-    color:#fff;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-size:30px;
-    font-weight:850;
-    margin:0 auto 14px;
-}
-.logout-btn{
-    width:100%;
-    min-height:50px;
-    border:1px solid #ddd;
-    background:#fff;
-    color:#c33;
-    border-radius:15px;
-    font-weight:750;
-    margin-top:20px;
-}
-/* =========================
-   RESPONSIVE
-========================= */
-@media(max-width:480px){
-    .login-hero-video{
-        height:38vh;
-        min-height:230px;
-    }
-    .auth-content{
-        padding:25px 20px 38px;
-    }
-    .auth-title{
-        font-size:29px;
-    }
-}
-@media(min-width:700px){
-    .login-hero-video{
-        height:48vh;
-        max-height:560px;
-    }
-    .metrics-flow-grid{
-        grid-template-columns:repeat(4,1fr);
-    }
-    .auth-content{
-        padding-top:35px;
-    }
-}
-</style>
+  </script>
 </head>
-<body>
-<!-- =====================================================
-     SPLASH
-====================================================== -->
-<section id="splash">
-    <img
-        id="splashLogo"
-        src="images/splash-logo.png"
-        alt="Perfume Logo"
-    >
-</section>
-<!-- =====================================================
-     AUTH
-====================================================== -->
-<section id="authScreen" class="hidden">
-    <div class="auth-page">
-        <!-- FULL SEPARATE HERO -->
-        <div class="login-hero-wrap">
-            <video
-                id="loginVideo"
-                class="login-hero-video"
-                autoplay
-                muted
-                loop
-                playsinline
-                preload="auto"
-            >
-                <source
-                    src="images/login-hero.mp4"
-                    type="video/mp4"
-                >
-            </video>
-        </div>
-        <!-- COMPLETELY SEPARATE LOGIN AREA -->
-        <div class="auth-content">
-            <div class="auth-copy">
-                <div
-                    id="animatedSentence"
-                    class="animated-sentence"
-                >
-                    Wear your presence.
-                </div>
-            </div>
-            <!-- LOGIN -->
-            <div id="loginForm">
-                <h1 class="auth-title">
-                    Welcome Back
-                </h1>
-                <p class="auth-subtitle">
-                    Manage your perfume sales simply.
-                </p>
-                <div id="loginMessage"></div>
-                <div class="field">
-                    <label>Email</label>
-                    <input
-                        id="loginEmail"
-                        type="email"
-                        placeholder="Enter your email"
-                        autocomplete="email"
-                    >
-                </div>
-                <div class="field">
-                    <label>Password</label>
-                    <input
-                        id="loginPassword"
-                        type="password"
-                        placeholder="Enter your password"
-                        autocomplete="current-password"
-                    >
-                </div>
-                <button
-                    id="loginBtn"
-                    class="primary-btn"
-                >
-                    Login
-                </button>
-                <div class="auth-switch">
-                    Don't have an account?
-                    <button id="showSignup">
-                        Sign Up
-                    </button>
-                </div>
-            </div>
-            <!-- SIGN UP -->
-            <div id="signupForm" class="hidden">
-                <h1 class="auth-title">
-                    Create Account
-                </h1>
-                <p class="auth-subtitle">
-                    Start managing your perfume sales.
-                </p>
-                <div id="signupMessage"></div>
-                <div class="field">
-                    <label>Full Name</label>
-                    <input
-                        id="signupName"
-                        type="text"
-                        placeholder="Your name"
-                        autocomplete="name"
-                    >
-                </div>
-                <div class="field">
-                    <label>Email</label>
-                    <input
-                        id="signupEmail"
-                        type="email"
-                        placeholder="Enter your email"
-                        autocomplete="email"
-                    >
-                </div>
-                <div class="field">
-                    <label>Password</label>
-                    <input
-                        id="signupPassword"
-                        type="password"
-                        placeholder="Create a password"
-                        autocomplete="new-password"
-                    >
-                </div>
-                <div class="field">
-                    <label>Confirm Password</label>
-                    <input
-                        id="signupConfirm"
-                        type="password"
-                        placeholder="Confirm your password"
-                        autocomplete="new-password"
-                    >
-                </div>
-                <button
-                    id="signupBtn"
-                    class="primary-btn"
-                >
-                    Create Account
-                </button>
-                <div class="auth-switch">
-                    Already have an account?
-                    <button id="showLogin">
-                        Login
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-<!-- =====================================================
-     APP
-====================================================== -->
-<main id="app" class="hidden">
-    <header class="topbar">
-        <div class="topbar-row">
-            <div class="brand">
-                <img
-                    src="images/splash-logo.png"
-                    alt="Logo"
-                >
-                <span class="brand-name">
-                    Perfume Sales
-                </span>
-            </div>
-        </div>
-    </header>
-    <!-- =================================================
-         HOME (REDESIGNED FOR SIMPLICITY & RECORDING)
-    ================================================== -->
-    <section
-        id="homePage"
-        class="page-content"
-    >
-        <!-- Creative Welcome Dashboard Card -->
-        <div class="dashboard-header">
-            <div class="greeting-bubble">Active Session</div>
-            <h1 id="userGreeting">Hello</h1>
-        </div>
+<body class="bg-black text-white min-h-screen font-sans selection:bg-gold selection:text-black">
+  <div id="root"></div>
 
-        <!-- Main Action CTA -->
-        <button
-            class="add-sale-main"
-            onclick="openSaleModal()"
-        >
-            <span>+</span>
-            Record New Sale
-        </button>
+  <script type="text/babel">
+    const { useState, useEffect, createContext, useContext } = React;
 
-        <!-- Credentials & Activity Metrics (NO REVENUE) -->
-        <div class="metrics-flow-grid">
-            <div class="metric-tile">
-                <div class="metric-tile-icon">🏷️</div>
-                <small>Total Bottles Sold</small>
-                <strong id="todayUnits">0</strong>
-            </div>
-            <div class="metric-tile">
-                <div class="metric-tile-icon">🤝</div>
-                <small>Total Transactions</small>
-                <strong id="todayCount">0</strong>
-            </div>
-            <div class="metric-tile">
-                <div class="metric-tile-icon">💵</div>
-                <small>Cash Payments</small>
-                <strong id="todayCashCount">0</strong>
-            </div>
-            <div class="metric-tile">
-                <div class="metric-tile-icon">📱</div>
-                <small>Mobile Money</small>
-                <strong id="todayMobileCount">0</strong>
-            </div>
-        </div>
-
-        <!-- Quick Size Add Bar -->
-        <div class="quick-card">
-            <div class="quick-title">
-                ⚡ Quick Record by Size
-            </div>
-            <div class="quick-size-grid">
-                <button
-                    class="quick-size"
-                    onclick="quickSale(10)"
-                >
-                    10ml
-                </button>
-                <button
-                    class="quick-size"
-                    onclick="quickSale(20)"
-                >
-                    20ml
-                </button>
-                <button
-                    class="quick-size"
-                    onclick="quickSale(30)"
-                >
-                    30ml
-                </button>
-                <button
-                    class="quick-size"
-                    onclick="quickSale(50)"
-                >
-                    50ml
-                </button>
-                <button
-                    class="quick-size"
-                    onclick="quickSale(100)"
-                >
-                    100ml
-                </button>
-            </div>
-        </div>
-
-        <!-- RECENT -->
-        <div class="section-title">
-            <h2>
-                Recent Sales Activity
-            </h2>
-            <button
-                onclick="showPage('sales')"
-                style="
-                    border:none;
-                    background:none;
-                    font-weight:750;
-                    color:#111;
-                "
-            >
-                View All
-            </button>
-        </div>
-        <div
-            id="recentSales"
-            class="sale-list"
-        ></div>
-    </section>
-    <!-- =================================================
-         SALES
-    ================================================== -->
-    <section
-        id="salesPage"
-        class="page-content hidden"
-    >
-        <div class="section-title">
-            <h2>
-                Sales Records
-            </h2>
-            <button
-                class="primary-btn"
-                style="
-                    width:auto;
-                    padding:0 17px;
-                    min-height:43px;
-                "
-                onclick="openSaleModal()"
-            >
-                + Add Sale
-            </button>
-        </div>
-        <div
-            id="allSales"
-            class="sale-list"
-        ></div>
-    </section>
-    <!-- =================================================
-         PROGRESS
-    ================================================== -->
-    <section
-        id="progressPage"
-        class="page-content hidden"
-    >
-        <div class="section-title">
-            <h2>
-                Monthly Progress
-            </h2>
-        </div>
-        <select
-            id="monthSelector"
-            class="month-select"
-        ></select>
-        <div class="stats-grid">
-            <div class="stat-card">
-                <small>
-                    Total Amount Logs
-                </small>
-                <strong id="monthTotal">
-                    0
-                </strong>
-            </div>
-            <div class="stat-card">
-                <small>
-                    Perfumes Sold
-                </small>
-                <strong id="monthUnits">
-                    0
-                </strong>
-            </div>
-            <div class="stat-card">
-                <small>
-                    Cash Logs
-                </small>
-                <strong id="monthCash">
-                    0
-                </strong>
-            </div>
-            <div class="stat-card">
-                <small>
-                    Mobile Logs
-                </small>
-                <strong id="monthMobile">
-                    0
-                </strong>
-            </div>
-        </div>
-        <div class="card">
-            <div class="section-title" style="margin-top:0">
-                <h2>
-                    Perfume Sizes
-                </h2>
-            </div>
-            <div id="sizeProgress"></div>
-        </div>
-        <div
-            class="card"
-            style="margin-top:14px"
-        >
-            <div class="section-title" style="margin-top:0">
-                <h2>
-                    Daily Activity Volume
-                </h2>
-            </div>
-            <div id="dailyProgress"></div>
-        </div>
-    </section>
-    <!-- =================================================
-         PROFILE
-    ================================================== -->
-    <section
-        id="profilePage"
-        class="page-content hidden"
-    >
-        <div class="card profile-card">
-            <div
-                id="profileAvatar"
-                class="profile-avatar"
-            >
-                P
-            </div>
-            <h2 id="profileName">
-                User
-            </h2>
-            <p
-                id="profileEmail"
-                style="
-                    color:#777;
-                    margin-top:5px;
-                "
-            >
-                email
-            </p>
-            <button
-                id="logoutBtn"
-                class="logout-btn"
-            >
-                Logout
-            </button>
-        </div>
-    </section>
-</main>
-<!-- =====================================================
-     BOTTOM NAV
-====================================================== -->
-<nav
-    id="bottomNav"
-    class="bottom-nav hidden"
->
-    <button
-        class="nav-btn active"
-        data-page="home"
-        onclick="showPage('home')"
-    >
-        <span class="nav-icon">⌂</span>
-        Home
-    </button>
-    <button
-        class="nav-btn"
-        data-page="sales"
-        onclick="showPage('sales')"
-    >
-        <span class="nav-icon">＋</span>
-        Sales
-    </button>
-    <button
-        class="nav-btn"
-        data-page="progress"
-        onclick="showPage('progress')"
-    >
-        <span class="nav-icon">◔</span>
-        Progress
-    </button>
-    <button
-        class="nav-btn"
-        data-page="profile"
-        onclick="showPage('profile')"
-    >
-        <span class="nav-icon">◯</span>
-        Profile
-    </button>
-</nav>
-<!-- =====================================================
-     SALE MODAL
-====================================================== -->
-<div
-    id="saleModal"
-    class="modal hidden"
->
-    <div class="modal-box">
-        <div class="modal-head">
-            <h2 id="saleModalTitle">
-                Add Sale Record
-            </h2>
-            <button
-                class="close-btn"
-                onclick="closeSaleModal()"
-            >
-                ×
-            </button>
-        </div>
-        <input
-            type="hidden"
-            id="editingSaleId"
-        >
-        <div class="field">
-            <label>
-                Perfume Size
-            </label>
-            <div class="size-grid">
-                <button
-                    class="size-btn"
-                    data-size="10"
-                    onclick="selectSize(10)"
-                >
-                    10ml
-                </button>
-                <button
-                    class="size-btn"
-                    data-size="20"
-                    onclick="selectSize(20)"
-                >
-                    20ml
-                </button>
-                <button
-                    class="size-btn"
-                    data-size="30"
-                    onclick="selectSize(30)"
-                >
-                    30ml
-                </button>
-                <button
-                    class="size-btn"
-                    data-size="50"
-                    onclick="selectSize(50)"
-                >
-                    50ml
-                </button>
-                <button
-                    class="size-btn"
-                    data-size="100"
-                    onclick="selectSize(100)"
-                >
-                    100ml
-                </button>
-            </div>
-        </div>
-        <div class="field">
-            <label>
-                Quantity
-            </label>
-            <input
-                id="saleQuantity"
-                type="number"
-                min="1"
-                value="1"
-            >
-        </div>
-        <div class="field">
-            <label>
-                Total Value / Record Amount
-            </label>
-            <input
-                id="saleAmount"
-                type="number"
-                min="0"
-                placeholder="Enter recorded amount value"
-            >
-        </div>
-        <div class="field">
-            <label>
-                Payment Method
-            </label>
-            <div class="choice-grid">
-                <button
-                    id="cashBtn"
-                    class="choice-btn active"
-                    onclick="selectPayment('Cash')"
-                >
-                    Cash
-                </button>
-                <button
-                    id="mobileBtn"
-                    class="choice-btn"
-                    onclick="selectPayment('Mobile Money')"
-                >
-                    Mobile Money
-                </button>
-            </div>
-        </div>
-        <div class="field">
-            <label>
-                Delivery?
-            </label>
-            <div class="choice-grid">
-                <button
-                    id="deliveryNo"
-                    class="choice-btn active"
-                    onclick="selectDelivery(false)"
-                >
-                    No
-                </button>
-                <button
-                    id="deliveryYes"
-                    class="choice-btn"
-                    onclick="selectDelivery(true)"
-                >
-                    Yes
-                </button>
-            </div>
-        </div>
-        <div
-            id="deliveryCostField"
-            class="field hidden"
-        >
-            <label>
-                Delivery Cost
-            </label>
-            <input
-                id="deliveryCost"
-                type="number"
-                min="0"
-                placeholder="Enter delivery cost"
-            >
-        </div>
-        <div class="field">
-            <label>
-                Customer Name
-                <span style="
-                    color:#999;
-                    font-weight:400;
-                ">
-                    Optional
-                </span>
-            </label>
-            <input
-                id="customerName"
-                type="text"
-                placeholder="Customer name"
-            >
-        </div>
-        <div class="form-actions">
-            <button
-                class="secondary-btn"
-                onclick="closeSaleModal()"
-            >
-                Cancel
-            </button>
-            <button
-                id="saveSaleBtn"
-                class="primary-btn"
-                onclick="saveSale()"
-            >
-                Save Record
-            </button>
-        </div>
-    </div>
-</div>
-<script>
-/* =====================================================
-   SUPABASE
-====================================================== */
-const SUPABASE_URL =
-"https://zudqubbglwphfxaviqsg.supabase.co";
-const SUPABASE_ANON_KEY =
-"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp1ZHF1YmJnbHdwaGZ4YXZpcXNnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI0NjcyNTUsImV4cCI6MjA5ODA0MzI1NX0.7pRbRqz9-5gN8SG_ALn5ecHOWQofykPvhbrE2HQROCE";
-const supabaseClient =
-window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_ANON_KEY
-);
-/* =====================================================
-   STATE
-====================================================== */
-let currentUser = null;
-let sales = [];
-let selectedSize = null;
-let selectedPayment = "Cash";
-let selectedDelivery = false;
-let sentenceIndex = 0;
-/* =====================================================
-   SENTENCES
-====================================================== */
-const sentences = [
-    "Wear your presence.",
-    "Every scent tells a story.",
-    "Your fragrance. Your identity.",
-    "Manage every sale simply."
-];
-/* =====================================================
-   HELPERS
-====================================================== */
-function money(value){
-    return Number(value || 0)
-        .toLocaleString("en-US");
-}
-function escapeHtml(value){
-    return String(value ?? "")
-        .replaceAll("&","&amp;")
-        .replaceAll("<","&lt;")
-        .replaceAll(">","&gt;")
-        .replaceAll('"',"&quot;")
-        .replaceAll("'","&#039;");
-}
-function localDateKey(date = new Date()){
-    const y = date.getFullYear();
-    const m = String(
-        date.getMonth()+1
-    ).padStart(2,"0");
-    const d = String(
-        date.getDate()
-    ).padStart(2,"0");
-    return `${y}-${m}-${d}`;
-}
-function monthKey(date = new Date()){
-    return `${date.getFullYear()}-${
-        String(date.getMonth()+1).padStart(2,"0")
-    }`;
-}
-function getSaleDate(sale){
-    return new Date(
-        sale.created_at ||
-        sale.sale_date
-    );
-}
-function formatDate(value){
-    if(!value) return "";
-    return new Date(value)
-        .toLocaleString(
-            undefined,
-            {
-                day:"numeric",
-                month:"short",
-                year:"numeric",
-                hour:"2-digit",
-                minute:"2-digit"
-            }
-        );
-}
-function showMessage(
-    id,
-    message,
-    type="error"
-){
-    const el =
-        document.getElementById(id);
-    if(!message){
-        el.innerHTML="";
-        return;
-    }
-    el.innerHTML = `
-        <div class="${
-            type === "success"
-            ? "success-box"
-            : "error-box"
-        }">
-            ${escapeHtml(message)}
-        </div>
-    `;
-}
-/* =====================================================
-   SPLASH
-====================================================== */
-window.addEventListener(
-    "load",
-    () => {
-        setTimeout(
-            () => {
-                document
-                    .getElementById("splash")
-                    .classList.add("hide");
-                setTimeout(
-                    () => {
-                        document
-                            .getElementById("splash")
-                            .style.display="none";
-                    },
-                    700
-                );
-            },
-            1700
-        );
-        startSentenceAnimation();
-        startVideo();
-        initializeApp();
-    }
-);
-/* =====================================================
-   VIDEO
-====================================================== */
-function startVideo(){
-    const video =
-        document.getElementById(
-            "loginVideo"
-        );
-    video.muted=true;
-    video.defaultMuted=true;
-    video.playsInline=true;
-    video.play()
-        .catch(
-            error => {
-                console.log(
-                    "Video autoplay waiting:",
-                    error
-                );
-            }
-        );
-}
-/* =====================================================
-   SENTENCE
-====================================================== */
-function startSentenceAnimation(){
-    const element =
-        document.getElementById(
-            "animatedSentence"
-        );
-    setInterval(
-        () => {
-            sentenceIndex =
-                (sentenceIndex+1)
-                % sentences.length;
-            element.classList.remove(
-                "animated-sentence"
-            );
-            void element.offsetWidth;
-            element.textContent =
-                sentences[sentenceIndex];
-            element.classList.add(
-                "animated-sentence"
-            );
-        },
-        2800
-    );
-}
-/* =====================================================
-   INITIALIZE
-====================================================== */
-async function initializeApp(){
-    try{
-        const {
-            data:{
-                session
-            }
-        } =
-        await supabaseClient.auth
-            .getSession();
-        if(session?.user){
-            await enterApp(
-                session.user
-            );
-        }else{
-            showAuth();
-        }
-        supabaseClient.auth
-            .onAuthStateChange(
-                async(
-                    event,
-                    session
-                ) => {
-                    if(session?.user){
-                        await enterApp(
-                            session.user
-                        );
-                    }else{
-                        showAuth();
-                    }
-                }
-            );
-    }catch(error){
-        console.error(error);
-        showAuth();
-        showMessage(
-            "loginMessage",
-            error.message
-        );
-    }
-}
-/* =====================================================
-   AUTH / APP
-====================================================== */
-function showAuth(){
-    document
-        .getElementById("authScreen")
-        .classList.remove("hidden");
-    document
-        .getElementById("app")
-        .classList.add("hidden");
-    document
-        .getElementById("bottomNav")
-        .classList.add("hidden");
-}
-function showApp(){
-    document
-        .getElementById("authScreen")
-        .classList.add("hidden");
-    document
-        .getElementById("app")
-        .classList.remove("hidden");
-    document
-        .getElementById("bottomNav")
-        .classList.remove("hidden");
-}
-/* =====================================================
-   AUTH SWITCH
-====================================================== */
-document
-.getElementById("showSignup")
-.addEventListener(
-    "click",
-    () => {
-        document
-            .getElementById("loginForm")
-            .classList.add("hidden");
-        document
-            .getElementById("signupForm")
-            .classList.remove("hidden");
-        showMessage(
-            "loginMessage",
-            ""
-        );
-    }
-);
-document
-.getElementById("showLogin")
-.addEventListener(
-    "click",
-    () => {
-        document
-            .getElementById("signupForm")
-            .classList.add("hidden");
-        document
-            .getElementById("loginForm")
-            .classList.remove("hidden");
-        showMessage(
-            "signupMessage",
-            ""
-        );
-    }
-);
-/* =====================================================
-   SIGN UP
-====================================================== */
-document
-.getElementById("signupBtn")
-.addEventListener(
-    "click",
-    signup
-);
-async function signup(){
-    const name =
-        document
-            .getElementById("signupName")
-            .value.trim();
-    const email =
-        document
-            .getElementById("signupEmail")
-            .value.trim();
-    const password =
-        document
-            .getElementById("signupPassword")
-            .value;
-    const confirm =
-        document
-            .getElementById("signupConfirm")
-            .value;
-    if(!name || !email || !password || !confirm){
-        showMessage(
-            "signupMessage",
-            "Please complete all fields."
-        );
-        return;
-    }
-    if(password !== confirm){
-        showMessage(
-            "signupMessage",
-            "Passwords do not match."
-        );
-        return;
-    }
-    if(password.length < 6){
-        showMessage(
-            "signupMessage",
-            "Password must be at least 6 characters."
-        );
-        return;
-    }
-    const button =
-        document.getElementById(
-            "signupBtn"
-        );
-    button.disabled=true;
-    button.textContent="Creating...";
-    try{
-        const {
-            data,
-            error
-        } =
-        await supabaseClient.auth
-            .signUp({
-                email,
-                password,
-                options:{
-                    data:{
-                        full_name:name
-                    }
-                }
-            });
-        if(error) throw error;
-        if(!data.session){
-            showMessage(
-                "signupMessage",
-                "Account created. Check your email to confirm your account.",
-                "success"
-            );
-        }else{
-            await enterApp(
-                data.user
-            );
-        }
-    }catch(error){
-        showMessage(
-            "signupMessage",
-            error.message
-        );
-    }finally{
-        button.disabled=false;
-        button.textContent=
-            "Create Account";
-    }
-}
-/* =====================================================
-   LOGIN
-====================================================== */
-document
-.getElementById("loginBtn")
-.addEventListener(
-    "click",
-    login
-);
-async function login(){
-    const email =
-        document
-            .getElementById("loginEmail")
-            .value.trim();
-    const password =
-        document
-            .getElementById("loginPassword")
-            .value;
-    if(!email || !password){
-        showMessage(
-            "loginMessage",
-            "Enter your email and password."
-        );
-        return;
-    }
-    const button =
-        document.getElementById(
-            "loginBtn"
-        );
-    button.disabled=true;
-    button.textContent="Logging in...";
-    try{
-        const {
-            data,
-            error
-        } =
-        await supabaseClient.auth
-            .signInWithPassword({
-                email,
-                password
-            });
-        if(error) throw error;
-        await enterApp(
-            data.user
-        );
-    }catch(error){
-        showMessage(
-            "loginMessage",
-            error.message
-        );
-    }finally{
-        button.disabled=false;
-        button.textContent="Login";
-    }
-}
-/* =====================================================
-   ENTER APP
-====================================================== */
-async function enterApp(user){
-    currentUser=user;
-    showApp();
-    const name =
-        user.user_metadata?.full_name ||
-        user.email?.split("@")[0] ||
-        "User";
-    document
-        .getElementById("userGreeting")
-        .textContent=`Welcome, ${name}`;
-    document
-        .getElementById("profileName")
-        .textContent=name;
-    document
-        .getElementById("profileEmail")
-        .textContent=
-            user.email || "";
-    document
-        .getElementById("profileAvatar")
-        .textContent=
-            name.charAt(0).toUpperCase();
-    await loadSales();
-    showPage("home");
-}
-/* =====================================================
-   LOAD SALES
-====================================================== */
-async function loadSales(){
-    if(!currentUser) return;
-    try{
-        const {
-            data,
-            error
-        } =
-        await supabaseClient
-            .from("sales")
-            .select("*")
-            .eq(
-                "user_id",
-                currentUser.id
-            )
-            .order(
-                "created_at",
-                {
-                    ascending:false
-                }
-            );
-        if(error) throw error;
-        sales=data || [];
-        renderHome();
-        renderSales();
-        renderProgress();
-    }catch(error){
-        console.error(
-            "Load sales error:",
-            error
-        );
-        alert(
-            "Could not load sales:\n\n"+
-            error.message
-        );
-    }
-}
-/* =====================================================
-   NAVIGATION
-====================================================== */
-function showPage(page){
-    const pages=[
-        "home",
-        "sales",
-        "progress",
-        "profile"
+    // --- INITIAL DATA ---
+    const INITIAL_PRODUCTS = [
+      { id: 'p1', name: 'Oud Wood Intense', brand: 'Tom Ford', size: '100ml', category: 'oud', price: 280, cost: 140, stock: 12 },
+      { id: 'p2', name: 'Baccarat Rouge 540', brand: 'Maison Francis Kurkdjian', size: '70ml', category: 'unisex', price: 320, cost: 160, stock: 3 },
+      { id: 'p3', name: 'Sauvage Elixir', brand: 'Dior', size: '60ml', category: "men's", price: 180, cost: 90, stock: 15 },
+      { id: 'p4', name: 'Libre Eau de Parfum', brand: 'Yves Saint Laurent', size: '90ml', category: "women's", price: 155, cost: 75, stock: 20 },
+      { id: 'p5', name: 'Royal Amber Gift Set', brand: 'Orientica', size: '100ml', category: 'gift set', price: 120, cost: 50, stock: 6 }
     ];
-    pages.forEach(
-        name => {
-            document
-                .getElementById(
-                    name+"Page"
-                )
-                .classList.toggle(
-                    "hidden",
-                    name!==page
-                );
+
+    const INITIAL_USERS = [
+      { name: 'Store Admin', email: 'admin@perfume.com', password: 'admin123', role: 'Admin' },
+      { name: 'Counter Staff', email: 'staff@perfume.com', password: 'staff123', role: 'Staff' }
+    ];
+
+    // --- CONTEXTS ---
+    const AuthContext = createContext();
+    const AppContext = createContext();
+
+    function AuthProvider({ children }) {
+      const [user, setUser] = useState(() => {
+        const saved = localStorage.getItem('perfume_current_user');
+        return saved ? JSON.parse(saved) : null;
+      });
+
+      const login = (email, password) => {
+        const users = JSON.parse(localStorage.getItem('perfume_users') || JSON.stringify(INITIAL_USERS));
+        const found = users.find(u => u.email === email && u.password === password);
+        if (found) {
+          const session = { name: found.name, email: found.email, role: found.role };
+          setUser(session);
+          localStorage.setItem('perfume_current_user', JSON.stringify(session));
+          return { success: true };
         }
-    );
-    document
-        .querySelectorAll(".nav-btn")
-        .forEach(
-            button => {
-                button.classList.toggle(
-                    "active",
-                    button.dataset.page===page
-                );
-            }
-        );
-    if(page==="home")
-        renderHome();
-    if(page==="sales")
-        renderSales();
-    if(page==="progress")
-        renderProgress();
-}
-/* =====================================================
-   HOME (CREDENTIALS & METRICS METRICS - NO REVENUE)
-====================================================== */
-function renderHome(){
-    const today=
-        localDateKey();
-    const todaySales=
-        sales.filter(
-            sale =>
-                localDateKey(
-                    getSaleDate(sale)
-                )===today
-        );
-    const units=
-        todaySales.reduce(
-            (sum,sale)=>
-                sum+
-                Number(
-                    sale.quantity||0
-                ),
-            0
-        );
-    const count=
-        todaySales.length;
+        return { success: false, error: 'Invalid email or password' };
+      };
+
+      const register = (name, email, password, confirmPassword, role = 'Staff') => {
+        if (password !== confirmPassword) return { success: false, error: 'Passwords do not match' };
+        let users = JSON.parse(localStorage.getItem('perfume_users') || JSON.stringify(INITIAL_USERS));
+        if (users.some(u => u.email === email)) return { success: false, error: 'Email already registered' };
         
-    const cashCount=
-        todaySales
-            .filter(
-                sale =>
-                    sale.payment_method==="Cash"
-            ).length;
-            
-    const mobileCount=
-        todaySales
-            .filter(
-                sale =>
-                    sale.payment_method==="Mobile Money"
-            ).length;
+        const newUser = { name, email, password, role };
+        users.push(newUser);
+        localStorage.setItem('perfume_users', JSON.stringify(users));
 
-    document
-        .getElementById("todayUnits")
-        .textContent=
-            units;
-    document
-        .getElementById("todayCount")
-        .textContent=
-            count;
-    document
-        .getElementById("todayCashCount")
-        .textContent=
-            cashCount;
-    document
-        .getElementById("todayMobileCount")
-        .textContent=
-            mobileCount;
-            
-    const recent=
-        sales.slice(0,5);
-    const container=
-        document.getElementById(
-            "recentSales"
-        );
-    if(!recent.length){
-        container.innerHTML=`
-            <div class="empty">
-                No sales recorded yet today.
-                <br><br>
-                Tap
-                <strong>+ Record New Sale</strong>
-                to begin tracking.
-            </div>
-        `;
-        return;
+        const session = { name, email, role };
+        setUser(session);
+        localStorage.setItem('perfume_current_user', JSON.stringify(session));
+        return { success: true };
+      };
+
+      const logout = () => {
+        setUser(null);
+        localStorage.removeItem('perfume_current_user');
+      };
+
+      return (
+        <AuthContext.Provider value={{ user, login, register, logout }}>
+          {children}
+        </AuthContext.Provider>
+      );
     }
-    container.innerHTML=
-        recent
-            .map(renderSaleHTML)
-            .join("");
-}
-/* =====================================================
-   QUICK SALE
-====================================================== */
-function quickSale(size){
-    openSaleModal();
-    selectSize(size);
-}
-/* =====================================================
-   SALES LIST
-====================================================== */
-function renderSales(){
-    const container=
-        document.getElementById(
-            "allSales"
-        );
-    if(!sales.length){
-        container.innerHTML=`
-            <div class="empty">
-                No sales recorded yet.
-            </div>
-        `;
-        return;
+    const useAuth = () => useContext(AuthContext);
+
+    function AppProvider({ children }) {
+      const [products, setProducts] = useState(() => {
+        const saved = localStorage.getItem('perfume_products');
+        return saved ? JSON.parse(saved) : INITIAL_PRODUCTS;
+      });
+
+      const [sales, setSales] = useState(() => {
+        const saved = localStorage.getItem('perfume_sales');
+        return saved ? JSON.parse(saved) : [];
+      });
+
+      useEffect(() => { localStorage.setItem('perfume_products', JSON.stringify(products)); }, [products]);
+      useEffect(() => { localStorage.setItem('perfume_sales', JSON.stringify(sales)); }, [sales]);
+
+      const addSale = (saleData) => {
+        const newSale = { id: 's_' + Date.now(), date: new Date().toISOString(), ...saleData };
+        setProducts(prev => prev.map(p => {
+          if (p.id === saleData.productId) {
+            return { ...p, stock: Math.max(0, p.stock - saleData.quantity) };
+          }
+          return p;
+        }));
+        setSales(prev => [newSale, ...prev]);
+      };
+
+      const deleteSale = (saleId) => {
+        setSales(prev => prev.filter(s => s.id !== saleId));
+      };
+
+      const saveProduct = (product) => {
+        if (product.id) {
+          setProducts(prev => prev.map(p => p.id === product.id ? product : p));
+        } else {
+          setProducts(prev => [...prev, { ...product, id: 'p_' + Date.now() }]);
+        }
+      };
+
+      const deleteProduct = (id) => {
+        setProducts(prev => prev.filter(p => p.id !== id));
+      };
+
+      return (
+        <AppContext.Provider value={{ products, sales, addSale, deleteSale, saveProduct, deleteProduct }}>
+          {children}
+        </AppContext.Provider>
+      );
     }
-    container.innerHTML=
-        sales
-            .map(renderSaleHTML)
-            .join("");
-}
-/* =====================================================
-   SALE HTML
-====================================================== */
-function renderSaleHTML(sale){
-    return `
-        <div class="sale-item">
-            <div class="sale-main">
-                <strong>
-                    ${escapeHtml(
-                        sale.size
-                    )}ml ×
-                    ${escapeHtml(
-                        sale.quantity
-                    )}
-                </strong>
-                <small>
-                    ${formatDate(
-                        sale.created_at
-                    )}
-                    ·
-                    ${escapeHtml(
-                        sale.payment_method
-                    )}
-                </small>
-                <small>
-                    ${
-                        sale.delivery
-                        ? "Delivery active"
-                        : "No delivery"
-                    }
-                </small>
-                ${
-                    sale.customer_name
-                    ?
-                    `
-                    <small>
-                        Customer:
-                        ${escapeHtml(
-                            sale.customer_name
-                        )}
-                    </small>
-                    `
-                    :
-                    ""
-                }
-            </div>
-            <div class="sale-right">
-                <button
-                    class="action-btn"
-                    onclick="editSale('${sale.id}')"
-                >
-                    Edit
-                </button>
-                <button
-                    class="action-btn delete-btn"
-                    onclick="deleteSale('${sale.id}')"
-                >
-                    Delete
-                </button>
-            </div>
+    const useApp = () => useContext(AppContext);
+
+    // --- COMPONENTS ---
+
+    // 1. Splash Screen
+    function SplashScreen({ onFinish }) {
+      useEffect(() => {
+        const t = setTimeout(onFinish, 2200);
+        return () => clearTimeout(t);
+      }, [onFinish]);
+
+      return (
+        <div className="fixed inset-0 bg-[#0A0A0A] flex flex-col items-center justify-center z-50">
+          <div className="text-center animate-pulse">
+            <img 
+              src="images/splash-logo.png" 
+              alt="Logo" 
+              className="w-32 h-32 object-contain mx-auto mb-6 rounded-full border border-gold/40 shadow-2xl bg-neutral-900 p-2"
+              onError={(e)=>{e.target.src='https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?w=200';}}
+            />
+            <h1 className="text-2xl font-serif tracking-widest text-gold">MAISON DE PARFUM</h1>
+            <p className="text-xs text-neutral-400 mt-2 tracking-wider">EXQUISITE SALES MANAGEMENT</p>
+          </div>
         </div>
-    `;
-}
-/* =====================================================
-   SALE MODAL
-====================================================== */
-function openSaleModal(){
-    document
-        .getElementById("saleModal")
-        .classList.remove("hidden");
-    resetSaleForm();
-}
-function closeSaleModal(){
-    document
-        .getElementById("saleModal")
-        .classList.add("hidden");
-}
-function resetSaleForm(){
-    document
-        .getElementById("editingSaleId")
-        .value="";
-    document
-        .getElementById("saleModalTitle")
-        .textContent="Add Sale Record";
-    document
-        .getElementById("saleQuantity")
-        .value=1;
-    document
-        .getElementById("saleAmount")
-        .value="";
-    document
-        .getElementById("deliveryCost")
-        .value="";
-    document
-        .getElementById("customerName")
-        .value="";
-    selectedSize=null;
-    selectedPayment="Cash";
-    selectedDelivery=false;
-    document
-        .querySelectorAll(".size-btn")
-        .forEach(
-            button =>
-                button.classList.remove("active")
-        );
-    selectPayment("Cash");
-    selectDelivery(false);
-}
-/* =====================================================
-   SELECT SIZE
-====================================================== */
-function selectSize(size){
-    selectedSize=size;
-    document
-        .querySelectorAll(".size-btn")
-        .forEach(
-            button => {
-                button.classList.toggle(
-                    "active",
-                    Number(
-                        button.dataset.size
-                    )===size
-                );
-            }
-        );
-}
-/* =====================================================
-   PAYMENT
-====================================================== */
-function selectPayment(payment){
-    selectedPayment=payment;
-    document
-        .getElementById("cashBtn")
-        .classList.toggle(
-            "active",
-            payment==="Cash"
-        );
-    document
-        .getElementById("mobileBtn")
-        .classList.toggle(
-            "active",
-            payment==="Mobile Money"
-        );
-}
-/* =====================================================
-   DELIVERY
-====================================================== */
-function selectDelivery(value){
-    selectedDelivery=value;
-    document
-        .getElementById("deliveryYes")
-        .classList.toggle(
-            "active",
-            value
-        );
-    document
-        .getElementById("deliveryNo")
-        .classList.toggle(
-            "active",
-            !value
-        );
-    document
-        .getElementById("deliveryCostField")
-        .classList.toggle(
-            "hidden",
-            !value
-        );
-}
-/* =====================================================
-   SAVE SALE
-====================================================== */
-async function saveSale(){
-    if(!currentUser){
-        alert(
-            "You are not logged in."
-        );
-        return;
+      );
     }
-    if(!selectedSize){
-        alert(
-            "Select a perfume size."
-        );
-        return;
-    }
-    const quantity=
-        Number(
-            document
-                .getElementById("saleQuantity")
-                .value
-        );
-    const amount=
-        Number(
-            document
-                .getElementById("saleAmount")
-                .value
-        );
-    const deliveryCost=
-        Number(
-            document
-                .getElementById("deliveryCost")
-                .value
-        )||0;
-    const customerName=
-        document
-            .getElementById("customerName")
-            .value
-            .trim();
-    if(quantity<1){
-        alert(
-            "Enter a valid quantity."
-        );
-        return;
-    }
-    const editingId=
-        document
-            .getElementById("editingSaleId")
-            .value;
-    const saleData={
-        user_id:currentUser.id,
-        size:selectedSize,
-        quantity:quantity,
-        amount: Number.isFinite(amount) ? amount : 0,
-        payment_method:selectedPayment,
-        delivery:selectedDelivery,
-        delivery_cost:
-            selectedDelivery
-            ? deliveryCost
-            : 0,
-        customer_name:
-            customerName || null
-    };
-    const button=
-        document.getElementById(
-            "saveSaleBtn"
-        );
-    button.disabled=true;
-    button.textContent=
-        editingId
-        ? "Updating..."
-        : "Saving...";
-    try{
-        let result;
-        if(editingId){
-            result=
-                await supabaseClient
-                    .from("sales")
-                    .update(saleData)
-                    .eq(
-                        "id",
-                        editingId
-                    )
-                    .eq(
-                        "user_id",
-                        currentUser.id
-                    );
-        }else{
-            result=
-                await supabaseClient
-                    .from("sales")
-                    .insert(saleData);
+
+    // 2. Login / Register with Video Hero
+    function Login() {
+      const [isReg, setIsReg] = useState(false);
+      const [email, setEmail] = useState('');
+      const [password, setPassword] = useState('');
+      const [confirm, setConfirm] = useState('');
+      const [name, setName] = useState('');
+      const [role, setRole] = useState('Staff');
+      const [error, setError] = useState('');
+      const { login, register } = useAuth();
+
+      const handleSubmit = (e) => {
+        e.preventDefault();
+        setError('');
+        if (isReg) {
+          const res = register(name, email, password, confirm, role);
+          if (!res.success) setError(res.error);
+        } else {
+          const res = login(email, password);
+          if (!res.success) setError(res.error);
         }
-        if(result.error)
-            throw result.error;
-        closeSaleModal();
-        await loadSales();
-    }catch(error){
-        alert(
-            "Could not save sale:\n\n"+
-            error.message
-        );
-    }finally{
-        button.disabled=false;
-        button.textContent=
-            editingId
-            ? "Update Record"
-            : "Save Record";
-    }
-}
-/* =====================================================
-   EDIT
-====================================================== */
-function editSale(id){
-    const sale=
-        sales.find(
-            item =>
-                String(item.id)===String(id)
-        );
-    if(!sale) return;
-    document
-        .getElementById("saleModal")
-        .classList.remove("hidden");
-    document
-        .getElementById("saleModalTitle")
-        .textContent="Edit Sale Record";
-    document
-        .getElementById("editingSaleId")
-        .value=sale.id;
-    selectSize(
-        Number(sale.size)
-    );
-    document
-        .getElementById("saleQuantity")
-        .value=sale.quantity;
-    document
-        .getElementById("saleAmount")
-        .value=sale.amount;
-    selectPayment(
-        sale.payment_method
-    );
-    selectDelivery(
-        Boolean(sale.delivery)
-    );
-    document
-        .getElementById("deliveryCost")
-        .value=
-            sale.delivery_cost||"";
-    document
-        .getElementById("customerName")
-        .value=
-            sale.customer_name||"";
-    document
-        .getElementById("saveSaleBtn")
-        .textContent="Update Record";
-}
-/* =====================================================
-   DELETE
-====================================================== */
-async function deleteSale(id){
-    if(!confirm(
-        "Delete this record? This cannot be undone."
-    )) return;
-    try{
-        const {
-            error
-        } =
-        await supabaseClient
-            .from("sales")
-            .delete()
-            .eq(
-                "id",
-                id
-            )
-            .eq(
-                "user_id",
-                currentUser.id
-            );
-        if(error) throw error;
-        await loadSales();
-    }catch(error){
-        alert(
-            "Could not delete sale:\n\n"+
-            error.message
-        );
-    }
-}
-/* =====================================================
-   MONTHLY PROGRESS
-====================================================== */
-function setupMonthSelector(){
-    const selector=
-        document.getElementById(
-            "monthSelector"
-        );
-    const months=new Set();
-    months.add(monthKey());
-    sales.forEach(
-        sale => {
-            months.add(
-                monthKey(
-                    getSaleDate(sale)
-                )
-            );
-        }
-    );
-    const sorted=
-        [...months]
-            .sort()
-            .reverse();
-    selector.innerHTML=
-        sorted
-            .map(
-                key => {
-                    const [
-                        year,
-                        month
-                    ]=
-                        key.split("-");
-                    const date=
-                        new Date(
-                            Number(year),
-                            Number(month)-1,
-                            1
-                        );
-                    const label=
-                        date.toLocaleString(
-                            undefined,
-                            {
-                                month:"long",
-                                year:"numeric"
-                            }
-                        );
-                    return `
-                        <option value="${key}">
-                            ${label}
-                        </option>
-                    `;
-                }
-            )
-            .join("");
-    selector.onchange=
-        renderSelectedMonth;
-}
-function renderProgress(){
-    setupMonthSelector();
-    renderSelectedMonth();
-}
-function renderSelectedMonth(){
-    const selector=
-        document.getElementById(
-            "monthSelector"
-        );
-    const key=selector.value;
-    if(!key) return;
-    const monthSales=
-        sales.filter(
-            sale =>
-                monthKey(
-                    getSaleDate(sale)
-                )===key
-        );
-    const totalCount=
-        monthSales.length;
-    const units=
-        monthSales.reduce(
-            (sum,sale)=>
-                sum+
-                Number(
-                    sale.quantity||0
-                ),
-            0
-        );
-    const cashCount=
-        monthSales
-            .filter(
-                sale =>
-                    sale.payment_method==="Cash"
-            ).length;
-    const mobileCount=
-        monthSales
-            .filter(
-                sale =>
-                    sale.payment_method==="Mobile Money"
-            ).length;
-            
-    document
-        .getElementById("monthTotal")
-        .textContent=
-            totalCount;
-    document
-        .getElementById("monthUnits")
-        .textContent=
-            units;
-    document
-        .getElementById("monthCash")
-        .textContent=
-            cashCount;
-    document
-        .getElementById("monthMobile")
-        .textContent=
-            mobileCount;
-            
-    const sizes=[
-        10,
-        20,
-        30,
-        50,
-        100
-    ];
-    const counts=
-        sizes.map(
-            size => {
-                const count=
-                    monthSales
-                        .filter(
-                            sale =>
-                                Number(
-                                    sale.size
-                                )===size
-                        )
-                        .reduce(
-                            (sum,sale)=>
-                                sum+
-                                Number(
-                                    sale.quantity||0
-                                ),
-                            0
-                        );
-                return {
-                    size,
-                    count
-                };
-            }
-        );
-    const max=
-        Math.max(
-            1,
-            ...counts.map(
-                item=>item.count
-            )
-        );
-    document
-        .getElementById("sizeProgress")
-        .innerHTML=
-            counts
-                .map(
-                    item => {
-                        const percentage=
-                            (
-                                item.count/max
-                            )*100;
-                        return `
-                            <div class="size-row">
-                                <div class="size-row-top">
-                                    <strong>
-                                        ${item.size}ml
-                                    </strong>
-                                    <span>
-                                        ${item.count} sold
-                                    </span>
-                                </div>
-                                <div class="progress-bar">
-                                    <div
-                                        class="progress-fill"
-                                        style="
-                                            width:${percentage}%
-                                        "
-                                    ></div>
-                                </div>
-                            </div>
-                        `;
-                    }
-                )
-                .join("");
-    const daily={};
-    monthSales.forEach(
-        sale => {
-            const date=
-                localDateKey(
-                    getSaleDate(sale)
-                );
-            daily[date]=
-                (daily[date]||0)+
-                Number(
-                    sale.quantity||0
-                );
-        }
-    );
-    const days=
-        Object.entries(daily)
-            .sort(
-                ([a],[b]) =>
-                    b.localeCompare(a)
-            );
-    if(!days.length){
-        document
-            .getElementById("dailyProgress")
-            .innerHTML=`
-                <div class="empty">
-                    No sales recorded
-                    for this month.
+      };
+
+      return (
+        <div className="relative min-h-screen flex items-center justify-center overflow-hidden bg-black px-4">
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="absolute inset-0 w-full h-full object-cover opacity-35 filter brightness-75"
+            onError={(e)=>{e.target.style.display='none';}}
+          >
+            <source src="images/login-hero.mp4" type="video/mp4" />
+          </video>
+          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-black/30"></div>
+
+          <div className="relative z-10 w-full max-w-md p-8 bg-neutral-900/90 backdrop-blur-md border border-neutral-800 rounded-2xl shadow-2xl">
+            <div className="text-center mb-6">
+              <img 
+                src="images/splash-logo.png" 
+                alt="Logo" 
+                className="w-14 h-14 mx-auto mb-3 rounded-full border border-gold/40 bg-neutral-900 p-1"
+                onError={(e)=>{e.target.src='https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?w=200';}}
+              />
+              <h2 className="text-xl font-serif text-gold">Maison de Parfum</h2>
+              <p className="text-xs text-neutral-400 mt-1">{isReg ? 'Create Account' : 'Sign in to POS Terminal'}</p>
+            </div>
+
+            {error && <div className="mb-4 p-3 bg-red-950 border border-red-800 text-red-200 text-xs rounded-lg text-center">{error}</div>}
+
+            <form onSubmit={handleSubmit} className="space-y-3">
+              {isReg && (
+                <div>
+                  <label className="block text-xs text-neutral-400 mb-1">Full Name</label>
+                  <input type="text" required value={name} onChange={e=>setName(e.target.value)} className="w-full px-3 py-2 bg-neutral-800 border border-neutral-700 rounded-lg text-sm focus:outline-none focus:border-gold" />
                 </div>
-            `;
-        return;
+              )}
+              <div>
+                <label className="block text-xs text-neutral-400 mb-1">Email Address</label>
+                <input type="email" required value={email} onChange={e=>setEmail(e.target.value)} placeholder="staff@perfume.com" className="w-full px-3 py-2 bg-neutral-800 border border-neutral-700 rounded-lg text-sm focus:outline-none focus:border-gold" />
+              </div>
+              <div>
+                <label className="block text-xs text-neutral-400 mb-1">Password</label>
+                <input type="password" required value={password} onChange={e=>setPassword(e.target.value)} placeholder="••••••••" className="w-full px-3 py-2 bg-neutral-800 border border-neutral-700 rounded-lg text-sm focus:outline-none focus:border-gold" />
+              </div>
+              {isReg && (
+                <>
+                  <div>
+                    <label className="block text-xs text-neutral-400 mb-1">Confirm Password</label>
+                    <input type="password" required value={confirm} onChange={e=>setConfirm(e.target.value)} placeholder="••••••••" className="w-full px-3 py-2 bg-neutral-800 border border-neutral-700 rounded-lg text-sm focus:outline-none focus:border-gold" />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-neutral-400 mb-1">Role</label>
+                    <select value={role} onChange={e=>setRole(e.target.value)} className="w-full px-3 py-2 bg-neutral-800 border border-neutral-700 rounded-lg text-sm focus:outline-none focus:border-gold">
+                      <option value="Staff">Staff</option>
+                      <option value="Admin">Admin</option>
+                    </select>
+                  </div>
+                </>
+              )}
+              <button type="submit" className="w-full py-2.5 bg-gold hover:bg-gold-dark text-black font-semibold rounded-lg text-sm transition-all mt-4">
+                {isReg ? 'Register' : 'Sign In'}
+              </button>
+            </form>
+
+            <div className="text-center mt-4">
+              <button onClick={()=>setIsReg(!isReg)} className="text-xs text-gold hover:underline">
+                {isReg ? 'Already have an account? Sign In' : "Don't have an account? Register"}
+              </button>
+            </div>
+            
+            <div className="mt-4 pt-3 border-t border-neutral-800 text-center text-[10px] text-neutral-500">
+              Demo Admin: admin@perfume.com / admin123
+            </div>
+          </div>
+        </div>
+      );
     }
-    const maxDay=
-        Math.max(
-            1,
-            ...days.map(
-                ([,value])=>value
-            )
-        );
-    document
-        .getElementById("dailyProgress")
-        .innerHTML=
-            days
-                .map(
-                    ([date,value]) => {
-                        const percentage=
-                            (value/maxDay)*100;
-                        const display=
-                            new Date(
-                                date+"T00:00:00"
-                            )
-                            .toLocaleDateString(
-                                undefined,
-                                {
-                                    day:"numeric",
-                                    month:"short"
-                                }
-                            );
-                        return `
-                            <div class="size-row">
-                                <div class="size-row-top">
-                                    <strong>
-                                        ${display}
-                                    </strong>
-                                    <span>
-                                        ${value} items sold
-                                    </span>
-                                </div>
-                                <div class="progress-bar">
-                                    <div
-                                        class="progress-fill"
-                                        style="
-                                            width:${percentage}%
-                                        "
-                                    ></div>
-                                </div>
-                            </div>
-                        `;
-                    }
-                )
-                .join("");
-}
-/* =====================================================
-   LOGOUT
-====================================================== */
-document
-.getElementById("logoutBtn")
-.addEventListener(
-    "click",
-    async()=>{
-        await supabaseClient.auth.signOut();
-        currentUser=null;
-        sales=[];
-        showAuth();
+
+    // 3. Navigation Bar
+    function Navbar({ activeTab, setActiveTab }) {
+      const { user, logout } = useAuth();
+
+      return (
+        <header className="bg-neutral-900 border-b border-neutral-800 sticky top-0 z-40">
+          <div className="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-4">
+            <div className="flex items-center space-x-3">
+              <img 
+                src="images/splash-logo.png" 
+                alt="Logo" 
+                className="w-8 h-8 rounded-full border border-gold/40 bg-neutral-900"
+                onError={(e)=>{e.target.style.display='none';}}
+              />
+              <span className="font-serif text-gold font-semibold tracking-wider">MAISON DE PARFUM</span>
+            </div>
+
+            <nav className="flex items-center space-x-1 sm:space-x-2 overflow-x-auto py-1">
+              <button onClick={()=>setActiveTab('pos')} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${activeTab==='pos'?'bg-gold text-black':'text-neutral-300 hover:bg-neutral-800'}`}>New Sale (POS)</button>
+              <button onClick={()=>setActiveTab('history')} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${activeTab==='history'?'bg-gold text-black':'text-neutral-300 hover:bg-neutral-800'}`}>Sales History</button>
+              <button onClick={()=>setActiveTab('inventory')} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${activeTab==='inventory'?'bg-gold text-black':'text-neutral-300 hover:bg-neutral-800'}`}>Inventory</button>
+              {user?.role === 'Admin' && (
+                <button onClick={()=>setActiveTab('reports')} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${activeTab==='reports'?'bg-gold text-black':'text-neutral-300 hover:bg-neutral-800'}`}>Reports & Analytics</button>
+              )}
+            </nav>
+
+            <div className="flex items-center space-x-3">
+              <div className="text-right hidden sm:block">
+                <p className="text-xs text-white font-medium">{user?.name}</p>
+                <p className="text-[10px] text-gold uppercase">{user?.role}</p>
+              </div>
+              <button onClick={logout} className="px-3 py-1.5 bg-neutral-800 hover:bg-neutral-700 text-xs text-red-300 rounded-lg transition-all">Logout</button>
+            </div>
+          </div>
+        </header>
+      );
     }
-);
-/* =====================================================
-   GLOBAL
-====================================================== */
-window.openSaleModal=openSaleModal;
-window.closeSaleModal=closeSaleModal;
-window.quickSale=quickSale;
-window.selectSize=selectSize;
-window.selectPayment=selectPayment;
-window.selectDelivery=selectDelivery;
-window.saveSale=saveSale;
-window.editSale=editSale;
-window.deleteSale=deleteSale;
-window.showPage=showPage;
-</script>
+
+    // 4. POS Terminal View
+    function POSView() {
+      const { products, addSale } = useApp();
+      const { user } = useAuth();
+      const [prodId, setProdId] = useState('');
+      const [qty, setQty] = useState(1);
+      const [disc, setDisc] = useState(0);
+      const [method, setMethod] = useState('Card');
+      const [custName, setCustName] = useState('');
+      const [custPhone, setCustPhone] = useState('');
+      const [notes, setNotes] = useState('');
+      const [success, setSuccess] = useState(false);
+
+      const prod = products.find(p => p.id === prodId);
+      const unitPrice = prod ? prod.price : 0;
+      const unitCost = prod ? prod.cost : 0;
+      const totalAmt = Math.max(0, (unitPrice * qty) - Number(disc));
+      const totalCost = unitCost * qty;
+
+      const handleSubmit = (e) => {
+        e.preventDefault();
+        if (!prod) return;
+        if (prod.stock < qty) {
+          alert('Insufficient stock available!');
+          return;
+        }
+
+        addSale({
+          productId: prod.id,
+          productName: prod.name,
+          brand: prod.brand,
+          size: prod.size,
+          category: prod.category,
+          quantity: Number(qty),
+          unitPrice,
+          discount: Number(disc),
+          totalAmount: totalAmt,
+          costPrice: totalCost,
+          paymentMethod: method,
+          customerName: custName || 'Walk-in Client',
+          customerPhone: custPhone || '-',
+          salesperson: user?.name || 'Staff',
+          notes
+        });
+
+        setSuccess(true);
+        setTimeout(() => setSuccess(false), 3000);
+        setProdId(''); setQty(1); setDisc(0); setCustName(''); setCustPhone(''); setNotes('');
+      };
+
+      return (
+        <div className="max-w-4xl mx-auto p-4 sm:p-6 bg-neutral-900 border border-neutral-800 rounded-2xl shadow-xl my-6">
+          <div className="mb-6 pb-4 border-b border-neutral-800">
+            <h2 className="text-xl font-serif text-gold">Point of Sale Terminal</h2>
+            <p className="text-xs text-neutral-400">Log perfume transactions & auto-update inventory</p>
+          </div>
+
+          {success && (
+            <div className="mb-6 p-3 bg-emerald-950 border border-emerald-700 text-emerald-200 text-xs rounded-lg">
+              Sale completed successfully! Inventory updated.
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-4">
+              <div>
+                <label className="block text-xs text-neutral-400 mb-1">Select Fragrance *</label>
+                <select required value={prodId} onChange={e=>setProdId(e.target.value)} className="w-full px-3 py-2 bg-neutral-800 border border-neutral-700 rounded-lg text-sm focus:outline-none focus:border-gold">
+                  <option value="">-- Choose Product --</option>
+                  {products.map(p => (
+                    <option key={p.id} value={p.id}>
+                      {p.brand} - {p.name} ({p.size}) | Stock: {p.stock} | ${p.price}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {prod && (
+                <div className="p-3 bg-neutral-800/60 rounded-lg text-xs space-y-1 border border-neutral-700">
+                  <p><span className="text-neutral-400">Brand:</span> <span className="text-white font-medium">{prod.brand}</span></p>
+                  <p><span className="text-neutral-400">Category:</span> <span className="text-white uppercase">{prod.category}</span></p>
+                  <p><span className="text-neutral-400">Stock Available:</span> <span className={prod.stock<=3?'text-amber-400 font-bold':'text-emerald-400 font-bold'}>{prod.stock} units</span></p>
+                </div>
+              )}
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs text-neutral-400 mb-1">Quantity *</label>
+                  <input type="number" min="1" required value={qty} onChange={e=>setQty(e.target.value)} className="w-full px-3 py-2 bg-neutral-800 border border-neutral-700 rounded-lg text-sm focus:outline-none focus:border-gold" />
+                </div>
+                <div>
+                  <label className="block text-xs text-neutral-400 mb-1">Discount ($)</label>
+                  <input type="number" min="0" value={disc} onChange={e=>setDisc(e.target.value)} className="w-full px-3 py-2 bg-neutral-800 border border-neutral-700 rounded-lg text-sm focus:outline-none focus:border-gold" />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs text-neutral-400 mb-1">Payment Method</label>
+                <select value={method} onChange={e=>setMethod(e.target.value)} className="w-full px-3 py-2 bg-neutral-800 border border-neutral-700 rounded-lg text-sm focus:outline-none focus:border-gold">
+                  <option value="Card">Card</option>
+                  <option value="Cash">Cash</option>
+                  <option value="Mobile Money">Mobile Money</option>
+                  <option value="Bank Transfer">Bank Transfer</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="space-y-4 flex flex-col justify-between">
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-xs text-neutral-400 mb-1">Customer Name (Optional)</label>
+                  <input type="text" value={custName} onChange={e=>setCustName(e.target.value)} placeholder="Client Name" className="w-full px-3 py-2 bg-neutral-800 border border-neutral-700 rounded-lg text-sm focus:outline-none focus:border-gold" />
+                </div>
+                <div>
+                  <label className="block text-xs text-neutral-400 mb-1">Customer Phone (Optional)</label>
+                  <input type="text" value={custPhone} onChange={e=>setCustPhone(e.target.value)} placeholder="+1..." className="w-full px-3 py-2 bg-neutral-800 border border-neutral-700 rounded-lg text-sm focus:outline-none focus:border-gold" />
+                </div>
+                <div>
+                  <label className="block text-xs text-neutral-400 mb-1">Notes</label>
+                  <textarea value={notes} onChange={e=>setNotes(e.target.value)} rows="2" placeholder="Gift wrapping requested..." className="w-full px-3 py-2 bg-neutral-800 border border-neutral-700 rounded-lg text-sm focus:outline-none focus:border-gold"></textarea>
+                </div>
+              </div>
+
+              <div className="p-4 bg-black/40 border border-gold/30 rounded-xl space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-neutral-400">Unit Price:</span>
+                  <span>${unitPrice.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-neutral-400">Discount:</span>
+                  <span className="text-amber-400">-${Number(disc).toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between text-base font-semibold pt-2 border-t border-neutral-800">
+                  <span className="text-gold">Total Amount:</span>
+                  <span className="text-gold">${totalAmt.toFixed(2)}</span>
+                </div>
+                <button type="submit" disabled={!prod} className="w-full mt-3 py-3 bg-gold hover:bg-gold-dark disabled:opacity-50 text-black font-semibold rounded-lg text-sm transition-all">
+                  Complete Sale (${totalAmt.toFixed(2)})
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      );
+    }
+
+    // 5. Sales History View
+    function HistoryView() {
+      const { sales, deleteSale } = useApp();
+      const { user } = useAuth();
+      const [search, setSearch] = useState('');
+      const [payFilter, setPayFilter] = useState('');
+
+      const filtered = sales.filter(s => {
+        const matchSearch = s.productName.toLowerCase().includes(search.toLowerCase()) || 
+                            s.brand.toLowerCase().includes(search.toLowerCase()) || 
+                            s.customerName.toLowerCase().includes(search.toLowerCase()) ||
+                            s.salesperson.toLowerCase().includes(search.toLowerCase());
+        const matchPay = payFilter ? s.paymentMethod === payFilter : true;
+        return matchSearch && matchPay;
+      });
+
+      return (
+        <div className="max-w-7xl mx-auto p-4 sm:p-6 my-6">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+            <div>
+              <h2 className="text-xl font-serif text-gold">Sales History</h2>
+              <p className="text-xs text-neutral-400">Search and review recorded transactions</p>
+            </div>
+            <div className="flex gap-2 w-full sm:w-auto">
+              <input type="text" placeholder="Search product, brand, client..." value={search} onChange={e=>setSearch(e.target.value)} className="px-3 py-1.5 bg-neutral-900 border border-neutral-800 rounded-lg text-xs w-full sm:w-64 focus:outline-none focus:border-gold" />
+              <select value={payFilter} onChange={e=>setPayFilter(e.target.value)} className="px-3 py-1.5 bg-neutral-900 border border-neutral-800 rounded-lg text-xs focus:outline-none focus:border-gold">
+                <option value="">All Payment Types</option>
+                <option value="Card">Card</option>
+                <option value="Cash">Cash</option>
+                <option value="Mobile Money">Mobile Money</option>
+                <option value="Bank Transfer">Bank Transfer</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="bg-neutral-900 border border-neutral-800 rounded-2xl overflow-hidden shadow-xl">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-neutral-950 text-neutral-400 uppercase tracking-wider border-b border-neutral-800">
+                  <tr>
+                    <th className="p-3">Date</th>
+                    <th className="p-3">Product</th>
+                    <th className="p-3">Qty</th>
+                    <th className="p-3">Total</th>
+                    <th className="p-3">Payment</th>
+                    <th className="p-3">Client</th>
+                    <th className="p-3">Staff</th>
+                    {user?.role === 'Admin' && <th className="p-3 text-right">Action</th>}
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-neutral-800">
+                  {filtered.length === 0 ? (
+                    <tr><td colSpan="8" className="p-6 text-center text-neutral-500">No sales records found.</td></tr>
+                  ) : (
+                    filtered.map(s => (
+                      <tr key={s.id} className="hover:bg-neutral-800/40">
+                        <td className="p-3 text-neutral-400">{new Date(s.date).toLocaleString()}</td>
+                        <td className="p-3 font-medium text-white">{s.brand} - {s.productName} <span className="text-neutral-500">({s.size})</span></td>
+                        <td className="p-3">{s.quantity}</td>
+                        <td className="p-3 text-gold font-semibold">${s.totalAmount.toFixed(2)}</td>
+                        <td className="p-3"><span className="px-2 py-0.5 bg-neutral-800 rounded text-[10px]">{s.paymentMethod}</span></td>
+                        <td className="p-3 text-neutral-300">{s.customerName}</td>
+                        <td className="p-3 text-neutral-400">{s.salesperson}</td>
+                        {user?.role === 'Admin' && (
+                          <td className="p-3 text-right">
+                            <button onClick={()=>deleteSale(s.id)} className="text-red-400 hover:text-red-300 text-[11px]">Delete</button>
+                          </td>
+                        )}
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // 6. Inventory View
+    function InventoryView() {
+      const { products, saveProduct, deleteProduct } = useApp();
+      const { user } = useAuth();
+      const [editing, setEditing] = useState(null);
+      const [form, setForm] = useState({ name: '', brand: '', size: '100ml', category: "men's", price: '', cost: '', stock: '' });
+
+      const handleOpenAdd = () => {
+        setEditing('new');
+        setForm({ name: '', brand: '', size: '100ml', category: "men's", price: '', cost: '', stock: '' });
+      };
+
+      const handleOpenEdit = (p) => {
+        setEditing(p.id);
+        setForm(p);
+      };
+
+      const handleSave = (e) => {
+        e.preventDefault();
+        saveProduct({
+          ...form,
+          price: Number(form.price),
+          cost: Number(form.cost),
+          stock: Number(form.stock)
+        });
+        setEditing(null);
+      };
+
+      return (
+        <div className="max-w-7xl mx-auto p-4 sm:p-6 my-6">
+          <div className="flex justify-between items-center mb-6">
+            <div>
+              <h2 className="text-xl font-serif text-gold">Inventory & Catalog</h2>
+              <p className="text-xs text-neutral-400">Manage stock levels and perfume items</p>
+            </div>
+            {user?.role === 'Admin' && (
+              <button onClick={handleOpenAdd} className="px-4 py-2 bg-gold hover:bg-gold-dark text-black text-xs font-semibold rounded-lg">
+                + Add New Perfume
+              </button>
+            )}
+          </div>
+
+          {editing && (
+            <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+              <div className="bg-neutral-900 border border-neutral-800 p-6 rounded-2xl max-w-md w-full">
+                <h3 className="text-lg font-serif text-gold mb-4">{editing === 'new' ? 'Add Perfume' : 'Edit Perfume'}</h3>
+                <form onSubmit={handleSave} className="space-y-3">
+                  <div>
+                    <label className="block text-xs text-neutral-400 mb-1">Product Name</label>
+                    <input type="text" required value={form.name} onChange={e=>setForm({...form, name: e.target.value})} className="w-full px-3 py-2 bg-neutral-800 border border-neutral-700 rounded-lg text-sm" />
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs text-neutral-400 mb-1">Brand</label>
+                      <input type="text" required value={form.brand} onChange={e=>setForm({...form, brand: e.target.value})} className="w-full px-3 py-2 bg-neutral-800 border border-neutral-700 rounded-lg text-sm" />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-neutral-400 mb-1">Bottle Size</label>
+                      <input type="text" required value={form.size} onChange={e=>setForm({...form, size: e.target.value})} className="w-full px-3 py-2 bg-neutral-800 border border-neutral-700 rounded-lg text-sm" />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs text-neutral-400 mb-1">Category</label>
+                      <select value={form.category} onChange={e=>setForm({...form, category: e.target.value})} className="w-full px-3 py-2 bg-neutral-800 border border-neutral-700 rounded-lg text-sm">
+                        <option value="men's">Men's</option>
+                        <option value="women's">Women's</option>
+                        <option value="unisex">Unisex</option>
+                        <option value="oud">Oud</option>
+                        <option value="gift set">Gift Set</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-xs text-neutral-400 mb-1">Stock Level</label>
+                      <input type="number" required min="0" value={form.stock} onChange={e=>setForm({...form, stock: e.target.value})} className="w-full px-3 py-2 bg-neutral-800 border border-neutral-700 rounded-lg text-sm" />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs text-neutral-400 mb-1">Selling Price ($)</label>
+                      <input type="number" required min="0" step="0.01" value={form.price} onChange={e=>setForm({...form, price: e.target.value})} className="w-full px-3 py-2 bg-neutral-800 border border-neutral-700 rounded-lg text-sm" />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-neutral-400 mb-1">Cost Price ($)</label>
+                      <input type="number" required min="0" step="0.01" value={form.cost} onChange={e=>setForm({...form, cost: e.target.value})} className="w-full px-3 py-2 bg-neutral-800 border border-neutral-700 rounded-lg text-sm" />
+                    </div>
+                  </div>
+                  <div className="flex justify-end space-x-2 pt-3">
+                    <button type="button" onClick={()=>setEditing(null)} className="px-4 py-2 bg-neutral-800 text-xs rounded-lg">Cancel</button>
+                    <button type="submit" className="px-4 py-2 bg-gold text-black font-semibold text-xs rounded-lg">Save Product</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
+
+          <div className="bg-neutral-900 border border-neutral-800 rounded-2xl overflow-hidden shadow-xl">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-neutral-950 text-neutral-400 uppercase tracking-wider border-b border-neutral-800">
+                  <tr>
+                    <th className="p-3">Brand & Name</th>
+                    <th className="p-3">Category</th>
+                    <th className="p-3">Size</th>
+                    <th className="p-3">Price</th>
+                    <th className="p-3">Cost</th>
+                    <th className="p-3">Stock Level</th>
+                    {user?.role === 'Admin' && <th className="p-3 text-right">Actions</th>}
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-neutral-800">
+                  {products.map(p => (
+                    <tr key={p.id} className="hover:bg-neutral-800/40">
+                      <td className="p-3 font-medium text-white">{p.brand} <span className="text-neutral-400 font-normal">— {p.name}</span></td>
+                      <td className="p-3 uppercase text-neutral-300">{p.category}</td>
+                      <td className="p-3 text-neutral-400">{p.size}</td>
+                      <td className="p-3 text-gold font-semibold">${p.price.toFixed(2)}</td>
+                      <td className="p-3 text-neutral-400">${p.cost.toFixed(2)}</td>
+                      <td className="p-3">
+                        <span className={`px-2 py-0.5 rounded text-[11px] font-bold ${p.stock <= 3 ? 'bg-amber-950 text-amber-300 border border-amber-800' : 'bg-emerald-950 text-emerald-300 border border-emerald-800'}`}>
+                          {p.stock} units {p.stock <= 3 && '⚠️ Low'}
+                        </span>
+                      </td>
+                      {user?.role === 'Admin' && (
+                        <td className="p-3 text-right space-x-2">
+                          <button onClick={()=>handleOpenEdit(p)} className="text-gold hover:underline">Edit</button>
+                          <button onClick={()=>deleteProduct(p.id)} className="text-red-400 hover:underline">Delete</button>
+                        </td>
+                      )}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // 7. Reports & Analytics View (Admin Only)
+    function ReportsView() {
+      const { sales, products } = useApp();
+
+      const totalSalesAmt = sales.reduce((acc, s) => acc + s.totalAmount, 0);
+      const totalProfit = sales.reduce((acc, s) => acc + (s.totalAmount - s.costPrice), 0);
+
+      const lowStockCount = products.filter(p => p.stock <= 3).length;
+
+      return (
+        <div className="max-w-7xl mx-auto p-4 sm:p-6 my-6 space-y-6">
+          <div>
+            <h2 className="text-xl font-serif text-gold">Performance Reports</h2>
+            <p className="text-xs text-neutral-400">Overview of boutique sales and profitability</p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="p-5 bg-neutral-900 border border-neutral-800 rounded-2xl">
+              <p className="text-xs text-neutral-400 mb-1">Total Gross Revenue</p>
+              <p className="text-2xl font-serif text-gold">${totalSalesAmt.toFixed(2)}</p>
+            </div>
+            <div className="p-5 bg-neutral-900 border border-neutral-800 rounded-2xl">
+              <p className="text-xs text-neutral-400 mb-1">Total Net Profit</p>
+              <p className="text-2xl font-serif text-emerald-400">${totalProfit.toFixed(2)}</p>
+            </div>
+            <div className="p-5 bg-neutral-900 border border-neutral-800 rounded-2xl">
+              <p className="text-xs text-neutral-400 mb-1">Low Stock Alerts</p>
+              <p className="text-2xl font-serif text-amber-400">{lowStockCount} items</p>
+            </div>
+          </div>
+
+          <div className="p-6 bg-neutral-900 border border-neutral-800 rounded-2xl">
+            <h3 className="text-sm font-serif text-gold mb-4">Low Stock Warning Report</h3>
+            {products.filter(p => p.stock <= 3).length === 0 ? (
+              <p className="text-xs text-neutral-400">All products have sufficient stock levels.</p>
+            ) : (
+              <div className="space-y-2">
+                {products.filter(p => p.stock <= 3).map(p => (
+                  <div key={p.id} className="flex justify-between items-center p-3 bg-neutral-950 border border-amber-900/40 rounded-xl text-xs">
+                    <div>
+                      <span className="font-medium text-white">{p.brand} - {p.name}</span>
+                      <span className="text-neutral-400 ml-2">({p.size})</span>
+                    </div>
+                    <span className="text-amber-400 font-bold">{p.stock} units remaining</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    }
+
+    // --- MAIN APP CONTROLLER ---
+    function AppContent() {
+      const { user } = useAuth();
+      const [showSplash, setShowSplash] = useState(true);
+      const [activeTab, setActiveTab] = useState('pos');
+
+      if (showSplash) {
+        return <SplashScreen onFinish={() => setShowSplash(false)} />;
+      }
+
+      if (!user) {
+        return <Login />;
+      }
+
+      return (
+        <div className="min-h-screen bg-black text-white flex flex-col">
+          <Navbar activeTab={activeTab} setActiveTab={setActiveTab} />
+          <main className="flex-1">
+            {activeTab === 'pos' && <POSView />}
+            {activeTab === 'history' && <HistoryView />}
+            {activeTab === 'inventory' && <InventoryView />}
+            {activeTab === 'reports' && user.role === 'Admin' && <ReportsView />}
+          </main>
+        </div>
+      );
+    }
+
+    function App() {
+      return (
+        <AuthProvider>
+          <AppProvider>
+            <AppContent />
+          </AppProvider>
+        </AuthProvider>
+      );
+    }
+
+    ReactDOM.render(<App />, document.getElementById('root'));
+  </script>
 </body>
 </html>
