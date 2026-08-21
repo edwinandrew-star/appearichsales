@@ -618,7 +618,7 @@
       background: var(--nav-bg);
       border-top: 1.5px solid var(--nav-border);
       display: flex;
-      justify-style: space-around;
+      justify-content: space-around;
       align-items: center;
       z-index: 1000;
     }
@@ -721,7 +721,7 @@
       border:1px solid var(--card-border);
       background:var(--card-bg-sub);
       border-radius:10px;
-      padding:9px 5px;
+      padding:99px 5px;
       font-size:.72rem;
       font-weight:800;
       cursor:pointer;
@@ -857,6 +857,7 @@
       font-weight: 800;
       font-size: 0.85rem;
     }
+
     /* STOCK ACTIVITY LOG ITEM STYLES */
     .activity-log-item {
       background: var(--card-bg-sub);
@@ -1342,7 +1343,7 @@
   </nav>
   <script>
     const SUPABASE_URL = 'https://zudqubbglwphfxaviqsg.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInRefiI6Inp1ZHF1YmJnbHdwaGZ4YXZpcXNnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI0NjcyNTUsImV4cCI6MjA5ODA0MzI1NX0.7pRbRqz9-5gN8SG_ALn5ecHOWQofykPvhbrE2HQROCE';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp1ZHF1YmJnbHdwaGZ4YXZpcXNnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI0NjcyNTUsImV4cCI6MjA5ODA0MzI1NX0.7pRbRqz9-5gN8SG_ALn5ecHOWQofykPvhbrE2HQROCE';
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     
     let currentUser = null;
@@ -1358,7 +1359,6 @@
     let selectedMobileProvider = '';
     let reviewMode = 'daily';
     let editingSaleId = null;
-    
     // Stock state
     let oilBottleStocks = [];
     let perfumeBottleStocks = [];
@@ -1367,16 +1367,13 @@
     let editingOilId = null;
     let editingPBottleId = null;
     let editingSpecId = null;
-    
     const BOTTLE_FIXED_PCS = {
       '10 ml': 273,
       '30 ml': 140,
       '50 ml': 70
     };
-    
     const todayISO = () => new Date().toISOString().slice(0,10);
     const monthISO = () => new Date().toISOString().slice(0,7);
-    
     function escapeHtml(value) {
       return String(value ?? '').replace(/[&<>"']/g, c => ({
         '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'
@@ -1384,26 +1381,22 @@
     }
     
     function money(v) { return Number(v || 0).toLocaleString() + ' TZS'; }
-    
     function calculateCurrentTotal() {
       const q = Number(document.getElementById('saleQuantity').value || 0);
       const p = Number(document.getElementById('salePrice').value || 0);
       document.getElementById('saleTotalCalculated').value = q * p;
     }
-    
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('service-worker.js').catch(()=>{});
       });
     }
-    
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
       deferredPrompt = e;
       const btn = document.getElementById('pwaInstallBtn');
       if (btn) btn.style.display = 'flex';
     });
-    
     function installPWA() {
       if (!deferredPrompt) return;
       deferredPrompt.prompt();
@@ -1412,94 +1405,168 @@
         deferredPrompt = null;
       });
     }
-    
-    supabaseClient.auth.onAuthStateChange((event, session) => {
-      if (event === 'PASSWORD_RECOVERY' && session) showResetPasswordScreen();
+    // ==================== PERMANENT SUPABASE STATE ====================
+    let realtimeChannel = null;
+    let dataSyncInProgress = false;
+
+    async function loadCurrentUserState(userId) {
+      if (!userId) return;
+      const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
+      if (userError || !user || user.id !== userId) throw (userError || new Error('Authenticated user could not be verified.'));
+      currentUser = user;
+
+      await fetchAndSetupUserData(userId);
+      await Promise.all([
+        syncSalesFromSupabase(),
+        syncExpensesFromSupabase(),
+        syncAllStocksFromSupabase()
+      ]);
+      setupRealtimeSubscriptions();
+    }
+
+    async function syncEverythingFromSupabase() {
+      if (!currentUser || dataSyncInProgress) return;
+      dataSyncInProgress = true;
+      try {
+        // Supabase is always authoritative. Never push in-memory/device state to it during login/reconnect.
+        await Promise.all([
+          syncSalesFromSupabase(),
+          syncExpensesFromSupabase(),
+          syncAllStocksFromSupabase()
+        ]);
+      } finally {
+        dataSyncInProgress = false;
+      }
+    }
+
+    supabaseClient.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'PASSWORD_RECOVERY' && session) {
+        showResetPasswordScreen();
+        return;
+      }
+      if (event === 'SIGNED_OUT') {
+        if (realtimeChannel) {
+          await supabaseClient.removeChannel(realtimeChannel);
+          realtimeChannel = null;
+        }
+        return;
+      }
     });
-    
+
+    window.addEventListener('online', () => {
+      if (currentUser) syncEverythingFromSupabase().catch(err => console.error('Reconnect sync failed:', err));
+    });
+
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden && currentUser) {
+        syncEverythingFromSupabase().catch(err => console.error('Visibility sync failed:', err));
+      }
+    });
+
+    window.addEventListener('focus', () => {
+      if (currentUser) syncEverythingFromSupabase().catch(err => console.error('Focus sync failed:', err));
+    });
+
     window.addEventListener('DOMContentLoaded', async () => {
       document.getElementById('saleDate').value = todayISO();
       document.getElementById('dailyDate').value = todayISO();
       document.getElementById('reviewMonth').value = monthISO();
       document.getElementById('expenseDate').value = todayISO();
-      
-      const { data: { session } } = await supabaseClient.auth.getSession();
-      
+
+      const { data: { session }, error: sessionError } = await supabaseClient.auth.getSession();
+
       setTimeout(async () => {
         document.getElementById('splash-screen').style.opacity = '0';
         setTimeout(() => document.getElementById('splash-screen').style.display = 'none', 500);
+
+        if (sessionError) {
+          console.error('Session restore error:', sessionError);
+          showAuthScreen();
+          return;
+        }
+
         if (session && session.user) {
-          currentUser = session.user;
-          await fetchAndSetupUserData(currentUser.id);
-          setupRealtimeSubscriptions();
-          await syncSalesFromSupabase();
-          await syncExpensesFromSupabase();
-          await syncAllStocksFromSupabase();
+          try {
+            await loadCurrentUserState(session.user.id);
+          } catch (e) {
+            console.error('Failed to restore account state:', e);
+            alert('Could not load your saved account data. Please check your connection and try again.');
+            showAuthScreen();
+          }
         } else {
           showAuthScreen();
         }
       }, 800);
     });
-    
+
     async function fetchAndSetupUserData(userId) {
-      const { data } = await supabaseClient
+      const { data, error } = await supabaseClient
         .from('profiles')
-        .select('username, phone')
+        .select('username, phone, email')
         .eq('id', userId)
-        .single();
+        .maybeSingle();
+      if (error) throw error;
       if (data) {
         if (data.username) currentUsername = data.username;
         if (data.phone) currentUserPhone = data.phone;
       }
-      if (!currentUsername && currentUser) currentUsername = currentUser.email.split('@')[0];
+      if (!currentUsername && currentUser?.email) currentUsername = currentUser.email.split('@')[0];
       setupUserInterface();
     }
-    
-    function setupRealtimeSubscriptions() {
+
+    async function setupRealtimeSubscriptions() {
       if (!currentUser) return;
-      
-      supabaseClient
-        .channel('app_realtime_sync')
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'sales', filter: `user_id=eq.${currentUser.id}` }, () => syncSalesFromSupabase())
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'expenses', filter: `user_id=eq.${currentUser.id}` }, () => syncExpensesFromSupabase())
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'oil_bottles', filter: `user_id=eq.${currentUser.id}` }, () => syncAllStocksFromSupabase())
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'perfume_bottles', filter: `user_id=eq.${currentUser.id}` }, () => syncAllStocksFromSupabase())
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'specific_perfumes', filter: `user_id=eq.${currentUser.id}` }, () => syncAllStocksFromSupabase())
-        .subscribe();
+
+      if (realtimeChannel) {
+        await supabaseClient.removeChannel(realtimeChannel);
+        realtimeChannel = null;
+      }
+
+      const userId = currentUser.id;
+      realtimeChannel = supabaseClient
+        .channel(`glamo-user-${userId}`)
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'sales', filter: `user_id=eq.${userId}` }, () => syncSalesFromSupabase())
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'expenses', filter: `user_id=eq.${userId}` }, () => syncExpensesFromSupabase())
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'oil_bottles', filter: `user_id=eq.${userId}` }, () => syncAllStocksFromSupabase())
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'perfume_bottles', filter: `user_id=eq.${userId}` }, () => syncAllStocksFromSupabase())
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'specific_perfumes', filter: `user_id=eq.${userId}` }, () => syncAllStocksFromSupabase())
+        .subscribe((status) => {
+          if (status === 'SUBSCRIBED') console.log('Glamo Scents realtime synchronization active.');
+          if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') console.error('Realtime subscription error:', status);
+        });
     }
-    
+
     async function syncSalesFromSupabase() {
       if (!currentUser) return;
-      try {
-        const { data, error } = await supabaseClient
-          .from('sales')
-          .select('*')
-          .eq('user_id', currentUser.id)
-          .order('created_at', { ascending: false });
-          
-        if (error) throw error;
-        
-        activeOrders = (data || []).map(row => ({
-          id: row.id,
-          user_id: row.user_id,
-          perfumeName: row.perfume_name || 'Unknown Perfume',
-          quantity: Number(row.quantity || 1),
-          price: Number(row.price || 0),
-          total: Number(row.total || 0),
-          paymentMethod: row.payment_method || 'Cash',
-          date: row.sale_date || todayISO(),
-          created_at: row.created_at,
-          updated_at: row.updated_at
-        }));
-      } catch (e) {
-        console.error('Error syncing sales:', e);
+      const { data, error } = await supabaseClient
+        .from('sales')
+        .select('*')
+        .eq('user_id', currentUser.id)
+        .order('created_at', { ascending: false });
+      if (error) {
+        console.error('Error fetching sales from Supabase:', error);
+        renderRecordedSales(); renderBookings(); renderSalesProgress(); updateLoyaltyUI();
+        throw error;
       }
+
+      activeOrders = (data || []).map(row => ({
+        id: row.id,
+        user_id: row.user_id,
+        perfumeName: row.perfume_name || 'Unknown Perfume',
+        quantity: Number(row.quantity || 1),
+        price: Number(row.price || 0),
+        total: Number(row.total || 0),
+        paymentMethod: row.payment_method || '',
+        date: row.sale_date || todayISO(),
+        created_at: row.created_at,
+        updated_at: row.updated_at
+      }));
       renderRecordedSales();
       renderBookings();
       renderSalesProgress();
       updateLoyaltyUI();
     }
-    
+
     function showAuthScreen() {
       document.getElementById('screen-auth').style.display = 'flex';
       showLoginAuthScreen();
@@ -1507,7 +1574,7 @@
       document.getElementById('mainNavBar').style.display = 'none';
       document.querySelectorAll('.app-screen').forEach(s => s.classList.remove('active'));
     }
-    
+
     function setupUserInterface() {
       document.getElementById('screen-auth').style.display = 'none';
       document.getElementById('mainHeader').style.display = 'flex';
@@ -1518,7 +1585,7 @@
       document.getElementById('profAvatar').innerText = currentUsername.charAt(0).toUpperCase();
       document.getElementById('profPhone').innerText = currentUserPhone || '';
     }
-    
+
     function showLoginAuthScreen() {
       document.getElementById('resetPasswordContainer').style.display = 'none';
       document.querySelector('#screen-auth .auth-container:not(#resetPasswordContainer)').style.display = 'block';
@@ -1532,7 +1599,7 @@
       document.getElementById('confirmPasswordGroup').style.display = 'none';
       document.getElementById('forgotPasswordLink').style.display = 'block';
     }
-    
+
     function toggleAuthMode() {
       document.getElementById('resetPasswordContainer').style.display = 'none';
       document.querySelector('#screen-auth .auth-container:not(#resetPasswordContainer)').style.display = 'block';
@@ -1546,48 +1613,60 @@
       document.getElementById('confirmPasswordGroup').style.display = isRegisterMode ? 'block' : 'none';
       document.getElementById('forgotPasswordLink').style.display = isRegisterMode ? 'none' : 'block';
     }
-    
+
     async function handleAuthSubmit() {
       const email = document.getElementById('authEmail').value.trim();
       const password = document.getElementById('authPassword').value;
       const confirmPassword = document.getElementById('authConfirmPassword').value;
       const username = document.getElementById('authUsername').value.trim();
       const phone = document.getElementById('authPhone').value.trim();
-      
       if (!email || !password) { alert('Please enter both email and password.'); return; }
-      
+
       if (isRegisterMode) {
         if (!username || !phone) { alert('Please provide both a username and a phone number.'); return; }
         if (password !== confirmPassword) { alert('Passwords do not match.'); return; }
         const { data, error } = await supabaseClient.auth.signUp({ email, password });
         if (error) { alert('Registration Error: ' + error.message); return; }
+        if (!data.user) { alert('Registration started. Please verify your email if required, then sign in.'); return; }
         currentUser = data.user;
         currentUsername = username;
         currentUserPhone = phone;
-        if (currentUser) await supabaseClient.from('profiles').upsert([{ id: currentUser.id, username, email, phone }]);
+        const { error: profileError } = await supabaseClient.from('profiles').upsert([{ id: currentUser.id, username, email, phone }]);
+        if (profileError) { alert('Registration profile error: ' + profileError.message); return; }
+        await loadCurrentUserState(currentUser.id);
         alert('Registration successful!');
-        setupRealtimeSubscriptions();
-        await syncSalesFromSupabase();
-        await syncExpensesFromSupabase();
-        await syncAllStocksFromSupabase();
-        setupUserInterface();
       } else {
         const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
         if (error) { alert('Login Error: ' + error.message); return; }
+        if (!data.user) { alert('Login failed: no authenticated user was returned.'); return; }
         currentUser = data.user;
-        await fetchAndSetupUserData(currentUser.id);
-        setupRealtimeSubscriptions();
-        await syncSalesFromSupabase();
-        await syncExpensesFromSupabase();
-        await syncAllStocksFromSupabase();
+        // Important: login always loads Supabase first. No stale device state is pushed to the database.
+        try {
+          await loadCurrentUserState(currentUser.id);
+        } catch (e) {
+          await supabaseClient.auth.signOut();
+          currentUser = null;
+          alert('Login succeeded, but your saved data could not be loaded: ' + e.message);
+        }
       }
     }
-    
+
     async function handleLogout() {
-      await supabaseClient.auth.signOut();
+      try {
+        if (realtimeChannel) {
+          await supabaseClient.removeChannel(realtimeChannel);
+          realtimeChannel = null;
+        }
+        const { error } = await supabaseClient.auth.signOut();
+        if (error) throw error;
+      } catch (e) {
+        alert('Logout error: ' + e.message);
+        return;
+      }
+      // Only clear in-memory UI state. Nothing is deleted from Supabase.
       currentUser = null;
-      currentUsername = "";
-      currentUserPhone = "";
+      currentUsername = '';
+      currentUserPhone = '';
       activeOrders = [];
       expenses = [];
       oilBottleStocks = [];
@@ -1595,7 +1674,6 @@
       specificPerfumeStocks = [];
       showAuthScreen();
     }
-    
     function toggleTheme() {
       const currentTheme = document.documentElement.getAttribute('data-theme');
       const icon = document.querySelector('#themeToggleBtn i');
@@ -1607,7 +1685,6 @@
         icon.className = 'fa-solid fa-sun';
       }
     }
-    
     function switchTab(screenId, element) {
       document.querySelectorAll('.app-screen').forEach(s => s.classList.remove('active'));
       document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
@@ -1618,32 +1695,38 @@
       if (screenId === 'screen-bookings') renderBookings();
       if (screenId === 'screen-stocks') renderStocksArea();
     }
-    
-    function goBack() { switchTab('screen-home', document.getElementById('nav-home-btn')); }
-    
+    function goBack() {
+      switchTab('screen-home', document.getElementById('nav-home-btn'));
+    }
     function selectSalePayment(type) {
       selectedSalePayment = type;
       document.getElementById('saleCashBtn').classList.toggle('active', type === 'Cash');
       document.getElementById('saleMobileBtn').classList.toggle('active', type === 'Mobile Money');
       document.getElementById('saleMobileBox').classList.toggle('active', type === 'Mobile Money');
     }
-    
     function selectMobileProvider(el, provider) {
       document.querySelectorAll('#saleMobileBox .pay-option-btn').forEach(x => x.classList.remove('active'));
       el.classList.add('active');
       selectedMobileProvider = provider;
     }
-    
     async function saveSale() {
       const perfumeName = document.getElementById('salePerfumeName').value.trim();
       const quantity = Number(document.getElementById('saleQuantity').value || 0);
       const price = Number(document.getElementById('salePrice').value || 0);
       const saleDateVal = document.getElementById('saleDate').value;
       
-      if (!perfumeName) { alert('Please enter a perfume name.'); return; }
-      if (quantity <= 0 || price < 0) { alert('Please enter a valid quantity and price.'); return; }
-      if (!selectedSalePayment) { alert('Please select a payment method.'); return; }
-      
+      if (!perfumeName) {
+        alert('Please enter a perfume name.');
+        return;
+      }
+      if (quantity <= 0 || price < 0) {
+        alert('Please enter a valid quantity and price.');
+        return;
+      }
+      if (!selectedSalePayment) {
+        alert('Please select a payment method for this sale.');
+        return;
+      }
       let finalPaymentMethod = selectedSalePayment;
       if (selectedSalePayment === 'Mobile Money' && selectedMobileProvider) {
         finalPaymentMethod = `Mobile Money (${selectedMobileProvider})`;
@@ -1659,39 +1742,50 @@
         sale_date: saleDateVal,
         updated_at: new Date().toISOString()
       };
-      
       try {
         if (editingSaleId) {
-          const { error } = await supabaseClient.from('sales').update(recordData).eq('id', editingSaleId);
+          const { error } = await supabaseClient
+            .from('sales')
+            .update(recordData)
+            .eq('id', editingSaleId)
+            .eq('user_id', currentUser.id);
           if (error) throw error;
+          alert('Sale updated successfully!');
         } else {
-          const { error } = await supabaseClient.from('sales').insert([recordData]);
+          const { error } = await supabaseClient
+            .from('sales')
+            .insert([recordData]);
           if (error) throw error;
+          alert('Sale added successfully!');
         }
+        
         cancelSaleEdit();
         await syncSalesFromSupabase();
       } catch(err) {
         alert('Error saving sale: ' + err.message);
       }
     }
-    
     function editSale(id) {
       const sale = activeOrders.find(s => s.id === id);
       if (!sale) return;
       editingSaleId = id;
+      
       document.getElementById('saleFormTitle').textContent = 'Edit Sale';
       document.getElementById('saleSaveBtn').innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Update Sale';
       document.getElementById('saleCancelBtn').style.display = 'block';
+      
       document.getElementById('salePerfumeName').value = sale.perfumeName;
       document.getElementById('saleQuantity').value = sale.quantity;
       document.getElementById('salePrice').value = sale.price;
       document.getElementById('saleDate').value = sale.date;
       calculateCurrentTotal();
-      if (sale.paymentMethod.includes('Mobile')) selectSalePayment('Mobile Money');
-      else selectSalePayment('Cash');
+      if (sale.paymentMethod.includes('Mobile')) {
+        selectSalePayment('Mobile Money');
+      } else {
+        selectSalePayment('Cash');
+      }
       switchTab('screen-perfumes');
     }
-    
     function cancelSaleEdit() {
       editingSaleId = null;
       document.getElementById('saleFormTitle').textContent = 'Record Individual Sale';
@@ -1706,18 +1800,16 @@
       selectedMobileProvider = '';
       selectSalePayment('');
     }
-    
     async function deleteSale(id) {
       if (!confirm('Are you sure you want to delete this sale record?')) return;
       try {
-        const { error } = await supabaseClient.from('sales').delete().eq('id', id);
+        const { error } = await supabaseClient.from('sales').delete().eq('id', id).eq('user_id', currentUser.id);
         if (error) throw error;
         await syncSalesFromSupabase();
       } catch(e) {
         alert('Failed to delete sale: ' + e.message);
       }
     }
-    
     function renderRecordedSales() {
       const container = document.getElementById('recordedSalesProgressList');
       if (!container) return;
@@ -1744,7 +1836,6 @@
         </div>
       `).join('');
     }
-    
     function renderBookings() {
       const container = document.getElementById('bookingsListContainer');
       if (!container) return;
@@ -1774,7 +1865,6 @@
         </div>
       `).join('');
     }
-    
     function renderSalesProgress() {
       renderBestSellers();
       const metrics = document.getElementById('progressMetrics');
@@ -1792,7 +1882,6 @@
         </div>
       `;
     }
-    
     function renderBestSellers() {
       const container = document.getElementById('bestSellersList');
       if (!container) return;
@@ -1813,18 +1902,19 @@
         </div>
       `).join('');
     }
-    
     function updateLoyaltyUI() {
       const badge = document.getElementById('loyaltyCountBadge');
       if (badge) badge.textContent = `Total Orders: ${activeOrders.length}`;
       const dots = document.querySelectorAll('.stamp-dot');
       dots.forEach((dot, idx) => {
-        if (idx < (activeOrders.length % 5)) dot.classList.add('filled');
-        else dot.classList.remove('filled');
+        if (idx < (activeOrders.length % 5)) {
+          dot.classList.add('filled');
+        } else {
+          dot.classList.remove('filled');
+        }
       });
     }
-    
-    /* EXPENSES */
+    /* EXPENSES LOGIC */
     let editingExpenseId = null;
     function renderExpenses() {
       const list = document.getElementById('expensesList'), totalEl = document.getElementById('expenseTotalValue');
@@ -1840,7 +1930,6 @@
           <div class="expense-actions"><button class="expense-action" onclick="editExpense('${e.id}')"><i class="fa-solid fa-pen"></i> Edit</button><button class="expense-action delete" onclick="deleteExpense('${e.id}')"><i class="fa-solid fa-trash"></i> Delete</button></div>
         </div>`).join('');
     }
-    
     async function syncExpensesFromSupabase() {
       if (!currentUser) return;
       try {
@@ -1863,7 +1952,6 @@
       }
       renderExpenses();
     }
-    
     async function saveExpense() {
       const name = document.getElementById('expenseName').value.trim();
       const date = document.getElementById('expenseDate').value;
@@ -1872,11 +1960,11 @@
       const notes = document.getElementById('expenseNotes').value.trim();
       if (!name || !date || amount <= 0) { alert('Please enter an expense name, date and valid amount.'); return; }
       
-      const payload = { user_id: currentUser.id, name, date, amount, category, notes, updated_at: new Date().toISOString() };
+      const payload = { user_id: currentUser.id, name, date, amount, category, notes };
       
       try {
         if (editingExpenseId) {
-          const { error } = await supabaseClient.from('expenses').update(payload).eq('id', editingExpenseId);
+          const { error } = await supabaseClient.from('expenses').update(payload).eq('id', editingExpenseId).eq('user_id', currentUser.id);
           if (error) throw error;
         } else {
           const { error } = await supabaseClient.from('expenses').insert([payload]);
@@ -1884,9 +1972,10 @@
         }
         resetExpenseForm();
         await syncExpensesFromSupabase();
-      } catch(e) { alert('Error saving expense: ' + e.message); }
+      } catch(e) {
+        alert('Error saving expense: ' + e.message);
+      }
     }
-    
     function editExpense(id) {
       const e = expenses.find(x => x.id === id); if (!e) return;
       editingExpenseId = id;
@@ -1899,7 +1988,6 @@
       document.getElementById('expenseSaveBtn').innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Update Expense';
       document.getElementById('expenseCancelBtn').style.display = 'block';
     }
-    
     function resetExpenseForm() {
       editingExpenseId = null;
       document.getElementById('expenseName').value = '';
@@ -1911,18 +1999,17 @@
       document.getElementById('expenseSaveBtn').innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Save Expense';
       document.getElementById('expenseCancelBtn').style.display = 'none';
     }
-    
     function cancelExpenseEdit() { resetExpenseForm(); }
-    
     async function deleteExpense(id) {
       if (!confirm('Delete this expense?')) return;
       try {
-        const { error } = await supabaseClient.from('expenses').delete().eq('id', id);
+        const { error } = await supabaseClient.from('expenses').delete().eq('id', id).eq('user_id', currentUser.id);
         if (error) throw error;
         await syncExpensesFromSupabase();
-      } catch(e) { alert('Failed to delete expense: ' + e.message); }
+      } catch(e) {
+        alert('Failed to delete expense: ' + e.message);
+      }
     }
-    
     /* STOCKS MANAGEMENT */
     async function syncAllStocksFromSupabase() {
       if (!currentUser) return;
@@ -1935,48 +2022,43 @@
         if (oilRes.data) oilBottleStocks = oilRes.data;
         if (pBottleRes.data) perfumeBottleStocks = pBottleRes.data;
         if (specRes.data) specificPerfumeStocks = specRes.data;
-      } catch(e) { console.error('Error fetching stock data:', e); }
+      } catch(e) {
+        console.error('Error fetching stock data:', e);
+      }
       renderStocksArea();
     }
-    
     function toggleAccordion(id) {
       const content = document.getElementById(id);
       if (content) content.classList.toggle('active');
     }
-    
     function renderStocksArea() {
       renderOilBottlesList();
       renderPerfumeBottlesList();
       renderSpecificPerfumesList();
     }
-    
     /* A — Oil Bottles */
     function calcOilRem() {
       const cur = Number(document.getElementById('oilCurrent').value || 0);
       const used = Number(document.getElementById('oilUsed').value || 0);
       document.getElementById('oilRemaining').value = cur - used;
     }
-    
     async function saveOilBottle() {
       const name = document.getElementById('oilName').value.trim();
       const current = Number(document.getElementById('oilCurrent').value || 0);
       const used = Number(document.getElementById('oilUsed').value || 0);
       const remaining = current - used;
       if (!name) { alert('Please enter name / size.'); return; }
-      
       const payload = {
         user_id: currentUser.id,
         name,
         current_stock: current,
         used_stock: used,
         remaining_stock: remaining,
-        date: todayISO(),
-        updated_at: new Date().toISOString()
+        date: todayISO()
       };
-      
       try {
         if (editingOilId) {
-          const { error } = await supabaseClient.from('oil_bottles').update(payload).eq('id', editingOilId);
+          const { error } = await supabaseClient.from('oil_bottles').update(payload).eq('id', editingOilId).eq('user_id', currentUser.id);
           if (error) throw error;
         } else {
           const { error } = await supabaseClient.from('oil_bottles').insert([payload]);
@@ -1986,7 +2068,6 @@
         await syncAllStocksFromSupabase();
       } catch(e) { alert('Failed to save Oil Bottle: ' + e.message); }
     }
-    
     function editOilBottle(id) {
       const rec = oilBottleStocks.find(x => x.id === id); if (!rec) return;
       editingOilId = id;
@@ -1998,7 +2079,6 @@
       document.getElementById('oilSaveBtn').innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Update Record';
       document.getElementById('oilCancelBtn').style.display = 'block';
     }
-    
     function resetOilForm() {
       editingOilId = null;
       document.getElementById('oilName').value = '';
@@ -2009,16 +2089,12 @@
       document.getElementById('oilSaveBtn').innerHTML = '<i class="fa-solid fa-plus"></i> Save Record';
       document.getElementById('oilCancelBtn').style.display = 'none';
     }
-    
     async function deleteOilBottle(id) {
       if (!confirm('Delete this record?')) return;
-      try {
-        const { error } = await supabaseClient.from('oil_bottles').delete().eq('id', id);
-        if (error) throw error;
-        await syncAllStocksFromSupabase();
-      } catch(e) { alert('Delete failed: ' + e.message); }
+      const { error } = await supabaseClient.from('oil_bottles').delete().eq('id', id).eq('user_id', currentUser.id);
+      if (error) throw error;
+      await syncAllStocksFromSupabase();
     }
-    
     function renderOilBottlesList() {
       const el = document.getElementById('oilBottlesList');
       if (!el) return;
@@ -2039,7 +2115,6 @@
           </div>
         </div>`).join('');
     }
-    
     /* B — Perfume Bottles */
     function calcPBottlePCS() {
       const size = document.getElementById('pBottleSize').value;
@@ -2055,7 +2130,6 @@
       document.getElementById('pUsedPcsLbl').innerText = usedPcs;
       document.getElementById('pAvailPcsLbl').innerText = availPcs;
     }
-    
     async function savePerfumeBottleBox() {
       const bottle_size = document.getElementById('pBottleSize').value;
       const boxes_brought = Number(document.getElementById('pBoxesBrought').value || 0);
@@ -2065,7 +2139,6 @@
       const total_pcs = boxes_brought * pcs_per_box;
       const used_pcs = boxes_used * pcs_per_box;
       const available_pcs = total_pcs - used_pcs;
-      
       const payload = {
         user_id: currentUser.id,
         bottle_size,
@@ -2075,13 +2148,11 @@
         total_pcs,
         used_pcs,
         available_pcs,
-        date: todayISO(),
-        updated_at: new Date().toISOString()
+        date: todayISO()
       };
-      
       try {
         if (editingPBottleId) {
-          const { error } = await supabaseClient.from('perfume_bottles').update(payload).eq('id', editingPBottleId);
+          const { error } = await supabaseClient.from('perfume_bottles').update(payload).eq('id', editingPBottleId).eq('user_id', currentUser.id);
           if (error) throw error;
         } else {
           const { error } = await supabaseClient.from('perfume_bottles').insert([payload]);
@@ -2091,7 +2162,6 @@
         await syncAllStocksFromSupabase();
       } catch(e) { alert('Failed to save Bottle Box record: ' + e.message); }
     }
-    
     function editPerfumeBottleBox(id) {
       const rec = perfumeBottleStocks.find(x => x.id === id); if (!rec) return;
       editingPBottleId = id;
@@ -2103,7 +2173,6 @@
       document.getElementById('pBottleSaveBtn').innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Update Box Record';
       document.getElementById('pBottleCancelBtn').style.display = 'block';
     }
-    
     function resetPBottleForm() {
       editingPBottleId = null;
       document.getElementById('pBoxesBrought').value = '';
@@ -2113,16 +2182,12 @@
       document.getElementById('pBottleSaveBtn').innerHTML = '<i class="fa-solid fa-plus"></i> Save Box Record';
       document.getElementById('pBottleCancelBtn').style.display = 'none';
     }
-    
     async function deletePerfumeBottleBox(id) {
       if (!confirm('Delete this box record?')) return;
-      try {
-        const { error } = await supabaseClient.from('perfume_bottles').delete().eq('id', id);
-        if (error) throw error;
-        await syncAllStocksFromSupabase();
-      } catch(e) { alert('Delete failed: ' + e.message); }
+      const { error } = await supabaseClient.from('perfume_bottles').delete().eq('id', id).eq('user_id', currentUser.id);
+      if (error) throw error;
+      await syncAllStocksFromSupabase();
     }
-    
     function renderPerfumeBottlesList() {
       const el = document.getElementById('perfumeBottlesList');
       if (!el) return;
@@ -2130,47 +2195,43 @@
       el.innerHTML = perfumeBottleStocks.map(r => `
         <div class="stock-rec-card">
           <div class="stock-rec-head">
-            <span>Size: ${escapeHtml(r.bottle_size)} (${r.boxes_brought} Boxes)</span>
+            <span>Size: ${escapeHtml(r.bottle_size)}</span>
             <div style="display:flex; gap:6px;">
               <button class="small-action" onclick="editPerfumeBottleBox('${r.id}')">Edit</button>
               <button class="small-action delete" onclick="deletePerfumeBottleBox('${r.id}')">Delete</button>
             </div>
           </div>
+          <div style="font-size:0.75rem; color:var(--text-sub);">Boxes: ${r.boxes_brought} Brought / ${r.boxes_used} Used (${r.pcs_per_box} PCS/Box)</div>
           <div class="stock-grid-3">
             <div><div class="stock-stat-lbl">Total PCS</div><div class="stock-stat-val">${r.total_pcs}</div></div>
             <div><div class="stock-stat-lbl">Used PCS</div><div class="stock-stat-val">${r.used_pcs}</div></div>
-            <div><div class="stock-stat-lbl">Avail PCS</div><div class="stock-stat-val">${r.available_pcs}</div></div>
+            <div><div class="stock-stat-lbl">Available PCS</div><div class="stock-stat-val">${r.available_pcs}</div></div>
           </div>
         </div>`).join('');
     }
-    
     /* C — Specific Perfume Items */
     function calcSpecRem() {
       const cur = Number(document.getElementById('specCurrent').value || 0);
       const used = Number(document.getElementById('specUsed').value || 0);
       document.getElementById('specRemaining').value = cur - used;
     }
-    
     async function saveSpecificPerfume() {
       const name = document.getElementById('specName').value.trim();
       const current = Number(document.getElementById('specCurrent').value || 0);
       const used = Number(document.getElementById('specUsed').value || 0);
       const remaining = current - used;
-      if (!name) { alert('Please enter perfume name.'); return; }
-      
+      if (!name) { alert('Please enter Perfume Name.'); return; }
       const payload = {
         user_id: currentUser.id,
-        name,
+        perfume_name: name,
         current_stock: current,
         used_stock: used,
         remaining_stock: remaining,
-        date: todayISO(),
-        updated_at: new Date().toISOString()
+        date: todayISO()
       };
-      
       try {
         if (editingSpecId) {
-          const { error } = await supabaseClient.from('specific_perfumes').update(payload).eq('id', editingSpecId);
+          const { error } = await supabaseClient.from('specific_perfumes').update(payload).eq('id', editingSpecId).eq('user_id', currentUser.id);
           if (error) throw error;
         } else {
           const { error } = await supabaseClient.from('specific_perfumes').insert([payload]);
@@ -2178,13 +2239,12 @@
         }
         resetSpecForm();
         await syncAllStocksFromSupabase();
-      } catch(e) { alert('Failed to save Specific Perfume: ' + e.message); }
+      } catch(e) { alert('Failed to save Specific Perfume Item: ' + e.message); }
     }
-    
     function editSpecificPerfume(id) {
       const rec = specificPerfumeStocks.find(x => x.id === id); if (!rec) return;
       editingSpecId = id;
-      document.getElementById('specName').value = rec.name;
+      document.getElementById('specName').value = rec.perfume_name;
       document.getElementById('specCurrent').value = rec.current_stock;
       document.getElementById('specUsed').value = rec.used_stock;
       calcSpecRem();
@@ -2192,7 +2252,6 @@
       document.getElementById('specSaveBtn').innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Update Perfume';
       document.getElementById('specCancelBtn').style.display = 'block';
     }
-    
     function resetSpecForm() {
       editingSpecId = null;
       document.getElementById('specName').value = '';
@@ -2203,16 +2262,12 @@
       document.getElementById('specSaveBtn').innerHTML = '<i class="fa-solid fa-plus"></i> Add Perfume';
       document.getElementById('specCancelBtn').style.display = 'none';
     }
-    
     async function deleteSpecificPerfume(id) {
-      if (!confirm('Delete this perfume record?')) return;
-      try {
-        const { error } = await supabaseClient.from('specific_perfumes').delete().eq('id', id);
-        if (error) throw error;
-        await syncAllStocksFromSupabase();
-      } catch(e) { alert('Delete failed: ' + e.message); }
+      if (!confirm('Delete this perfume item?')) return;
+      const { error } = await supabaseClient.from('specific_perfumes').delete().eq('id', id).eq('user_id', currentUser.id);
+      if (error) throw error;
+      await syncAllStocksFromSupabase();
     }
-    
     function renderSpecificPerfumesList() {
       const el = document.getElementById('specificPerfumesList');
       if (!el) return;
@@ -2220,7 +2275,7 @@
       el.innerHTML = specificPerfumeStocks.map(r => `
         <div class="stock-rec-card">
           <div class="stock-rec-head">
-            <span>${escapeHtml(r.name)}</span>
+            <span>${escapeHtml(r.perfume_name)}</span>
             <div style="display:flex; gap:6px;">
               <button class="small-action" onclick="editSpecificPerfume('${r.id}')">Edit</button>
               <button class="small-action delete" onclick="deleteSpecificPerfume('${r.id}')">Delete</button>
@@ -2233,73 +2288,103 @@
           </div>
         </div>`).join('');
     }
-    
+    /* STOCKS HISTORY LOGIC */
     function openStockHistoryModal() {
-      const container = document.getElementById('stockHistoryContent');
-      if (!container) return;
-      
-      let allLogs = [];
-      oilBottleStocks.forEach(o => allLogs.push({ type: 'Oil Bottle', title: o.name, date: o.date || todayISO(), sub: `Current: ${o.current_stock} | Used: ${o.used_stock} | Remaining: ${o.remaining_stock}` }));
-      perfumeBottleStocks.forEach(p => allLogs.push({ type: 'Perfume Box', title: `Size: ${p.bottle_size}`, date: p.date || todayISO(), sub: `Boxes: ${p.boxes_brought} | Avail PCS: ${p.available_pcs}` }));
-      specificPerfumeStocks.forEach(s => allLogs.push({ type: 'Specific Item', title: s.name, date: s.date || todayISO(), sub: `Current: ${s.current_stock} | Used: ${s.used_stock} | Remaining: ${s.remaining_stock}` }));
-      
-      allLogs.sort((a,b) => b.date.localeCompare(a.date));
-      
-      if (!allLogs.length) {
-        container.innerHTML = '<div style="font-size:0.85rem; color:var(--text-sub); text-align:center; padding:20px;">No stock activities recorded.</div>';
-      } else {
-        container.innerHTML = allLogs.map(l => `
-          <div class="activity-log-item">
-            <span class="activity-log-type">${escapeHtml(l.type)}</span>
-            <div class="activity-log-title">${escapeHtml(l.title)}</div>
-            <div class="activity-log-meta">${escapeHtml(l.sub)}</div>
-            <div class="activity-log-meta" style="font-size:0.7rem;">Date: ${l.date}</div>
-          </div>
-        `).join('');
-      }
       document.getElementById('stockHistoryModal').classList.add('active');
-    }
-    
-    function closeSheet(id) {
-      const modal = document.getElementById(id);
-      if (modal) modal.classList.remove('active');
-    }
-    
-    function openMonthlyReview() {
-      const content = document.getElementById('monthlyReviewContent');
-      if (!content) return;
-      const totalRev = activeOrders.reduce((sum, s) => sum + s.total, 0);
-      const totalExp = expenses.reduce((sum, e) => sum + e.amount, 0);
-      const netProfit = totalRev - totalExp;
+      const container = document.getElementById('stockHistoryContent');
       
-      content.innerHTML = `
-        <div class="sales-entry-card" style="text-align:center;">
-          <h3 style="color:var(--accent-gold);">Monthly Summary</h3>
-          <div style="font-size:0.85rem; color:var(--text-sub); margin-bottom:12px;">Financial Standing Overview</div>
-          <div class="review-grid">
-            <div class="review-card">
-              <div style="font-size:0.75rem; color:var(--text-sub);">Gross Sales</div>
-              <div style="font-size:1rem; font-weight:900; color:var(--accent-gold);">${money(totalRev)}</div>
-            </div>
-            <div class="review-card">
-              <div style="font-size:0.75rem; color:var(--text-sub);">Expenses</div>
-              <div style="font-size:1rem; font-weight:900; color:#e74c3c;">${money(totalExp)}</div>
-            </div>
-          </div>
-          <div class="review-card" style="margin-top:10px; border-color:var(--accent-gold);">
-            <div style="font-size:0.8rem; color:var(--text-sub);">Net Profit</div>
-            <div style="font-size:1.2rem; font-weight:900; color:${netProfit >= 0 ? '#27ae60' : '#e74c3c'};">${money(netProfit)}</div>
+      const allActivities = [
+        ...oilBottleStocks.map(item => ({
+          type: 'Oil Bottle',
+          title: item.name,
+          current: item.current_stock,
+          used: item.used_stock,
+          remaining: item.remaining_stock,
+          date: item.date || item.created_at?.slice(0, 10) || 'N/A',
+          timestamp: new Date(item.created_at || Date.now()).getTime()
+        })),
+        ...perfumeBottleStocks.map(item => ({
+          type: 'Perfume Box',
+          title: `${item.bottle_size} Box`,
+          current: `${item.boxes_brought} Boxes (${item.total_pcs} PCS)`,
+          used: `${item.boxes_used} Boxes (${item.used_pcs} PCS)`,
+          remaining: `${item.available_pcs} PCS`,
+          date: item.date || item.created_at?.slice(0, 10) || 'N/A',
+          timestamp: new Date(item.created_at || Date.now()).getTime()
+        })),
+        ...specificPerfumeStocks.map(item => ({
+          type: 'Perfume Item',
+          title: item.perfume_name,
+          current: item.current_stock,
+          used: item.used_stock,
+          remaining: item.remaining_stock,
+          date: item.date || item.created_at?.slice(0, 10) || 'N/A',
+          timestamp: new Date(item.created_at || Date.now()).getTime()
+        }))
+      ];
+      
+      allActivities.sort((a, b) => b.timestamp - a.timestamp);
+      
+      if (!allActivities.length) {
+        container.innerHTML = '<div style="text-align:center; font-size:0.85rem; color:var(--text-sub); padding:30px 10px;">No stock activities recorded yet.</div>';
+        return;
+      }
+      
+      container.innerHTML = allActivities.map(act => `
+        <div class="activity-log-item">
+          <span class="activity-log-type">${escapeHtml(act.type)}</span>
+          <div class="activity-log-title">${escapeHtml(act.title)}</div>
+          <div class="activity-log-meta">Date Recorded: <strong>${escapeHtml(act.date)}</strong></div>
+          <div class="stock-grid-3" style="margin-top:10px;">
+            <div><div class="stock-stat-lbl">Total / Brought</div><div class="stock-stat-val">${act.current}</div></div>
+            <div><div class="stock-stat-lbl">Used</div><div class="stock-stat-val">${act.used}</div></div>
+            <div><div class="stock-stat-lbl">Available / Remaining</div><div class="stock-stat-val" style="color:var(--accent-gold);">${act.remaining}</div></div>
           </div>
         </div>
-      `;
-      document.getElementById('monthlyReviewModal').classList.add('active');
+      `).join('');
     }
-    
+
     function igniteTeaserToast() {
       const toast = document.getElementById('soonToast');
-      if (!toast) return;
-      toast.classList.add('trigger-fly');
-      setTimeout(() => toast.classList.remove('trigger-fly'), 3000);
+      if (toast) {
+        toast.classList.add('trigger-fly');
+        setTimeout(() => toast.classList.remove('trigger-fly'), 3000);
+      }
+    }
+    function setReviewMode(m) {
+      reviewMode = m;
+      document.getElementById('tabDaily').classList.toggle('active', m==='daily');
+      document.getElementById('tabWeekly').classList.toggle('active', m==='weekly');
+      document.getElementById('tabMonthly').classList.toggle('active', m==='monthly');
+      document.getElementById('dailyFilters').style.display = m==='daily' ? 'block' : 'none';
+      document.getElementById('monthlyFilters').style.display = m==='monthly' ? 'block' : 'none';
+      document.getElementById('customFilters').style.display = 'none';
+      renderSalesProgress();
+    }
+    function showCustomRange() {
+      document.getElementById('dailyFilters').style.display = 'none';
+      document.getElementById('monthlyFilters').style.display = 'none';
+      document.getElementById('customFilters').style.display = 'block';
+    }
+    function openMonthlyReview() {
+      document.getElementById('monthlyReviewModal').classList.add('active');
+      const content = document.getElementById('monthlyReviewContent');
+      const month = document.getElementById('reviewMonth').value || monthISO();
+      
+      const monthSales = activeOrders.filter(s => (s.date || '').startsWith(month));
+      const totalRev = monthSales.reduce((sum, s) => sum + s.total, 0);
+      const totalQty = monthSales.reduce((sum, s) => sum + s.quantity, 0);
+      content.innerHTML = `
+        <div class="sales-entry-card">
+          <h3>Summary for ${month}</h3>
+          <div style="font-size:0.9rem; margin-bottom:8px;">Total Revenue: <strong>${money(totalRev)}</strong></div>
+          <div style="font-size:0.9rem; margin-bottom:8px;">Total Quantity Sold: <strong>${totalQty} PCS</strong></div>
+          <div style="font-size:0.9rem;">Total Sales Transactions: <strong>${monthSales.length}</strong></div>
+        </div>
+      `;
+    }
+    function closeSheet(id) {
+      document.getElementById(id).classList.remove('active');
     }
   </script>
 </body>
