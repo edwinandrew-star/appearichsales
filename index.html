@@ -1,3 +1,8 @@
+
+
+
+
+
 <!DOCTYPE html>
 
 <html lang="en">
@@ -14,7 +19,7 @@
 
   <!-- PWA Manifest & Meta Tags -->
 
-  <link rel="manifest" href="manifest.json">
+  <link rel="manifest" href="/manifest.json">
 
   <meta name="theme-color" content="#ffffff">
 
@@ -26,11 +31,11 @@
 
   <meta name="apple-mobile-web-app-title" content="Glamo Scents">
 
-  <link rel="apple-touch-icon" href="images/splash-logo.png">
+  <link rel="apple-touch-icon" href="/images/splash-logo.png">
 
-  <link rel="icon" type="image/png" sizes="192x192" href="images/splash-logo.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="/images/splash-logo.png">
 
-  <link rel="icon" type="image/png" sizes="512x512" href="images/splash-logo.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="/images/splash-logo.png">
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
@@ -554,7 +559,7 @@
 
       background: linear-gradient(135deg, rgba(212, 175, 55, 0.3) 0%, rgba(0, 0, 0, 0.7) 100%), 
 
-                  url('images/home-hero.jpg') center/cover;
+                  url('/images/home-hero.jpg') center/cover;
 
       position: relative;
 
@@ -2206,6 +2211,9 @@
 
   @media (max-width:420px) { .sale-item-row { grid-template-columns:minmax(0,1fr) 50px 70px 80px 32px; gap:5px; } }
 
+  
+  .auth-forgot { font-size: 0.82rem; color: var(--accent-gold); margin-top: 10px; cursor: pointer; font-weight: 700; text-align: center; }
+  .auth-reset-message { font-size: 0.82rem; color: var(--accent-gold); margin-top: 10px; min-height: 18px; text-align: center; }
   </style>
 
 </head>
@@ -2216,7 +2224,7 @@
 
   <div id="splash-screen">
 
-    <img src="images/splash-logo.png" alt="Glamo Scents Splash Logo" class="splash-logo">
+    <img src="/images/splash-logo.png" alt="Glamo Scents Splash Logo" class="splash-logo">
 
   </div>
 
@@ -2272,6 +2280,11 @@
 
       </div>
 
+      <div class="form-group" id="confirmPasswordGroup" style="display:none;">
+        <label for="authConfirmPassword">Confirm Password</label>
+        <input type="password" id="authConfirmPassword" placeholder="••••••••" autocomplete="new-password">
+      </div>
+
       
 
       <button id="authSubmitBtn" class="auth-btn" onclick="handleAuthSubmit()">Sign In</button>
@@ -2282,6 +2295,24 @@
 
       </div>
 
+      <div id="forgotPasswordLink" class="auth-forgot" onclick="handleForgotPassword()">Forgot Password?</div>
+
+    </div>
+
+    <div id="resetPasswordContainer" class="auth-container" style="display:none;">
+      <div class="auth-title">Reset Password</div>
+      <div class="auth-sub">Enter a new password for your Glamo Scents account</div>
+      <div class="form-group">
+        <label for="resetPassword">New Password</label>
+        <input type="password" id="resetPassword" placeholder="••••••••" autocomplete="new-password">
+      </div>
+      <div class="form-group">
+        <label for="resetConfirmPassword">Confirm Password</label>
+        <input type="password" id="resetConfirmPassword" placeholder="••••••••" autocomplete="new-password">
+      </div>
+      <button id="resetPasswordBtn" class="auth-btn" onclick="handleResetPassword()">Reset Password</button>
+      <div id="resetPasswordMessage" class="auth-reset-message" aria-live="polite"></div>
+      <div class="auth-switch" onclick="showLoginAuthScreen()"><span>Return to Login</span></div>
     </div>
 
   </div>
@@ -2300,7 +2331,7 @@
 
       <div class="brand-logo-wrap">
 
-        <img src="images/splash-logo.png" alt="Header Logo" class="brand-logo-img">
+        <img src="/images/splash-logo.png" alt="Header Logo" class="brand-logo-img">
 
         <div class="brand-name">Glamo Scents</div>
 
@@ -2348,7 +2379,7 @@
 
       <div class="offer-card" onclick="switchTab('screen-perfumes')">
 
-        <div class="offer-card-bg" style="background-image:url('images/glamo1.jpg');"></div>
+        <div class="offer-card-bg" style="background-image:url('/images/glamo1.jpg');"></div>
 
         <div class="offer-card-overlay">
 
@@ -2362,7 +2393,7 @@
 
       <div class="offer-card" onclick="switchTab('screen-sales-progress'); renderSalesProgress();">
 
-        <div class="offer-card-bg" style="background-image:url('images/glamo2.jpg'); filter:brightness(.55);"></div>
+        <div class="offer-card-bg" style="background-image:url('/images/glamo2.jpg'); filter:brightness(.55);"></div>
 
         <div class="offer-card-overlay">
 
@@ -2648,7 +2679,7 @@
 
       <div class="teaser-image-card" onclick="igniteTeaserToast()">
 
-        <img src="images/glamo3.jpg" alt="AI Neural Guide">
+        <img src="/images/glamo3.jpg" alt="AI Neural Guide">
 
         <div class="image-overlay"></div>
 
@@ -3145,6 +3176,10 @@
 
     }
 
+    supabaseClient.auth.onAuthStateChange((event, session) => {
+      if (event === 'PASSWORD_RECOVERY' && session) showResetPasswordScreen();
+    });
+
     window.addEventListener('DOMContentLoaded', async () => {
 
       document.getElementById('saleDate').value = todayISO();
@@ -3161,13 +3196,17 @@
 
       const { data: { session } } = await supabaseClient.auth.getSession();
 
+      const isRecoveryFlow = /type=recovery/i.test(window.location.hash);
+
       setTimeout(async () => {
 
         document.getElementById('splash-screen').style.opacity = '0';
 
         setTimeout(() => document.getElementById('splash-screen').style.display = 'none', 500);
 
-        if (session && session.user) {
+        if (isRecoveryFlow) {
+          showResetPasswordScreen();
+        } else if (session && session.user) {
 
           currentUser = session.user;
 
@@ -3426,6 +3465,7 @@
     function showAuthScreen() {
 
       document.getElementById('screen-auth').style.display = 'flex';
+      showLoginAuthScreen();
 
       document.getElementById('mainHeader').style.display = 'none';
 
@@ -3457,82 +3497,98 @@
 
     }
 
+    const PRODUCTION_URL = 'https://appearichsales.vercel.app/';
+
+    function showLoginAuthScreen() {
+      document.getElementById('resetPasswordContainer').style.display = 'none';
+      document.querySelector('#screen-auth .auth-container:not(#resetPasswordContainer)').style.display = 'block';
+      isRegisterMode = false;
+      document.getElementById('authTitle').innerText = 'Welcome Back';
+      document.getElementById('authSub').innerText = 'Sign in to your Glamo Scents account';
+      document.getElementById('authSubmitBtn').innerText = 'Sign In';
+      document.getElementById('authSwitchText').innerHTML = "Don't have an account? <span>Register here</span>";
+      document.getElementById('usernameGroup').style.display = 'none';
+      document.getElementById('phoneGroup').style.display = 'none';
+      document.getElementById('confirmPasswordGroup').style.display = 'none';
+      document.getElementById('forgotPasswordLink').style.display = 'block';
+    }
+
     function toggleAuthMode() {
-
+      document.getElementById('resetPasswordContainer').style.display = 'none';
+      document.querySelector('#screen-auth .auth-container:not(#resetPasswordContainer)').style.display = 'block';
       isRegisterMode = !isRegisterMode;
+      document.getElementById('authTitle').innerText = isRegisterMode ? 'Create Account' : 'Welcome Back';
+      document.getElementById('authSub').innerText = isRegisterMode ? 'Sign up to start using Glamo Scents' : 'Sign in to your Glamo Scents account';
+      document.getElementById('authSubmitBtn').innerText = isRegisterMode ? 'Register' : 'Sign In';
+      document.getElementById('authSwitchText').innerHTML = isRegisterMode ? 'Already have an account? <span>Sign In</span>' : "Don't have an account? <span>Register here</span>";
+      document.getElementById('usernameGroup').style.display = isRegisterMode ? 'block' : 'none';
+      document.getElementById('phoneGroup').style.display = isRegisterMode ? 'block' : 'none';
+      document.getElementById('confirmPasswordGroup').style.display = isRegisterMode ? 'block' : 'none';
+      document.getElementById('forgotPasswordLink').style.display = isRegisterMode ? 'none' : 'block';
+    }
 
-      document.getElementById('authTitle').innerText = isRegisterMode ? "Create Account" : "Welcome Back";
+    function showResetPasswordScreen() {
+      document.getElementById('screen-auth').style.display = 'flex';
+      document.getElementById('mainHeader').style.display = 'none';
+      document.getElementById('mainNavBar').style.display = 'none';
+      document.getElementById('resetPasswordContainer').style.display = 'block';
+      document.querySelector('#screen-auth .auth-container:not(#resetPasswordContainer)').style.display = 'none';
+      document.getElementById('resetPassword').value = '';
+      document.getElementById('resetConfirmPassword').value = '';
+      document.getElementById('resetPasswordMessage').innerText = '';
+    }
 
-      document.getElementById('authSub').innerText = isRegisterMode ? "Sign up to start using Glamo Scents" : "Sign in to your Glamo Scents account";
+    async function handleForgotPassword() {
+      const email = document.getElementById('authEmail').value.trim();
+      if (!email) { alert('Please enter your registered email.'); document.getElementById('authEmail').focus(); return; }
+      const { error } = await supabaseClient.auth.resetPasswordForEmail(email, { redirectTo: PRODUCTION_URL });
+      if (error) { alert('Password Reset Error: ' + error.message); return; }
+      alert('Password reset email sent. Please check your email and open the recovery link.');
+    }
 
-      document.getElementById('authSubmitBtn').innerText = isRegisterMode ? "Register" : "Sign In";
-
-      document.getElementById('authSwitchText').innerHTML = isRegisterMode ? "Already have an account? <span>Sign In</span>" : "Don't have an account? <span>Register here</span>";
-
-      document.getElementById('usernameGroup').style.display = isRegisterMode ? "block" : "none";
-
-      document.getElementById('phoneGroup').style.display = isRegisterMode ? "block" : "none";
-
+    async function handleResetPassword() {
+      const password = document.getElementById('resetPassword').value;
+      const confirmPassword = document.getElementById('resetConfirmPassword').value;
+      const message = document.getElementById('resetPasswordMessage');
+      if (!password || !confirmPassword) { message.innerText = 'Please enter and confirm your new password.'; return; }
+      if (password !== confirmPassword) { message.innerText = 'Passwords do not match.'; return; }
+      const { error } = await supabaseClient.auth.updateUser({ password });
+      if (error) { message.innerText = 'Password reset failed: ' + error.message; return; }
+      message.innerText = 'Password reset successful. You can now return to Login.';
+      document.getElementById('resetPassword').value = '';
+      document.getElementById('resetConfirmPassword').value = '';
+      try { await supabaseClient.auth.signOut(); } catch {}
     }
 
     async function handleAuthSubmit() {
-
       const email = document.getElementById('authEmail').value.trim();
-
-      const password = document.getElementById('authPassword').value.trim();
-
+      const password = document.getElementById('authPassword').value;
+      const confirmPassword = document.getElementById('authConfirmPassword').value;
       const username = document.getElementById('authUsername').value.trim();
-
       const phone = document.getElementById('authPhone').value.trim();
-
-      if (!email || !password) { alert("Please enter both email and password."); return; }
-
+      if (!email || !password) { alert('Please enter both email and password.'); return; }
       if (isRegisterMode) {
-
-        if (!username || !phone) { alert("Please provide both a username and a phone number."); return; }
-
+        if (!username || !phone) { alert('Please provide both a username and a phone number.'); return; }
+        if (password !== confirmPassword) { alert('Passwords do not match.'); return; }
         const { data, error } = await supabaseClient.auth.signUp({ email, password });
-
-        if (error) { alert("Registration Error: " + error.message); return; }
-
+        if (error) { alert('Registration Error: ' + error.message); return; }
         currentUser = data.user;
-
         currentUsername = username;
-
         currentUserPhone = phone;
-
-        if (currentUser) {
-
-          await supabaseClient.from('profiles').upsert([{ id: currentUser.id, username, email, phone }]);
-
-        }
-
-        alert("Registration successful! Welcome, " + username);
-
+        if (currentUser) await supabaseClient.from('profiles').upsert([{ id: currentUser.id, username, email, phone }]);
+        alert('Registration successful! Welcome, ' + username);
         loadLocalSales();
-
         loadStock();
-
         renderSalesProgress();
-
         setupUserInterface();
-
       } else {
-
         const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-
-        if (error) { alert("Login Error: " + error.message); return; }
-
+        if (error) { alert('Login Error: ' + error.message); return; }
         currentUser = data.user;
-
         await fetchAndSetupUserData(currentUser.id);
-
         await syncSalesFromSupabase();
-
         loadStock();
-
       }
-
     }
 
     async function handleLogout() {
@@ -3556,6 +3612,8 @@
       document.getElementById('authEmail').value = '';
 
       document.getElementById('authPassword').value = '';
+
+      document.getElementById('authConfirmPassword').value = '';
 
       document.getElementById('authUsername').value = '';
 
