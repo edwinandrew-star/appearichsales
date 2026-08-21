@@ -1268,7 +1268,7 @@
       <i class="fa-solid fa-spray-can-sparkles" style="color:var(--accent-gold);"></i> Perfume Sale
     </div>
     <div class="sales-entry-card">
-      <h3>Record Sale</h3>
+      <h3 id="saleFormTitle">Record Sale</h3>
       <div class="form-group">
         <label>Date</label>
         <input id="saleDate" class="date-control" type="date">
@@ -1324,9 +1324,10 @@
           </div>
         </div>
       </div>
-      <button class="sales-save-btn" onclick="saveSale()">
+      <button id="saleSaveBtn" class="sales-save-btn" onclick="saveSale()">
         <i class="fa-solid fa-floppy-disk"></i> Save Sale
       </button>
+      <button id="saleCancelBtn" class="reorder-btn" style="width:100%;margin-top:8px;display:none;" onclick="cancelSaleEdit()">Cancel Edit</button>
     </div>
     <div class="stock-panel">
       <h3><i class="fa-solid fa-boxes-stacked" style="color:var(--accent-gold);"></i> Stock</h3>
@@ -1430,7 +1431,6 @@
     <div id="archiveListContainer" class="archive-list-collapsed"></div>
   </div>
   <!-- SCREEN 5: PROFILE -->
-  <!-- SCREEN 5: PROFILE -->
   <div id="screen-profile" class="app-screen">
     <div class="profile-header-card">
       <div class="profile-avatar" id="profAvatar">U</div>
@@ -1530,7 +1530,7 @@
     let deferredPrompt = null;
     let activeOrders = [];
     let expenses = [];
-  let archivedSales = [];
+    let archivedSales = [];
     let deletedSaleIds = [];
     let archiveOpen = false;
     let completedHistory = [];
@@ -1542,6 +1542,8 @@
     let reviewMode = 'daily';
     let customRangeMode = false;
     let stockItems = [];
+    let editingSaleId = null;
+
     const todayISO = () => new Date().toISOString().slice(0,10);
     const monthISO = () => new Date().toISOString().slice(0,7);
     function escapeHtml(value) {
@@ -1556,7 +1558,7 @@
           perfumeName: String(item.perfumeName ?? item.name ?? 'Unknown'),
           quantity: Math.max(1, Number(item.quantity ?? item.qty ?? 1)),
           size: String(item.size ?? '30 ML'),
-        price: Math.max(0, Number(item.price ?? 0))
+          price: Math.max(0, Number(item.price ?? 0))
         }));
       }
       if (s?.perfumeName) return [{ perfumeName:s.perfumeName, quantity:Math.max(1, Number(s.quantity ?? 1)), size:s.size || '30 ML', price:Math.max(0, Number(s.price ?? 0)) }];
@@ -1603,8 +1605,7 @@
       document.getElementById('dailyDate').value = todayISO();
       document.getElementById('reviewMonth').value = monthISO();
       initializeSaleItems();
-    loadExpenses();
-    document.getElementById('expenseDate').value = todayISO();
+      document.getElementById('expenseDate').value = todayISO();
       const { data: { session } } = await supabaseClient.auth.getSession();
       const isRecoveryFlow = /type=recovery/i.test(window.location.hash);
       setTimeout(async () => {
@@ -1615,10 +1616,9 @@
         } else if (session && session.user) {
           currentUser = session.user;
           await fetchAndSetupUserData(currentUser.id);
-          await syncUserStateFromSupabase();
           await syncSalesFromSupabase();
-          loadStock();
-    loadExpenses();
+          await syncExpensesFromSupabase();
+          await syncStockFromSupabase();
         } else {
           showAuthScreen();
         }
@@ -1650,109 +1650,13 @@
     function getDeletedStorageKey() {
       return 'glamo_sales_deleted_' + (currentUser?.id || 'guest');
     }
-    function getCloudStateOrderId() { return 'GLM-STATE-' + (currentUser?.id || 'guest'); }
-    function getUserStateStorageKey() { return 'glamo_user_state_' + (currentUser?.id || 'guest'); }
-    function applyUserState(state) {
-      if (!state || typeof state !== 'object') return;
-      if (Array.isArray(state.activeOrders)) activeOrders = state.activeOrders;
-      if (Array.isArray(state.archivedSales)) archivedSales = state.archivedSales;
-      if (Array.isArray(state.expenses)) expenses = state.expenses;
-      if (Array.isArray(state.stockItems)) stockItems = state.stockItems;
-      if (Array.isArray(state.deletedSaleIds)) deletedSaleIds = [...new Set(state.deletedSaleIds)];
-      if (state.username) currentUsername = state.username;
-      if (state.phone) currentUserPhone = state.phone;
-      if (state.theme === 'dark') document.documentElement.setAttribute('data-theme','dark');
-      else if (state.theme === 'light') document.documentElement.removeAttribute('data-theme');
-      activeOrders = activeOrders.filter(s => s && !deletedSaleIds.includes(s.id));
-      archivedSales = archivedSales.filter(s => s && !deletedSaleIds.includes(s.id));
-      completedHistory = [...activeOrders];
-      completedOrdersCount = activeOrders.length;
-      const icon = document.querySelector('#themeToggleBtn i');
-      if (icon) icon.className = state.theme === 'dark' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
-    }
-    function getCurrentUserState() {
-      return {
-        type:'glamo_state', version:2, updatedAt:new Date().toISOString(),
-        username:currentUsername || '', phone:currentUserPhone || '',
-        activeOrders:Array.isArray(activeOrders) ? activeOrders : [],
-        archivedSales:Array.isArray(archivedSales) ? archivedSales : [],
-        expenses:Array.isArray(expenses) ? expenses : [],
-        stockItems:Array.isArray(stockItems) ? stockItems : [],
-        deletedSaleIds:Array.isArray(deletedSaleIds) ? deletedSaleIds : [],
-        theme:document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light'
-      };
-    }
-    function saveLocalUserState(state = null) {
-      if (!currentUser) return;
-      try { localStorage.setItem(getUserStateStorageKey(), JSON.stringify(state || getCurrentUserState())); } catch {}
-    }
-    function loadLocalUserState() {
-      if (!currentUser) return false;
-      try {
-        const state = JSON.parse(localStorage.getItem(getUserStateStorageKey()) || '{}');
-        if (state?.type === 'glamo_state') { applyUserState(state); return true; }
-      } catch {}
-      return false;
-    }
-    async function upsertCloudState(state) {
-      if (!currentUser) return false;
-      const stateOrderId = getCloudStateOrderId();
-      const payload = {
-        order_id:stateOrderId, user_id:currentUser.id, items:[], total:0, location:'',
-        instructions:JSON.stringify(state), payment_method:'System State', status:'confirmed'
-      };
-      const { data: existing, error: findError } = await supabaseClient.from('orders').select('id')
-        .eq('user_id', currentUser.id).eq('order_id', stateOrderId).maybeSingle();
-      if (findError) throw findError;
-      if (existing?.id) {
-        const { error } = await supabaseClient.from('orders').update(payload).eq('id', existing.id);
-        if (error) throw error;
-      } else {
-        const { error } = await supabaseClient.from('orders').insert([payload]);
-        if (error) throw error;
-      }
-      return true;
-    }
-    async function persistUserStateToSupabase(stateOverride = null) {
-      if (!currentUser) return false;
-      const state = stateOverride || getCurrentUserState();
-      saveLocalUserState(state);
-      try { return await upsertCloudState(state); }
-      catch (e) { console.log('User state cloud sync unavailable; kept locally.', e); return false; }
-    }
-    async function readCloudState() {
-      if (!currentUser) return null;
-      const { data, error } = await supabaseClient.from('orders').select('id,instructions')
-        .eq('user_id', currentUser.id).eq('order_id', getCloudStateOrderId()).maybeSingle();
-      if (error) throw error;
-      if (!data?.instructions) return null;
-      try {
-        const parsed = JSON.parse(data.instructions);
-        return parsed?.type === 'glamo_state' ? parsed : null;
-      } catch { return null; }
-    }
-    async function syncUserStateFromSupabase() {
-      if (!currentUser) return false;
-      try {
-        const cloudState = await readCloudState();
-        if (cloudState && Number(cloudState.version || 0) >= 2) {
-          applyUserState(cloudState);
-          saveLocalUserState(cloudState);
-          renderBookings(); renderHistory(); renderArchive(); renderExpenses(); renderStockList(); renderStockAlerts(); renderSalesProgress(); updateLoyaltyUI();
-          return true;
-        }
-        return false;
-      } catch (e) {
-        console.log('Cloud state read unavailable; using local cache only as offline fallback.', e);
-        return loadLocalUserState();
-      }
+    function getExpensesStorageKey() { 
+      return 'glamo_expenses_' + (currentUser?.id || 'guest'); 
     }
     function saveLocalSales() {
-      try {
-        localStorage.setItem(getSalesStorageKey(), JSON.stringify(activeOrders));
-        localStorage.setItem(getArchiveStorageKey(), JSON.stringify(archivedSales));
-        localStorage.setItem(getDeletedStorageKey(), JSON.stringify(deletedSaleIds));
-      } catch {}
+      localStorage.setItem(getSalesStorageKey(), JSON.stringify(activeOrders));
+      localStorage.setItem(getArchiveStorageKey(), JSON.stringify(archivedSales));
+      localStorage.setItem(getDeletedStorageKey(), JSON.stringify(deletedSaleIds));
     }
     function loadLocalSales() {
       try {
@@ -1767,60 +1671,75 @@
         completedHistory = [...activeOrders];
         completedOrdersCount = activeOrders.length;
       } catch {
-        activeOrders = []; archivedSales = []; deletedSaleIds = [];
-        completedHistory = []; completedOrdersCount = 0;
+        activeOrders = [];
+        archivedSales = [];
+        deletedSaleIds = [];
+        completedHistory = [];
+        completedOrdersCount = 0;
       }
-    }
-    async function fetchCloudSalesRows() {
-      const { data, error } = await supabaseClient.from('orders').select('*')
-        .eq('user_id', currentUser.id).order('created_at', { ascending:false });
-      if (error) throw error;
-      return (data || []).map(row => {
-        let meta={}; try { meta=JSON.parse(row.instructions || '{}'); } catch {}
-        if (meta.type !== 'glamo_sale') return null;
-        const cloudItems = Array.isArray(meta.items) && meta.items.length ? meta.items :
-          (Array.isArray(row.items) && row.items.length ? row.items : [{name:meta.perfumeName || 'Unknown',qty:1,size:meta.size || '30 ML'}]);
-        const items=cloudItems.map(item => ({
-          perfumeName:String(item.perfumeName ?? item.name ?? 'Unknown'),
-          quantity:Math.max(1,Number(item.quantity ?? item.qty ?? 1)),
-          size:String(item.size ?? '30 ML'), price:Math.max(0,Number(item.price ?? 0))
-        }));
-        const receivedAmount=Number(meta.receivedAmount ?? meta.saleAmount ?? row.total ?? 0);
-        return {
-          id:row.order_id, dbId:row.id, items, perfumeName:items[0]?.perfumeName || 'Unknown',
-          size:items[0]?.size || '30 ML', quantity:getSalePerfumeCount({items}),
-          date:meta.date || new Date(row.created_at).toISOString().slice(0,10),
-          paymentMethod:meta.paymentMethod || row.payment_method || 'Cash', paymentProvider:meta.paymentProvider || '',
-          receivedAmount, saleAmount:receivedAmount, deliveryAmount:Number(meta.deliveryAmount ?? 0),
-          cashReceived:Number(meta.cashReceived ?? (meta.paymentMethod === 'Cash' ? receivedAmount : 0)),
-          dateTime:new Date(row.created_at).toLocaleString(), status:row.status || 'confirmed'
-        };
-      }).filter(Boolean);
     }
     async function syncSalesFromSupabase() {
       if (!currentUser) return;
+      loadLocalSales();
       try {
-        const cloudState = await readCloudState();
-        if (cloudState && Number(cloudState.version || 0) >= 2) {
-          applyUserState(cloudState);
-          saveLocalUserState(cloudState); saveLocalSales();
-          renderBookings(); renderHistory(); renderArchive(); renderSalesProgress(); updateLoyaltyUI();
-          return;
-        }
-        const cloudSales = await fetchCloudSalesRows();
-        const local = loadLocalSales() ? [...activeOrders, ...archivedSales] : [];
-        const byId = new Map(cloudSales.map(s => [s.id, s]));
-        for (const sale of local) if (!byId.has(sale.id) && !deletedSaleIds.includes(sale.id)) byId.set(sale.id, sale);
-        activeOrders = [...byId.values()].filter(s => s.status !== 'archived' && !deletedSaleIds.includes(s.id));
-        archivedSales = [...byId.values()].filter(s => s.status === 'archived' && !deletedSaleIds.includes(s.id));
-        completedHistory=[...activeOrders]; completedOrdersCount=activeOrders.length;
-        await persistUserStateToSupabase(getCurrentUserState());
+        const { data, error } = await supabaseClient
+          .from('orders')
+          .select('*')
+          .eq('user_id', currentUser.id)
+          .order('created_at', { ascending: false });
+        if (error) throw error;
+        const cloudSales = (data || []).map(row => {
+          let meta = {};
+          try { meta = JSON.parse(row.instructions || '{}'); } catch {}
+          if (meta.type !== 'glamo_sale') return null;
+          const cloudItems = Array.isArray(meta.items) && meta.items.length
+            ? meta.items
+            : (Array.isArray(row.items) && row.items.length ? row.items : [{
+                name: meta.perfumeName || 'Unknown', qty:1, size:meta.size || '30 ML'
+              }]);
+          const items = cloudItems.map(item => ({
+            perfumeName: String(item.perfumeName ?? item.name ?? 'Unknown'),
+            quantity: Math.max(1, Number(item.quantity ?? item.qty ?? 1)),
+            size: String(item.size ?? '30 ML'),
+            price: Math.max(0, Number(item.price ?? 0))
+          }));
+          const receivedAmount = Number(meta.receivedAmount ?? meta.saleAmount ?? row.total ?? 0);
+          return {
+            id: row.order_id,
+            dbId: row.id,
+            items,
+            perfumeName: items[0]?.perfumeName || 'Unknown',
+            size: items[0]?.size || '30 ML',
+            quantity: getSalePerfumeCount({items}),
+            date: meta.date || new Date(row.created_at).toISOString().slice(0,10),
+            paymentMethod: meta.paymentMethod || row.payment_method || 'Cash',
+            paymentProvider: meta.paymentProvider || '',
+            receivedAmount,
+            saleAmount: receivedAmount,
+            deliveryAmount: Number(meta.deliveryAmount ?? 0),
+            cashReceived: Number(meta.cashReceived ?? (meta.paymentMethod === 'Cash' ? receivedAmount : 0)),
+            dateTime: new Date(row.created_at).toLocaleString(),
+            status: row.status || 'confirmed'
+          };
+        }).filter(Boolean);
+
+        const cloudMap = new Map(cloudSales.map(s => [s.id, s]));
+        
+        // Active orders: sync from cloud authority
+        activeOrders = cloudSales.filter(s => s.status !== 'archived' && !deletedSaleIds.includes(s.id));
+        archivedSales = cloudSales.filter(s => s.status === 'archived' && !deletedSaleIds.includes(s.id));
+
+        completedHistory = [...activeOrders];
+        completedOrdersCount = activeOrders.length;
         saveLocalSales();
       } catch (e) {
-        console.log('Using local sales cache only because cloud data could not be read:', e);
-        loadLocalSales();
+        console.log('Using local sales cache:', e);
       }
-      renderBookings(); renderHistory(); renderArchive(); renderSalesProgress(); updateLoyaltyUI();
+      renderBookings();
+      renderHistory();
+      renderArchive();
+      renderSalesProgress();
+      updateLoyaltyUI();
     }
     function showAuthScreen() {
       document.getElementById('screen-auth').style.display = 'flex';
@@ -1913,10 +1832,10 @@
         currentUsername = username;
         currentUserPhone = phone;
         if (currentUser) await supabaseClient.from('profiles').upsert([{ id: currentUser.id, username, email, phone }]);
-      await syncUserStateFromSupabase();
         alert('Registration successful! Welcome, ' + username);
         loadLocalSales();
-        loadStock();
+        syncStockFromSupabase();
+        syncExpensesFromSupabase();
         renderSalesProgress();
         setupUserInterface();
       } else {
@@ -1924,9 +1843,9 @@
         if (error) { alert('Login Error: ' + error.message); return; }
         currentUser = data.user;
         await fetchAndSetupUserData(currentUser.id);
-        await syncUserStateFromSupabase();
-      await syncSalesFromSupabase();
-        loadStock();
+        await syncSalesFromSupabase();
+        await syncExpensesFromSupabase();
+        await syncStockFromSupabase();
       }
     }
     async function handleLogout() {
@@ -1935,6 +1854,9 @@
       currentUsername = "";
       currentUserPhone = "";
       activeOrders = [];
+      archivedSales = [];
+      deletedSaleIds = [];
+      expenses = [];
       completedHistory = [];
       completedOrdersCount = 0;
       stockItems = [];
@@ -1945,6 +1867,7 @@
       document.getElementById('authPhone').value = '';
       renderBookings();
       renderHistory();
+      renderExpenses();
       renderSalesProgress();
       showAuthScreen();
     }
@@ -1958,8 +1881,6 @@
         document.documentElement.setAttribute('data-theme', 'dark');
         icon.className = 'fa-solid fa-sun';
       }
-      saveLocalUserState();
-      void persistUserStateToSupabase();
     }
     function switchTab(screenId, element) {
       document.querySelectorAll('.app-screen').forEach(s => s.classList.remove('active'));
@@ -2079,13 +2000,42 @@
       if (totalInput) totalInput.value = total || '';
     }
     let editingExpenseId = null;
-    function getExpensesStorageKey() { return 'glamo_expenses_' + (currentUser?.id || 'guest'); }
+    
     function loadExpenses() {
-      try { const saved = JSON.parse(localStorage.getItem(getExpensesStorageKey()) || '[]'); expenses = Array.isArray(saved) ? saved : []; }
+      try { 
+        const saved = JSON.parse(localStorage.getItem(getExpensesStorageKey()) || '[]'); 
+        expenses = Array.isArray(saved) ? saved : []; 
+      }
       catch(e) { expenses = []; }
       renderExpenses();
     }
-    async function saveExpenses() { localStorage.setItem(getExpensesStorageKey(), JSON.stringify(expenses)); renderExpenses(); await persistUserStateToSupabase(); }
+    function saveExpenses() { 
+      localStorage.setItem(getExpensesStorageKey(), JSON.stringify(expenses)); 
+      renderExpenses(); 
+    }
+    async function syncExpensesFromSupabase() {
+      if (!currentUser) { loadExpenses(); return; }
+      try {
+        const { data, error } = await supabaseClient
+          .from('expenses')
+          .select('*')
+          .eq('user_id', currentUser.id)
+          .order('date', { ascending: false });
+        if (error) throw error;
+        expenses = (data || []).map(row => ({
+          id: row.id,
+          name: row.name,
+          date: row.date,
+          amount: Number(row.amount || 0),
+          category: row.category || 'General',
+          notes: row.notes || ''
+        }));
+        saveExpenses();
+      } catch(e) {
+        console.log('Expense cloud sync unavailable, using local cache:', e);
+        loadExpenses();
+      }
+    }
     function renderExpenses() {
       const list = document.getElementById('expensesList'), totalEl = document.getElementById('expenseTotalValue');
       if (!list) return;
@@ -2119,13 +2069,31 @@
       const notes = document.getElementById('expenseNotes').value.trim();
       if (!name || !date || amount <= 0) { alert('Please enter an expense name, date and valid amount.'); return; }
       const wasEditing = !!editingExpenseId;
+      const expenseId = wasEditing ? editingExpenseId : ('EXP-' + Date.now().toString().slice(-8));
+      const payload = { id: expenseId, name, date, amount, category, notes };
+      
       if (wasEditing) {
         const index = expenses.findIndex(e => e.id === editingExpenseId);
-        if (index >= 0) expenses[index] = {...expenses[index], name, date, amount, category, notes};
+        if (index >= 0) expenses[index] = payload;
       } else {
-        expenses.unshift({id:'EXP-' + Date.now().toString().slice(-8), name, date, amount, category, notes});
+        expenses.unshift(payload);
       }
-      await saveExpenses();
+      saveExpenses();
+
+      if (currentUser) {
+        try {
+          await supabaseClient.from('expenses').upsert([{
+            id: expenseId,
+            user_id: currentUser.id,
+            name,
+            date,
+            amount,
+            category,
+            notes
+          }]);
+        } catch(e) { console.log('Expense sync failed:', e); }
+      }
+
       resetExpenseForm();
       alert(wasEditing ? 'Expense updated successfully.' : 'Expense saved successfully.');
     }
@@ -2148,6 +2116,12 @@
       if (!e || !confirm('Delete this expense?')) return;
       expenses = expenses.filter(x => x.id !== id);
       saveExpenses();
+
+      if (currentUser) {
+        try {
+          await supabaseClient.from('expenses').delete().eq('id', id).eq('user_id', currentUser.id);
+        } catch(err) { console.log('Delete expense sync failed:', err); }
+      }
     }
     async function saveSale() {
       const date = document.getElementById('saleDate').value;
@@ -2170,6 +2144,12 @@
         alert('Please enter a valid delivery amount.');
         return;
       }
+
+      if (editingSaleId) {
+        await updateSale(editingSaleId);
+        return;
+      }
+
       const id = 'GLM-' + Date.now().toString().slice(-8);
       const sale = {
         id, items,
@@ -2201,7 +2181,7 @@
       switchTab('screen-bookings', document.querySelector('#mainNavBar .nav-item:nth-child(3)'));
     }
     async function persistSaleToSupabase(sale) {
-      if (!currentUser || !sale?.id) return false;
+      if (!currentUser) return;
       const meta = {
         type:'glamo_sale', date:sale.date, items:sale.items,
         perfumeName:sale.perfumeName, size:sale.size,
@@ -2210,38 +2190,35 @@
         deliveryAmount:sale.deliveryAmount, cashReceived:sale.cashReceived
       };
       try {
-        let dbId = sale.dbId || null;
-        if (!dbId) {
-          const { data: existing, error: findError } = await supabaseClient.from('orders').select('id')
-            .eq('user_id', currentUser.id).eq('order_id', sale.id).maybeSingle();
-          if (findError) throw findError;
-          if (existing?.id) dbId = existing.id;
-        }
         const payload = {
-          order_id:sale.id, user_id:currentUser.id,
-          items:sale.items.map(item => ({name:item.perfumeName,size:item.size,qty:item.quantity,price:item.price})),
-          total:saleTotal(sale), location:'', instructions:JSON.stringify(meta),
-          payment_method:sale.paymentMethod + (sale.paymentProvider ? ' - ' + sale.paymentProvider : ''),
-          status:sale.status || 'confirmed'
+          order_id: sale.id,
+          user_id: currentUser.id,
+          items: sale.items.map(item => ({name:item.perfumeName, size:item.size, qty:item.quantity, price:item.price})),
+          total: saleTotal(sale),
+          location: '',
+          instructions: JSON.stringify(meta),
+          payment_method: sale.paymentMethod + (sale.paymentProvider ? ' - ' + sale.paymentProvider : ''),
+          status: sale.status || 'confirmed'
         };
-        if (dbId) {
-          const { error } = await supabaseClient.from('orders').update(payload).eq('id', dbId).eq('user_id', currentUser.id);
-          if (error) throw error;
-        } else {
-          const { data, error } = await supabaseClient.from('orders').insert([payload]).select('id').single();
-          if (error) throw error;
-          dbId = data?.id || null;
-        }
-        if (dbId) sale.dbId = dbId;
-        saveLocalSales();
-        await persistUserStateToSupabase(getCurrentUserState());
-        return true;
-      } catch(e) { console.log('Sale cloud sync unavailable; kept locally.', e); return false; }
+
+        if (sale.dbId) payload.id = sale.dbId;
+
+        const { data, error } = await supabaseClient.from('orders').upsert(
+          [payload], 
+          { onConflict: 'order_id' }
+        ).select('id').single();
+
+        if (!error && data) { sale.dbId = data.id; saveLocalSales(); }
+      } catch(e) { console.log('Sale cloud sync unavailable; kept locally.', e); }
     }
     function resetSaleForm() {
+      editingSaleId = null;
       document.getElementById('saleDate').value = todayISO();
       document.getElementById('receivedAmount').value = '';
       document.getElementById('deliveryAmount').value = '';
+      document.getElementById('saleFormTitle').textContent = 'Record Sale';
+      document.getElementById('saleSaveBtn').innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Save Sale';
+      document.getElementById('saleCancelBtn').style.display = 'none';
       initializeSaleItems();
       selectedSalePayment = 'cash';
       selectedMobileProvider = '';
@@ -2286,9 +2263,10 @@
           </div>`).join('')
         : '<p style="font-size:.8rem;color:var(--text-sub);">No sales logged yet.</p>';
     }
-    async function editSale(id) {
-      const s = activeOrders.find(x => x.id === id);
+    function editSale(id) {
+      const s = activeOrders.find(x => x.id === id) || archivedSales.find(x => x.id === id);
       if (!s) return;
+      editingSaleId = id;
       initializeSaleItems(getSaleItems(s));
       document.getElementById('saleDate').value = s.date;
       updateSaleItemsSummary();
@@ -2299,384 +2277,408 @@
       selectSalePayment(selectedSalePayment);
       selectDelivery(selectedDelivery);
       document.querySelectorAll('#saleMobileBox .pay-option-btn').forEach(x => x.classList.toggle('active', x.textContent.trim() === selectedMobileProvider));
-      const btn = document.querySelector('.sales-save-btn');
+      
+      document.getElementById('saleFormTitle').textContent = 'Edit Sale #' + s.id;
+      const btn = document.getElementById('saleSaveBtn');
       btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Save Changes';
-      btn.onclick = () => updateSale(id);
+      document.getElementById('saleCancelBtn').style.display = 'block';
       switchTab('screen-perfumes');
     }
+    function cancelSaleEdit() {
+      resetSaleForm();
+    }
     async function updateSale(id) {
-      const old = activeOrders.find(x => x.id === id);
-      if (!old) return;
+      let index = activeOrders.findIndex(x => x.id === id);
+      let isArchived = false;
+      if (index < 0) {
+        index = archivedSales.findIndex(x => x.id === id);
+        isArchived = true;
+      }
+      if (index < 0) return;
+      
+      const old = isArchived ? archivedSales[index] : activeOrders[index];
       const date = document.getElementById('saleDate').value;
       const items = collectSaleItems();
       const receivedAmount = Number(document.getElementById('receivedAmount').value || 0);
       const deliveryAmount = selectedDelivery ? Number(document.getElementById('deliveryAmount').value || 0) : 0;
-      if (!date || !items.length || items.some(item => !item.perfumeName) || !receivedAmount) { alert('Please complete the sale fields.'); return; }
-      if (selectedSalePayment === 'mobile' && !selectedMobileProvider) { alert('Please select a mobile money provider.'); return; }
-      adjustStockForSale(old, -1);
-      const updated = { ...old, id:old.id, items, perfumeName:items[0].perfumeName, size:items[0].size, quantity:getSalePerfumeCount({items}), date,
-        paymentMethod:selectedSalePayment === 'cash' ? 'Cash' : 'Mobile Money',
-        paymentProvider:selectedSalePayment === 'mobile' ? selectedMobileProvider : '',
-        receivedAmount, saleAmount:receivedAmount, deliveryAmount,
-        cashReceived:selectedSalePayment === 'cash' ? receivedAmount : 0 };
-      const idx = activeOrders.findIndex(x => x.id === id);
-      activeOrders[idx] = updated;
-      completedHistory = [...activeOrders];
-      adjustStockForSale(updated, 1);
-      saveLocalSales();
-      const ok = await persistSaleToSupabase(updated);
-      if (!ok && currentUser) {
-        // Keep the edited record locally, but never create a second record.
-        saveLocalUserState(getCurrentUserState());
+
+      if (!date || !items.length || items.some(item => !item.perfumeName)) {
+        alert('Please enter a date and complete every perfume row.');
+        return;
       }
+      if (!receivedAmount) {
+        alert('Please enter the actual amount received.');
+        return;
+      }
+
+      // Revert stock adjustment from previous version, apply new version
+      adjustStockForSale(old, -1);
+
+      const updatedSale = {
+        ...old,
+        id: old.id, // Preserve strict unique record identity
+        items,
+        perfumeName: items[0].perfumeName,
+        size: items[0].size,
+        quantity: getSalePerfumeCount({items}),
+        date,
+        paymentMethod: selectedSalePayment === 'cash' ? 'Cash' : 'Mobile Money',
+        paymentProvider: selectedSalePayment === 'mobile' ? selectedMobileProvider : '',
+        receivedAmount,
+        saleAmount: receivedAmount,
+        deliveryAmount,
+        cashReceived: selectedSalePayment === 'cash' ? receivedAmount : 0
+      };
+
+      if (isArchived) archivedSales[index] = updatedSale;
+      else activeOrders[index] = updatedSale;
+
+      completedHistory = [...activeOrders];
+      saveLocalSales();
+      adjustStockForSale(updatedSale, 1);
+      await persistSaleToSupabase(updatedSale);
+
+      renderBookings();
+      renderHistory();
+      renderArchive();
+      renderSalesProgress();
+      updateLoyaltyUI();
+      alert('Sale #' + id + ' updated successfully.');
       resetSaleForm();
-      const btn = document.querySelector('.sales-save-btn');
-      btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Save Sale'; btn.onclick = saveSale;
-      renderBookings(); renderHistory(); renderSalesProgress();
-      alert('Sale updated successfully.');
       switchTab('screen-bookings', document.querySelector('#mainNavBar .nav-item:nth-child(3)'));
     }
+
     async function deleteSale(id) {
-      const sale = activeOrders.find(x => x.id === id);
-      if (!sale || !confirm('Move this sale to Archive?')) return;
-      adjustStockForSale(sale, -1);
-      sale.archivedAt = new Date().toISOString();
-      sale.status = 'archived';
+      if (!confirm('Are you sure you want to delete this sale record?')) return;
+      const sale = activeOrders.find(x => x.id === id) || archivedSales.find(x => x.id === id);
+      if (sale) adjustStockForSale(sale, -1);
+
       activeOrders = activeOrders.filter(x => x.id !== id);
-      archivedSales.unshift(sale);
+      archivedSales = archivedSales.filter(x => x.id !== id);
+      if (!deletedSaleIds.includes(id)) deletedSaleIds.push(id);
+
       completedHistory = [...activeOrders];
       completedOrdersCount = activeOrders.length;
       saveLocalSales();
-      if (currentUser && sale.dbId) {
-        try { await supabaseClient.from('orders').update({status:'archived'}).eq('id', sale.dbId).eq('user_id', currentUser.id); } catch {}
+
+      if (currentUser) {
+        try {
+          await supabaseClient.from('orders').delete().eq('order_id', id).eq('user_id', currentUser.id);
+        } catch(e) { console.log('Cloud delete failed:', e); }
       }
-      await persistUserStateToSupabase();
-      renderBookings(); renderHistory(); renderArchive(); renderSalesProgress(); updateLoyaltyUI();
+
+      renderBookings();
+      renderHistory();
+      renderArchive();
+      renderSalesProgress();
+      updateLoyaltyUI();
     }
-    async function unarchiveSale(id) {
-      const sale = archivedSales.find(x => x.id === id);
-      if (!sale || !confirm('Restore this sale to active Sales?')) return;
-      sale.status = 'confirmed'; delete sale.archivedAt;
-      archivedSales = archivedSales.filter(x => x.id !== id);
-      activeOrders.unshift(sale);
-      completedHistory = [...activeOrders]; completedOrdersCount = activeOrders.length;
-      adjustStockForSale(sale, 1); saveLocalSales();
-      if (currentUser && sale.dbId) {
-        try { await supabaseClient.from('orders').update({status:'confirmed'}).eq('id', sale.dbId).eq('user_id', currentUser.id); } catch {}
-      }
-      await persistUserStateToSupabase();
-      renderBookings(); renderHistory(); renderArchive(); renderSalesProgress(); updateLoyaltyUI();
-    }
-    async function deleteArchivedSale(id) {
-      const sale = archivedSales.find(x => x.id === id);
-      if (!sale || !confirm('Delete this archived sale permanently? This cannot be undone.')) return;
-      deletedSaleIds = [...new Set([...deletedSaleIds, id])];
-      archivedSales = archivedSales.filter(x => x.id !== id);
-      activeOrders = activeOrders.filter(x => x.id !== id);
-      completedHistory = [...activeOrders]; completedOrdersCount = activeOrders.length;
-      saveLocalSales();
-      if (currentUser && sale.dbId) {
-        try { await supabaseClient.from('orders').delete().eq('id', sale.dbId).eq('user_id', currentUser.id); } catch {}
-      }
-      await persistUserStateToSupabase();
-      renderBookings(); renderHistory(); renderArchive(); renderSalesProgress(); updateLoyaltyUI();
-    }
+
     function toggleArchive() {
       archiveOpen = !archiveOpen;
-      const container = document.getElementById('archiveListContainer');
+      const el = document.getElementById('archiveListContainer');
       const icon = document.getElementById('archiveToggleIcon');
-      if (container) container.classList.toggle('open', archiveOpen);
+      if (el) el.classList.toggle('open', archiveOpen);
       if (icon) icon.textContent = archiveOpen ? '▾' : '▸';
-      renderArchive();
+      if (archiveOpen) renderArchive();
     }
+
     function renderArchive() {
       const container = document.getElementById('archiveListContainer');
       if (!container) return;
-      container.classList.toggle('open', archiveOpen);
-      const icon = document.getElementById('archiveToggleIcon');
-      if (icon) icon.textContent = archiveOpen ? '▾' : '▸';
       if (!archivedSales.length) {
-        container.innerHTML = archiveOpen ? '<div style="padding:12px;text-align:center;color:var(--text-sub);font-size:.76rem;">Archive is empty.</div>' : '';
+        container.innerHTML = '<div style="font-size:.78rem;color:var(--text-sub);padding:10px;">No archived sales.</div>';
         return;
       }
-      if (!archiveOpen) { container.innerHTML = ''; return; }
-      container.innerHTML = archivedSales.map(s => {
-        const items = getSaleItems(s);
-        return `<div class="archive-card">
-          <div class="track-header"><span class="order-id">${items.map(item => `${escapeHtml(item.perfumeName)} • ${item.quantity} × ${escapeHtml(item.size)}`).join('<br>')}</span>
-            <span class="status-badge pending"><i class="fa-solid fa-box-archive"></i> Archived</span></div>
+      container.innerHTML = archivedSales.map(s => `
+        <div class="archive-card">
+          <div class="track-header"><span class="order-id">${escapeHtml(getSaleNames(s))}</span><span class="status-badge">Archived</span></div>
           <div class="track-details">
             <p><strong>Date:</strong> ${escapeHtml(s.date)}</p>
-            <p><strong>Payment:</strong> ${escapeHtml(s.paymentMethod)}${s.paymentProvider ? ' • ' + escapeHtml(s.paymentProvider) : ''}</p>
-            <p><strong>Received:</strong> ${money(saleReceived(s))}</p>
-            <p><strong>Delivery:</strong> ${money(s.deliveryAmount)}</p>
             <p><strong>Total:</strong> ${money(saleTotal(s))}</p>
           </div>
           <div class="sale-actions">
-            <button class="small-action" onclick="unarchiveSale('${s.id}')"><i class="fa-solid fa-box-open"></i> Unarchive</button>
-            <button class="small-action delete" onclick="deleteArchivedSale('${s.id}')"><i class="fa-solid fa-trash-can"></i> Delete Permanently</button>
+            <button class="small-action" onclick="editSale('${s.id}')"><i class="fa-solid fa-pen"></i> Edit</button>
+            <button class="small-action delete" onclick="deleteSale('${s.id}')"><i class="fa-solid fa-trash"></i> Delete</button>
           </div>
-        </div>`;
-      }).join('');
+        </div>`).join('');
     }
-    function getFilteredSales() {
-      const valid = activeOrders.filter(s => s && s.date);
-      if (customRangeMode) {
-        const from = document.getElementById('rangeFrom').value;
-        const to = document.getElementById('rangeTo').value;
-        return valid.filter(s => (!from || s.date >= from) && (!to || s.date <= to));
-      }
-      if (reviewMode === 'daily') {
-        const d = document.getElementById('dailyDate').value || todayISO();
-        return valid.filter(s => s.date === d);
-      }
-      if (reviewMode === 'monthly') {
-        const m = document.getElementById('reviewMonth').value || monthISO();
-        return valid.filter(s => s.date.startsWith(m));
-      }
-      if (reviewMode === 'weekly') {
-        const now = new Date();
-        const day = now.getDay();
-        const mondayOffset = day === 0 ? -6 : 1 - day;
-        const monday = new Date(now);
-        monday.setDate(now.getDate() + mondayOffset);
-        const sunday = new Date(monday);
-        sunday.setDate(monday.getDate() + 6);
-        const from = monday.toISOString().slice(0,10);
-        const to = sunday.toISOString().slice(0,10);
-        return valid.filter(s => s.date >= from && s.date <= to);
-      }
-      return valid;
+
+    function updateLoyaltyUI() {
+      const badge = document.getElementById('loyaltyCountBadge');
+      if (badge) badge.textContent = 'Total Orders: ' + activeOrders.length;
+      const dots = document.querySelectorAll('#stampsRow .stamp-dot');
+      const filledCount = activeOrders.length % 5;
+      dots.forEach((dot, idx) => {
+        if (idx < 4) {
+          if (idx < filledCount) dot.classList.add('filled');
+          else dot.classList.remove('filled');
+        }
+      });
     }
-    function calculateMetrics(sales) {
-      const totalSales = sales.reduce((a,s) => a + saleReceived(s), 0);
-      const totalDelivery = sales.reduce((a,s) => a + Number(s.deliveryAmount || 0), 0);
-      const totalRevenue = totalSales + totalDelivery;
-      const perfumes = sales.reduce((a,s) => a + getSalePerfumeCount(s), 0);
-      return { totalSales, totalDelivery, totalRevenue, count:sales.length, perfumes };
-    }
-    function performanceText(metrics) {
-      if (!metrics.count) return '<span class="performance-pill"><i class="fa-solid fa-minus"></i> No sales in this period</span>';
-      if (metrics.count >= 10) return '<span class="performance-pill"><i class="fa-solid fa-fire"></i> Strong performance</span>';
-      if (metrics.count >= 5) return '<span class="performance-pill"><i class="fa-solid fa-arrow-up"></i> Good performance</span>';
-      return '<span class="performance-pill"><i class="fa-solid fa-chart-line"></i> Building momentum</span>';
-    }
+
     function setReviewMode(mode) {
       reviewMode = mode;
       customRangeMode = false;
-      ['tabDaily','tabWeekly','tabMonthly'].forEach(id => document.getElementById(id).classList.remove('active'));
-      document.getElementById(mode === 'daily' ? 'tabDaily' : mode === 'weekly' ? 'tabWeekly' : 'tabMonthly').classList.add('active');
+      document.querySelectorAll('.review-tab').forEach(t => t.classList.remove('active'));
+      if (mode === 'daily') document.getElementById('tabDaily').classList.add('active');
+      if (mode === 'weekly') document.getElementById('tabWeekly').classList.add('active');
+      if (mode === 'monthly') document.getElementById('tabMonthly').classList.add('active');
+
       document.getElementById('dailyFilters').style.display = mode === 'daily' ? 'block' : 'none';
       document.getElementById('monthlyFilters').style.display = mode === 'monthly' ? 'block' : 'none';
       document.getElementById('customFilters').style.display = 'none';
       renderSalesProgress();
     }
+
     function showCustomRange() {
       customRangeMode = true;
+      document.querySelectorAll('.review-tab').forEach(t => t.classList.remove('active'));
       document.getElementById('dailyFilters').style.display = 'none';
       document.getElementById('monthlyFilters').style.display = 'none';
       document.getElementById('customFilters').style.display = 'block';
-      document.querySelectorAll('.review-tab').forEach(x => x.classList.remove('active'));
       renderSalesProgress();
     }
+
+    function getFilteredSales() {
+      const all = [...activeOrders, ...archivedSales];
+      if (customRangeMode) {
+        const from = document.getElementById('rangeFrom').value;
+        const to = document.getElementById('rangeTo').value;
+        if (!from || !to) return all;
+        return all.filter(s => {
+          const d = saleDate(s);
+          return d >= from && d <= to;
+        });
+      }
+      if (reviewMode === 'daily') {
+        const target = document.getElementById('dailyDate').value || todayISO();
+        return all.filter(s => saleDate(s) === target);
+      }
+      if (reviewMode === 'weekly') {
+        const now = new Date();
+        const start = new Date(now.setDate(now.getDate() - now.getDay())).toISOString().slice(0,10);
+        return all.filter(s => saleDate(s) >= start);
+      }
+      if (reviewMode === 'monthly') {
+        const target = document.getElementById('reviewMonth').value || monthISO();
+        return all.filter(s => saleDate(s).slice(0,7) === target);
+      }
+      return all;
+    }
+
     function renderSalesProgress() {
       const sales = getFilteredSales();
-      const metrics = calculateMetrics(sales);
       const metricsEl = document.getElementById('progressMetrics');
-      if (!metricsEl) return;
-      metricsEl.innerHTML = `
-        <div class="metric-card"><div class="metric-label">Total Sales</div><div class="metric-value">${money(metrics.totalSales)}</div></div>
-        <div class="metric-card"><div class="metric-label">Number of Sales</div><div class="metric-value">${metrics.count}</div></div>
-        <div class="metric-card"><div class="metric-label">Perfumes Sold</div><div class="metric-value">${metrics.perfumes}</div></div>
-        <div class="metric-card"><div class="metric-label">Delivery Total</div><div class="metric-value">${money(metrics.totalDelivery)}</div></div>
-      `;
-      document.getElementById('progressPerformance').innerHTML =
-        `<div style="display:flex;justify-content:space-between;align-items:center;"><strong>${reviewMode === 'daily' ? 'Daily' : reviewMode === 'weekly' ? 'Weekly' : customRangeMode ? 'Custom Range' : 'Monthly'} Performance</strong>${performanceText(metrics)}</div>
-         <p style="font-size:.75rem;color:var(--text-sub);margin-top:8px;">Revenue including delivery: <strong>${money(metrics.totalRevenue)}</strong></p>`;
-      renderBestSellers(sales);
-      renderGrowth();
+      const perfEl = document.getElementById('progressPerformance');
+      const bestEl = document.getElementById('bestSellersList');
+      const lowestEl = document.getElementById('lowestSeller');
+      const growthEl = document.getElementById('growthSummary');
+
+      const totalRev = sales.reduce((sum, s) => sum + saleTotal(s), 0);
+      const totalBottles = sales.reduce((sum, s) => sum + getSalePerfumeCount(s), 0);
+
+      if (metricsEl) {
+        metricsEl.innerHTML = `
+          <div class="metric-card"><div class="metric-label">Revenue</div><div class="metric-value">${money(totalRev)}</div></div>
+          <div class="metric-card"><div class="metric-label">Total Sales</div><div class="metric-value">${sales.length}</div></div>
+          <div class="metric-card"><div class="metric-label">Bottles Sold</div><div class="metric-value">${totalBottles}</div></div>
+          <div class="metric-card"><div class="metric-label">Avg / Sale</div><div class="metric-value">${money(sales.length ? totalRev / sales.length : 0)}</div></div>`;
+      }
+
+      // Aggregate perfume frequency
+      const counts = {};
+      sales.forEach(s => {
+        getSaleItems(s).forEach(item => {
+          counts[item.perfumeName] = (counts[item.perfumeName] || 0) + item.quantity;
+        });
+      });
+
+      const sorted = Object.entries(counts).sort((a,b) => b[1] - a[1]);
+
+      if (bestEl) {
+        if (!sorted.length) {
+          bestEl.innerHTML = '<div style="font-size:.78rem;color:var(--text-sub);">No sales data for this period.</div>';
+        } else {
+          const max = sorted[0][1] || 1;
+          bestEl.innerHTML = sorted.slice(0, 5).map(([name, qty]) => `
+            <div class="rank-row">
+              <div class="rank-head"><span>${escapeHtml(name)}</span><span>${qty} sold</span></div>
+              <div class="progress-track"><div class="progress-fill" style="width:${Math.min(100, (qty/max)*100)}%;"></div></div>
+            </div>`).join('');
+        }
+      }
+
+      if (lowestEl) {
+        if (sorted.length > 1) {
+          const lowest = sorted[sorted.length - 1];
+          lowestEl.innerHTML = `<div style="font-size:.78rem;color:var(--text-sub);"><strong>Slowest Mover:</strong> ${escapeHtml(lowest[0])} (${lowest[1]} sold)</div>`;
+        } else {
+          lowestEl.innerHTML = '';
+        }
+      }
+
+      if (growthEl) {
+        growthEl.innerHTML = `<div style="font-size:.82rem;color:var(--text-main);font-weight:700;">
+          Logged ${activeOrders.length} active sales overall. Total revenue: ${money([...activeOrders, ...archivedSales].reduce((sum,s) => sum + saleTotal(s), 0))}
+        </div>`;
+      }
+
       renderStockAlerts();
     }
-    function renderBestSellers(sales = activeOrders) {
-      const counts = {};
-      sales.forEach(s => getSaleItems(s).forEach(item => { counts[item.perfumeName] = (counts[item.perfumeName] || 0) + Number(item.quantity || 0); }));
-      const rows = Object.entries(counts).sort((a,b) => b[1]-a[1]);
-      const el = document.getElementById('bestSellersList');
-      if (!el) return;
-      if (!rows.length) { el.innerHTML = '<p style="font-size:.78rem;color:var(--text-sub);">No sales data yet.</p>'; }
-      else {
-        const max = rows[0][1] || 1;
-        el.innerHTML = rows.slice(0,10).map(([name,count],i) => `<div class="rank-row">
-          <div class="rank-head"><span>${i+1}. ${escapeHtml(name)}</span><span>${count} sold</span></div>
-          <div class="progress-track"><div class="progress-fill" style="width:${(count/max)*100}%"></div></div>
-        </div>`).join('');
-      }
-      const low = rows.length ? rows[rows.length - 1] : null;
-      const lowEl = document.getElementById('lowestSeller');
-      if (lowEl) lowEl.innerHTML = low
-        ? `<div class="metric-card"><div class="metric-label">Lowest-Selling Perfume</div><div class="metric-value">${escapeHtml(low[0])}</div><p style="font-size:.72rem;color:var(--text-sub);margin-top:4px;">${low[1]} sold in the selected period</p></div>`
-        : '';
-    }
-    function renderGrowth() {
-      const el = document.getElementById('growthSummary');
-      if (!el) return;
-      const thisMonth = monthISO();
-      const cur = activeOrders.filter(s => s.date.startsWith(thisMonth));
-      const d = new Date();
-      d.setMonth(d.getMonth()-1);
-      const prevMonth = d.toISOString().slice(0,7);
-      const prev = activeOrders.filter(s => s.date.startsWith(prevMonth));
-      const curRevenue = calculateMetrics(cur).totalSales;
-      const prevRevenue = calculateMetrics(prev).totalSales;
-      const hasPrevious = prev.length > 0;
-      const pct = hasPrevious && prevRevenue ? ((curRevenue-prevRevenue)/prevRevenue)*100 : 0;
-      const sign = pct > 0 ? '+' : '';
-      el.innerHTML = `<div class="metric-card"><div class="metric-label">Current Month Sales</div><div class="metric-value">${money(curRevenue)}</div></div>
-        <div class="metric-card" style="margin-top:8px;"><div class="metric-label">Previous Month Sales</div><div class="metric-value">${money(prevRevenue)}</div></div>
-        <p style="font-size:.76rem;margin-top:10px;">Overall sales growth: <strong>${hasPrevious ? sign + pct.toFixed(1) + '%' : 'No previous-month data yet'}</strong></p>`;
-    }
+
     function renderMonthlyReview() {
-      const m = document.getElementById('reviewMonth').value || monthISO();
-      const sales = activeOrders.filter(s => s.date.startsWith(m));
-      const metrics = calculateMetrics(sales);
-      const counts = {};
-      sales.forEach(s => counts[s.perfumeName]=(counts[s.perfumeName]||0)+1);
-      const best = Object.entries(counts).sort((a,b)=>b[1]-a[1])[0];
-      const prevDate = new Date(m + '-01');
-      prevDate.setMonth(prevDate.getMonth()-1);
-      const prevM = prevDate.toISOString().slice(0,7);
-      const prev = calculateMetrics(activeOrders.filter(s => s.date.startsWith(prevM)));
-      const hasPrevious = prev.count > 0;
-      const growth = prev.totalSales ? ((metrics.totalSales-prev.totalSales)/prev.totalSales)*100 : 0;
-      document.getElementById('monthlyReviewContent').innerHTML = `
+      const targetMonth = document.getElementById('reviewMonth').value || monthISO();
+      const all = [...activeOrders, ...archivedSales].filter(s => saleDate(s).slice(0,7) === targetMonth);
+      const totalRev = all.reduce((sum, s) => sum + saleTotal(s), 0);
+      const monthExpenses = expenses.filter(e => String(e.date || '').slice(0,7) === targetMonth);
+      const totalExp = monthExpenses.reduce((sum, e) => sum + Number(e.amount || 0), 0);
+      const netProfit = totalRev - totalExp;
+
+      const container = document.getElementById('monthlyReviewContent');
+      if (!container) return;
+
+      container.innerHTML = `
         <div class="review-card">
-          <h3>Monthly Summary</h3>
-          <div class="review-grid">
-            <div class="metric-card"><div class="metric-label">Perfumes Sold</div><div class="metric-value">${metrics.perfumes}</div></div>
-            <div class="metric-card"><div class="metric-label">Total Sales</div><div class="metric-value">${money(metrics.totalSales)}</div></div>
-            <div class="metric-card"><div class="metric-label">Delivery</div><div class="metric-value">${money(metrics.totalDelivery)}</div></div>
-            <div class="metric-card"><div class="metric-label">Revenue</div><div class="metric-value">${money(metrics.totalRevenue)}</div></div>
-          </div>
+          <h3>Summary for ${targetMonth}</h3>
+          <div class="calc-row"><span>Total Sales Revenue</span><strong>${money(totalRev)}</strong></div>
+          <div class="calc-row"><span>Total Recorded Expenses</span><strong>${money(totalExp)}</strong></div>
+          <div class="calc-row total-row"><span>Estimated Net</span><strong style="color:${netProfit >= 0 ? '#28a745' : '#e74c3c'};">${money(netProfit)}</strong></div>
         </div>
-        <div class="review-card">
-          <h3>Best-Selling Perfume</h3>
-          <p style="font-size:1rem;font-weight:900;">${best ? escapeHtml(best[0]) : 'No sales yet'}</p>
-          <p style="font-size:.75rem;color:var(--text-sub);margin-top:4px;">${best ? best[1] + ' sold' : 'Record sales to see a ranking.'}</p>
-        </div>
-        <div class="review-card">
-          <h3>Monthly Performance</h3>
-          ${performanceText(metrics)}
-          <p style="font-size:.76rem;margin-top:10px;">Compared with previous month: <strong>${hasPrevious ? (growth >= 0 ? '+' : '') + growth.toFixed(1) + '%' : 'No previous-month data yet'}</strong></p>
-        </div>
-      `;
+        <div class="sales-entry-card">
+          <h3>Sales Count</h3>
+          <p style="font-size:.85rem;font-weight:800;">${all.length} completed transactions</p>
+        </div>`;
     }
+
+    function openStockManager() {
+      document.getElementById('stockModal').classList.add('active');
+      renderStockList();
+    }
+
     function loadStock() {
-      if (!currentUser) { renderStockList(); renderStockAlerts(); return; }
       try {
         const saved = JSON.parse(localStorage.getItem(getStockStorageKey()) || '[]');
-        if (!Array.isArray(stockItems) || !stockItems.length) stockItems = Array.isArray(saved) ? saved : [];
-      } catch {}
+        stockItems = Array.isArray(saved) ? saved : [];
+      } catch { stockItems = []; }
       renderStockList();
       renderStockAlerts();
     }
+
     function saveStock() {
       localStorage.setItem(getStockStorageKey(), JSON.stringify(stockItems));
       renderStockList();
       renderStockAlerts();
-      renderSalesProgress();
-      saveLocalUserState();
-      void persistUserStateToSupabase();
     }
-    function openStockManager() {
-      loadStock();
-      document.getElementById('stockModal').classList.add('active');
+
+    async function syncStockFromSupabase() {
+      if (!currentUser) { loadStock(); return; }
+      try {
+        const { data, error } = await supabaseClient
+          .from('stock')
+          .select('*')
+          .eq('user_id', currentUser.id);
+        if (error) throw error;
+        stockItems = (data || []).map(row => ({
+          name: row.name,
+          quantity: Number(row.quantity || 0),
+          threshold: Number(row.threshold || 5)
+        }));
+        saveStock();
+      } catch(e) {
+        console.log('Stock sync error:', e);
+        loadStock();
+      }
     }
-    function saveStockItem() {
+
+    async function saveStockItem() {
       const name = document.getElementById('stockPerfumeName').value.trim();
-      const qty = Number(document.getElementById('stockQuantity').value);
-      const threshold = Number(document.getElementById('stockThreshold').value);
-      if (!name || qty < 0 || threshold < 0) { alert('Enter a perfume name, stock quantity and threshold.'); return; }
-      const existing = stockItems.find(x => x.name.toLowerCase() === name.toLowerCase());
-      if (existing) {
-        existing.name = name;
-        existing.quantity = qty;
-        existing.threshold = threshold;
+      const qty = Number(document.getElementById('stockQuantity').value || 0);
+      const threshold = Number(document.getElementById('stockThreshold').value || 5);
+      if (!name) { alert('Please enter a perfume name.'); return; }
+
+      const index = stockItems.findIndex(x => x.name.toLowerCase() === name.toLowerCase());
+      if (index >= 0) {
+        stockItems[index] = { name: stockItems[index].name, quantity: qty, threshold };
       } else {
-        stockItems.push({ name, quantity:qty, threshold });
+        stockItems.push({ name, quantity: qty, threshold });
       }
       saveStock();
+
+      if (currentUser) {
+        try {
+          await supabaseClient.from('stock').upsert([{
+            user_id: currentUser.id,
+            name,
+            quantity: qty,
+            threshold
+          }], { onConflict: 'user_id, name' });
+        } catch(e) { console.log('Stock cloud save error:', e); }
+      }
+
       document.getElementById('stockPerfumeName').value = '';
       document.getElementById('stockQuantity').value = '';
       document.getElementById('stockThreshold').value = '';
-      alert('Stock updated.');
+      alert('Stock saved.');
     }
-    function adjustStockForSale(sale, direction) {
+
+    function adjustStockForSale(sale, direction = 1) {
       const items = getSaleItems(sale);
-      if (!items.length) return;
-      let changed = false;
-      items.forEach(saleItem => {
-        const item = stockItems.find(x => x.name.toLowerCase() === saleItem.perfumeName.toLowerCase());
-        if (!item) return;
-        const qty = Math.max(1, Number(saleItem.quantity || 1));
-        item.quantity = Math.max(0, Number(item.quantity || 0) - (qty * direction));
-        changed = true;
+      items.forEach(item => {
+        const index = stockItems.findIndex(x => x.name.toLowerCase() === item.perfumeName.toLowerCase());
+        if (index >= 0) {
+          stockItems[index].quantity = Math.max(0, stockItems[index].quantity - (item.quantity * direction));
+          if (currentUser) {
+            supabaseClient.from('stock').upsert([{
+              user_id: currentUser.id,
+              name: stockItems[index].name,
+              quantity: stockItems[index].quantity,
+              threshold: stockItems[index].threshold
+            }], { onConflict: 'user_id, name' }).then(() => {}).catch(() => {});
+          }
+        }
       });
-      if (changed) saveStock();
+      saveStock();
     }
+
     function renderStockList() {
-      const el = document.getElementById('stockList');
-      if (!el) return;
-      if (!stockItems.length) { el.innerHTML = '<p style="font-size:.78rem;color:var(--text-sub);">No stock items recorded yet.</p>'; return; }
-      el.innerHTML = stockItems.map((x,i) => {
-        const status = x.quantity === 0 ? 'out' : x.quantity <= x.threshold ? 'low' : 'ok';
-        const label = status === 'out' ? 'Out of Stock' : status === 'low' ? 'Low Stock' : 'In Stock';
+      const container = document.getElementById('stockList');
+      if (!container) return;
+      if (!stockItems.length) {
+        container.innerHTML = '<div style="font-size:.78rem;color:var(--text-sub);padding:10px;">No stock recorded yet.</div>';
+        return;
+      }
+      container.innerHTML = stockItems.map(item => {
+        let statusClass = 'ok', statusLabel = 'In Stock';
+        if (item.quantity <= 0) { statusClass = 'out'; statusLabel = 'Out of Stock'; }
+        else if (item.quantity <= item.threshold) { statusClass = 'low'; statusLabel = 'Low Stock'; }
         return `<div class="stock-item">
-          <div><div class="stock-name">${escapeHtml(x.name)}</div><div class="stock-meta">Current: ${x.quantity} • Threshold: ${x.threshold}</div></div>
-          <span class="stock-status ${status}">${label}</span>
+          <div><div class="stock-name">${escapeHtml(item.name)}</div><div class="stock-meta">Threshold: ${item.threshold} bottles</div></div>
+          <div style="text-align:right;"><span class="stock-status ${statusClass}">${statusLabel}</span><div style="font-size:.85rem;font-weight:900;margin-top:3px;">${item.quantity} left</div></div>
         </div>`;
       }).join('');
     }
+
     function renderStockAlerts() {
-      const el = document.getElementById('stockAlerts');
-      if (!el) return;
-      const alerts = stockItems.filter(x => Number(x.quantity) <= Number(x.threshold));
-      if (!alerts.length) {
-        el.innerHTML = '<p style="font-size:.76rem;color:var(--text-sub);">No low-stock or out-of-stock alerts.</p>';
+      const container = document.getElementById('stockAlerts');
+      if (!container) return;
+      const low = stockItems.filter(x => x.quantity <= x.threshold);
+      if (!low.length) {
+        container.innerHTML = '<div style="font-size:.78rem;color:var(--text-sub);">All stock levels look good.</div>';
         return;
       }
-      el.innerHTML = alerts.map(x => `<div class="stock-item">
-        <div><div class="stock-name">${escapeHtml(x.name)}</div><div class="stock-meta">Current stock: ${x.quantity}</div></div>
-        <span class="stock-status ${x.quantity === 0 ? 'out' : 'low'}">${x.quantity === 0 ? 'Out of Stock' : 'Low Stock'}</span>
+      container.innerHTML = low.map(x => `<div class="stock-item">
+        <div class="stock-name">${escapeHtml(x.name)}</div>
+        <span class="stock-status ${x.quantity <= 0 ? 'out' : 'low'}">${x.quantity <= 0 ? 'Out of Stock' : 'Low Stock (' + x.quantity + ')'}</span>
       </div>`).join('');
     }
-    function updateLoyaltyUI() {
-      const badge = document.getElementById('loyaltyCountBadge');
-      if (!badge) return;
-      badge.innerText = `Total Sales: ${completedOrdersCount}`;
-      const sub = document.getElementById('loyaltySubText');
-      if (sub) sub.innerText = `Glamo Scents has ${completedOrdersCount} recorded sale${completedOrdersCount === 1 ? '' : 's'}.`;
-      document.querySelectorAll('.stamp-dot').forEach((stamp,idx) => stamp.classList.toggle('filled', idx < Math.min(completedOrdersCount % 5 || (completedOrdersCount ? 5 : 0), 5)));
-    }
-    function sendCustomInquiry() {
-      const val = document.getElementById('customInquiryInput')?.value.trim();
-      if (!val) return;
-      window.open(`https://wa.me/255764519027?text=${encodeURIComponent("Glamo Scents inquiry from " + currentUsername + ": " + val)}`, '_blank');
-      document.getElementById('customInquiryInput').value = '';
-    }
-    function igniteTeaserToast() {
-      const toast = document.getElementById("soonToast");
-      toast.classList.add("trigger-fly");
-      setTimeout(() => toast.classList.remove("trigger-fly"), 3500);
-    }
 
-    window.addEventListener('online', async () => {
-      if (!currentUser) return;
-      try {
-        await syncUserStateFromSupabase();
-        await syncSalesFromSupabase();
-        await persistUserStateToSupabase(getCurrentUserState());
-      } catch {}
-    });
+    function igniteTeaserToast() {
+      const toast = document.getElementById('soonToast');
+      if (!toast) return;
+      toast.classList.add('trigger-fly');
+      setTimeout(() => toast.classList.remove('trigger-fly'), 3000);
+    }
   </script>
 </body>
 </html>
