@@ -430,13 +430,13 @@
       background: var(--card-bg);
       border: 2px solid var(--card-border);
       border-radius: 12px;
-      padding: 12px 8px;
+      padding: 10px 6px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 6px;
+      gap: 4px;
       cursor: pointer;
-      font-size: 0.82rem;
+      font-size: 0.78rem;
       font-weight: 800;
       color: var(--text-main);
     }
@@ -738,28 +738,6 @@
       background:var(--accent-gold); color:#111; border:none; padding:8px 12px;
       border-radius:20px; font-size:.72rem; font-weight:900; cursor:pointer;
     }
-    .sale-items-list { display:flex; flex-direction:column; gap:8px; }
-    .sale-item-row {
-      display:grid; grid-template-columns:minmax(0,1.25fr) 54px 76px 86px 34px; gap:6px;
-      align-items:center; padding:8px; border:1px solid var(--card-border);
-      border-radius:12px; background:var(--card-bg-sub);
-    }
-    .sale-item-row input, .sale-item-row select {
-      width:100%; min-width:0; background:var(--input-bg); border:1px solid var(--input-border);
-      border-radius:8px; padding:8px 7px; color:var(--text-main); font-size:.74rem; outline:none;
-    }
-    .sale-item-remove {
-      width:34px; height:34px; border-radius:9px; border:1px solid #e74c3c;
-      background:transparent; color:#e74c3c; cursor:pointer; font-size:.78rem;
-    }
-    .sale-item-amount { grid-column:1 / -1; font-size:.72rem; color:var(--text-sub); padding:2px 3px 0; }
-    .sale-item-amount strong { color:var(--accent-gold); font-weight:900; }
-    .add-perfume-btn {
-      width:100%; margin-top:8px; padding:9px 10px; border-radius:10px;
-      border:1px dashed var(--accent-gold); background:var(--accent-gold-light);
-      color:var(--accent-gold); font-size:.76rem; font-weight:900; cursor:pointer;
-    }
-    .sale-items-summary { font-size:.72rem; color:var(--text-sub); margin-top:7px; line-height:1.4; }
     .archive-toggle {
       width:100%; display:flex; justify-content:space-between; align-items:center;
       background:var(--card-bg); border:1px solid var(--card-border); border-radius:14px;
@@ -782,15 +760,10 @@
     .expense-total-box { background:var(--card-bg-sub); border:1.5px solid var(--accent-gold); border-radius:12px; padding:11px 13px; margin-bottom:12px; display:flex; justify-content:space-between; align-items:center; }
     .expense-total-label { font-size:.75rem; font-weight:800; color:var(--text-sub); }
     .expense-total-value { font-size:1rem; font-weight:900; }
-    #receivedAmount[readonly] { opacity:.95; cursor:default; }
-    @media (max-width:420px) {
-      .sale-item-row { grid-template-columns:minmax(0,1fr) 50px 70px 80px 32px; gap:5px; }
-      .sale-item-row input, .sale-item-row select { padding:8px 5px; font-size:.7rem; }
-    }
   
     .auth-forgot { font-size: 0.82rem; color: var(--accent-gold); margin-top: 10px; cursor: pointer; font-weight: 700; text-align: center; }
     .auth-reset-message { font-size: 0.82rem; color: var(--accent-gold); margin-top: 10px; min-height: 18px; text-align: center; }
-
+    
     /* STOCKS & ACCORDION STYLES */
     .accordion-item {
       background: var(--card-bg);
@@ -840,17 +813,26 @@
     }
     .stock-stat-lbl { font-size: 0.7rem; color: var(--text-sub); }
     .stock-stat-val { font-size: 0.9rem; font-weight: 800; margin-top: 2px; }
-    .history-category-card {
-      background: var(--card-bg-sub);
-      border: 1px solid var(--card-border);
-      border-radius: 12px;
+
+    /* INDIVIDUAL SALE BOX & BEST SELLERS FORMATTING */
+    .sale-card-item {
+      background: var(--card-bg);
+      border: 1.5px solid var(--card-border);
+      border-radius: 16px;
       padding: 14px;
-      margin-bottom: 10px;
+      margin-bottom: 14px;
+      box-shadow: 0 4px 12px var(--shadow-color);
+    }
+    .bestseller-item {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      cursor: pointer;
+      padding: 10px 12px;
+      background: var(--card-bg-sub);
+      border-radius: 10px;
+      margin-bottom: 8px;
       font-weight: 800;
+      font-size: 0.85rem;
     }
   </style>
 </head>
@@ -1017,18 +999,24 @@
       <i class="fa-solid fa-spray-can-sparkles" style="color:var(--accent-gold);"></i> Perfume Sale
     </div>
     <div class="sales-entry-card">
-      <h3 id="saleFormTitle">Record Sale</h3>
+      <h3 id="saleFormTitle">Record Individual Sale</h3>
       <div class="form-group">
-        <label>Date</label>
-        <input id="saleDate" class="date-control" type="date">
+        <label>Perfume Name *</label>
+        <input id="salePerfumeName" type="text" placeholder="e.g. Oud Royal">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Quantity *</label>
+          <input id="saleQuantity" class="number-control" type="number" min="1" value="1" oninput="calculateCurrentTotal()">
+        </div>
+        <div class="form-group">
+          <label>Price per Unit (TZS) *</label>
+          <input id="salePrice" class="number-control" type="number" min="0" step="100" placeholder="25000" oninput="calculateCurrentTotal()">
+        </div>
       </div>
       <div class="form-group">
-        <label>Perfumes in this Sale</label>
-        <div id="saleItemsList" class="sale-items-list"></div>
-        <button type="button" class="add-perfume-btn" onclick="addPerfumeRow()">
-          <i class="fa-solid fa-plus"></i> Add Perfume
-        </button>
-        <div id="saleItemsSummary" class="sale-items-summary">1 perfume item</div>
+        <label>Total Price (TZS)</label>
+        <input id="saleTotalCalculated" class="number-control" type="number" readonly disabled placeholder="0">
       </div>
       <div class="form-group">
         <label>Method of Payment *</label>
@@ -1042,11 +1030,8 @@
             <span>Mobile Money</span>
           </button>
         </div>
-        <div id="saleCashBox" class="conditional-box">
-          <div style="font-size:.74rem;color:var(--text-sub);">Cash payment selected.</div>
-        </div>
         <div id="saleMobileBox" class="conditional-box">
-          <label style="font-size:.8rem;font-weight:800;">Mobile Money Network</label>
+          <label style="font-size:.8rem;font-weight:800;">Mobile Network / Bank</label>
           <div class="payment-main-grid" style="margin-top:8px;">
             <button type="button" class="pay-option-btn" onclick="selectMobileProvider(this,'CRDB')">CRDB</button>
             <button type="button" class="pay-option-btn" onclick="selectMobileProvider(this,'M-PESA')">M-PESA</button>
@@ -1054,29 +1039,21 @@
             <button type="button" class="pay-option-btn" onclick="selectMobileProvider(this,'HaloPesa')">HaloPesa</button>
           </div>
         </div>
-        <div class="form-group" style="margin-top:10px;margin-bottom:0;">
-          <label for="receivedAmount">Amount Received (TZS)</label>
-          <input id="receivedAmount" class="number-control" type="number" min="0" step="100" placeholder="Automatically calculated" readonly>
-          <div style="font-size:.7rem;color:var(--text-sub);margin-top:5px;">Calculated from quantity × price per perfume.</div>
-        </div>
       </div>
       <div class="form-group">
-        <label>Delivery</label>
-        <div class="payment-main-grid">
-          <button id="deliveryNoBtn" type="button" class="pay-option-btn active" onclick="selectDelivery(false)">No</button>
-          <button id="deliveryYesBtn" type="button" class="pay-option-btn" onclick="selectDelivery(true)">Yes</button>
-        </div>
-        <div id="deliveryBox" class="conditional-box">
-          <div class="form-group" style="margin-bottom:0;">
-            <label for="deliveryAmount">Delivery Amount (TZS)</label>
-            <input id="deliveryAmount" class="number-control" type="number" min="0" step="100" placeholder="Enter delivery amount">
-          </div>
-        </div>
+        <label>Sale Date</label>
+        <input id="saleDate" class="date-control" type="date">
       </div>
       <button id="saleSaveBtn" class="sales-save-btn" onclick="saveSale()">
-        <i class="fa-solid fa-floppy-disk"></i> Save Sale
+        <i class="fa-solid fa-plus"></i> Add Sale
       </button>
       <button id="saleCancelBtn" class="reorder-btn" style="width:100%;margin-top:8px;display:none;" onclick="cancelSaleEdit()">Cancel Edit</button>
+    </div>
+
+    <!-- PRESERVED SALES PROGRESS STATE / RECORDED LIST -->
+    <div class="progress-panel">
+      <h3>Recorded Sales List</h3>
+      <div id="recordedSalesProgressList"></div>
     </div>
   </div>
 
@@ -1106,7 +1083,7 @@
     </div>
   </div>
 
-  <!-- SALES PROGRESS -->
+  <!-- SALES PROGRESS SCREEN -->
   <div id="screen-sales-progress" class="app-screen">
     <div class="section-title">
       <i class="fa-solid fa-chart-column" style="color:var(--accent-gold);"></i> Sales Progress
@@ -1145,30 +1122,22 @@
       <div id="progressMetrics" class="review-grid"></div>
       <div id="progressPerformance" style="margin-top:12px;"></div>
     </div>
+    
+    <!-- BEST SELLERS SECTION -->
     <div class="progress-panel">
-      <h3>Best Sellers</h3>
+      <h3 style="display:flex; align-items:center; gap:8px;">
+        <i class="fa-solid fa-crown" style="color:var(--accent-gold);"></i> BEST SELLERS
+      </h3>
       <div id="bestSellersList"></div>
-      <div id="lowestSeller" style="margin-top:14px;"></div>
-    </div>
-    <div class="progress-panel">
-      <h3>Overall Sales Growth</h3>
-      <div id="growthSummary"></div>
     </div>
   </div>
 
   <!-- SCREEN 4: SALES -->
   <div id="screen-bookings" class="app-screen">
     <div class="section-title">
-      <i class="fa-solid fa-receipt" style="color:var(--accent-gold);"></i> Sales
+      <i class="fa-solid fa-receipt" style="color:var(--accent-gold);"></i> Sales History
     </div>
     <div id="bookingsListContainer"></div>
-    <div style="margin-top:12px;margin-bottom:10px;">
-      <button id="archiveToggleBtn" class="archive-toggle" onclick="toggleArchive()">
-        <span><i class="fa-solid fa-box-archive" style="color:var(--accent-gold);"></i> Archive</span>
-        <span id="archiveToggleIcon">▸</span>
-      </button>
-    </div>
-    <div id="archiveListContainer" class="archive-list-collapsed"></div>
   </div>
 
   <!-- SCREEN 5: PROFILE -->
@@ -1198,22 +1167,16 @@
     <button class="logout-main-btn" onclick="handleLogout()">
       <i class="fa-solid fa-right-from-bracket"></i> Log Out
     </button>
-    <div class="section-title" style="margin-top:10px;">
-      <i class="fa-solid fa-history" style="color:var(--accent-gold);"></i> Order History
-    </div>
-    <div id="historyListContainer"></div>
   </div>
 
-  <!-- SINGLE STOCKS SCREEN -->
+  <!-- SCREEN 6: STOCKS (REVIEWS HISTORY FULLY REMOVED) -->
   <div id="screen-stocks" class="app-screen">
     <div class="section-title">
       <i class="fa-solid fa-boxes-stacked" style="color:var(--accent-gold);"></i> Stocks
     </div>
-
-    <!-- MAIN ACTIVITIES / REVIEWS CONTAINER -->
     <div id="stocksMainArea">
       <div style="font-weight: 800; font-size: 0.95rem; margin-bottom: 12px; color: var(--text-sub);">STOCK ACTIVITIES</div>
-
+      
       <!-- A — Oil Bottles -->
       <div class="accordion-item">
         <div class="accordion-header" onclick="toggleAccordion('oilBottlesAcc')">
@@ -1269,7 +1232,7 @@
         </div>
       </div>
 
-      <!-- C — Specific Perfume Items -->
+      <!-- C — Specific Perfume Items (Niche Manual Addition Removed) -->
       <div class="accordion-item">
         <div class="accordion-header" onclick="toggleAccordion('specificPerfumesAcc')">
           <span>C — Specific Perfume Items</span>
@@ -1278,10 +1241,7 @@
         <div id="specificPerfumesAcc" class="accordion-content">
           <div class="sales-entry-card" style="box-shadow:none; padding:12px; border:1px solid var(--card-border);">
             <h4 id="specFormTitle" style="font-size:0.85rem; margin-bottom:8px;">Add Perfume Item</h4>
-            <div class="form-row">
-              <div class="form-group"><label>Perfume Name *</label><input id="specName" type="text" placeholder="e.g. Oud Royal"></div>
-              <div class="form-group"><label>Niche *</label><input id="specNiche" type="text" placeholder="e.g. Woody / Amber"></div>
-            </div>
+            <div class="form-group"><label>Perfume Name *</label><input id="specName" type="text" placeholder="e.g. Oud Royal"></div>
             <div class="form-row">
               <div class="form-group"><label>Current</label><input id="specCurrent" class="number-control" type="number" min="0" oninput="calcSpecRem()"></div>
               <div class="form-group"><label>Used</label><input id="specUsed" class="number-control" type="number" min="0" oninput="calcSpecRem()"></div>
@@ -1293,37 +1253,6 @@
           <div id="specificPerfumesList" style="margin-top:12px;"></div>
         </div>
       </div>
-
-      <!-- REVIEWS HISTORY SECTION ENTRY -->
-      <div style="margin-top:24px; margin-bottom:12px; font-weight:800; font-size:0.95rem; color:var(--text-sub);">REVIEWS HISTORY</div>
-      
-      <div class="history-category-card" onclick="openStockHistoryView('oil')">
-        <span>A — Oil Bottle History</span>
-        <i class="fa-solid fa-arrow-right" style="color:var(--accent-gold);"></i>
-      </div>
-      <div class="history-category-card" onclick="openStockHistoryView('bottle')">
-        <span>B — Perfume Bottle History</span>
-        <i class="fa-solid fa-arrow-right" style="color:var(--accent-gold);"></i>
-      </div>
-      <div class="history-category-card" onclick="openStockHistoryView('specific')">
-        <span>C — Specific Perfume History</span>
-        <i class="fa-solid fa-arrow-right" style="color:var(--accent-gold);"></i>
-      </div>
-    </div>
-
-    <!-- SUB-VIEW: CATEGORY HISTORY REVIEW -->
-    <div id="stockHistoryViewArea" style="display:none;">
-      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
-        <h3 id="historyViewTitle" style="font-size:1.05rem; font-weight:900;">Category History</h3>
-        <button class="reorder-btn" onclick="closeStockHistoryView()"><i class="fa-solid fa-arrow-left"></i> Back</button>
-      </div>
-
-      <div class="form-group" style="margin-bottom:16px;">
-        <label>Select Month</label>
-        <input id="stockHistoryMonth" class="date-control" type="month" onchange="renderSelectedStockHistory()">
-      </div>
-
-      <div id="stockHistoryContentList"></div>
     </div>
   </div>
 
@@ -1373,15 +1302,9 @@
     
     let activeOrders = [];
     let expenses = [];
-    let archivedSales = [];
-    let deletedSaleIds = [];
-    let archiveOpen = false;
-    let completedHistory = [];
-    let completedOrdersCount = 0;
     
     let selectedSalePayment = '';
     let selectedMobileProvider = '';
-    let selectedDelivery = false;
     let reviewMode = 'daily';
     let editingSaleId = null;
 
@@ -1393,7 +1316,6 @@
     let editingOilId = null;
     let editingPBottleId = null;
     let editingSpecId = null;
-    let activeHistoryCategory = null;
 
     const BOTTLE_FIXED_PCS = {
       '10 ml': 273,
@@ -1411,39 +1333,16 @@
     }
     
     function money(v) { return Number(v || 0).toLocaleString() + ' TZS'; }
-    
-    function getSaleItems(s) {
-      if (Array.isArray(s?.items) && s.items.length) {
-        return s.items.map(item => ({
-          perfumeName: String(item.perfumeName ?? item.name ?? 'Unknown'),
-          niche: String(item.niche ?? item.niche_category ?? ''),
-          quantity: Math.max(1, Number(item.quantity ?? item.qty ?? 1)),
-          size: String(item.size ?? '30 ML'),
-          price: Math.max(0, Number(item.price ?? 0))
-        }));
-      }
-      if (s?.perfumeName) return [{ perfumeName:s.perfumeName, niche:s.niche || '', quantity:Math.max(1, Number(s.quantity ?? 1)), size:s.size || '30 ML', price:Math.max(0, Number(s.price ?? 0)) }];
-      return [];
-    }
-    
-    function getSalePerfumeCount(s) { return getSaleItems(s).reduce((sum,item) => sum + Number(item.quantity || 0), 0); }
-    function getSaleNames(s) { return getSaleItems(s).map(item => item.perfumeName + (item.niche ? ` (${item.niche})` : '')).join(', '); }
-    function saleReceived(s) { return Number(s.receivedAmount ?? s.saleAmount ?? s.cashReceived ?? 0); }
-    function saleTotal(s) { return saleReceived(s) + Number(s.deliveryAmount || 0); }
-    function saleDate(s) {
-      if (s.date) return s.date;
-      if (s.dateTime) {
-        const d = new Date(s.dateTime);
-        if (!isNaN(d)) return d.toISOString().slice(0,10);
-      }
-      return todayISO();
+
+    function calculateCurrentTotal() {
+      const q = Number(document.getElementById('saleQuantity').value || 0);
+      const p = Number(document.getElementById('salePrice').value || 0);
+      document.getElementById('saleTotalCalculated').value = q * p;
     }
 
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('service-worker.js')
-          .then(reg => console.log('ServiceWorker registered:', reg.scope))
-          .catch(err => console.log('ServiceWorker failed:', err));
+        navigator.serviceWorker.register('service-worker.js').catch(()=>{});
       });
     }
 
@@ -1471,19 +1370,14 @@
       document.getElementById('saleDate').value = todayISO();
       document.getElementById('dailyDate').value = todayISO();
       document.getElementById('reviewMonth').value = monthISO();
-      document.getElementById('stockHistoryMonth').value = monthISO();
-      initializeSaleItems();
       document.getElementById('expenseDate').value = todayISO();
       
       const { data: { session } } = await supabaseClient.auth.getSession();
-      const isRecoveryFlow = /type=recovery/i.test(window.location.hash);
       
       setTimeout(async () => {
         document.getElementById('splash-screen').style.opacity = '0';
         setTimeout(() => document.getElementById('splash-screen').style.display = 'none', 500);
-        if (isRecoveryFlow) {
-          showResetPasswordScreen();
-        } else if (session && session.user) {
+        if (session && session.user) {
           currentUser = session.user;
           await fetchAndSetupUserData(currentUser.id);
           setupRealtimeSubscriptions();
@@ -1494,7 +1388,6 @@
           showAuthScreen();
         }
       }, 800);
-      renderSalesProgress();
     });
 
     async function fetchAndSetupUserData(userId) {
@@ -1515,8 +1408,8 @@
       if (!currentUser) return;
       
       supabaseClient
-        .channel('realtime_changes')
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'orders', filter: `user_id=eq.${currentUser.id}` }, () => syncSalesFromSupabase())
+        .channel('sales_realtime')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'sales', filter: `user_id=eq.${currentUser.id}` }, () => syncSalesFromSupabase())
         .on('postgres_changes', { event: '*', schema: 'public', table: 'expenses', filter: `user_id=eq.${currentUser.id}` }, () => syncExpensesFromSupabase())
         .on('postgres_changes', { event: '*', schema: 'public', table: 'oil_bottles', filter: `user_id=eq.${currentUser.id}` }, () => syncAllStocksFromSupabase())
         .on('postgres_changes', { event: '*', schema: 'public', table: 'perfume_bottles', filter: `user_id=eq.${currentUser.id}` }, () => syncAllStocksFromSupabase())
@@ -1528,64 +1421,30 @@
       if (!currentUser) return;
       try {
         const { data, error } = await supabaseClient
-          .from('orders')
+          .from('sales')
           .select('*')
           .eq('user_id', currentUser.id)
           .order('created_at', { ascending: false });
+          
         if (error) throw error;
         
-        const cloudSales = (data || []).map(row => {
-          let meta = {};
-          try { meta = JSON.parse(row.instructions || '{}'); } catch {}
-          
-          const cloudItems = Array.isArray(meta.items) && meta.items.length
-            ? meta.items
-            : (Array.isArray(row.items) && row.items.length ? row.items : [{
-                name: row.perfume_name || meta.perfumeName || 'Unknown',
-                niche: row.niche || meta.niche || '',
-                qty: row.quantity || 1,
-                size: meta.size || '30 ML',
-                price: row.price || 0
-              }]);
-              
-          const items = cloudItems.map(item => ({
-            perfumeName: String(item.perfumeName ?? item.name ?? 'Unknown'),
-            niche: String(item.niche ?? item.niche_category ?? ''),
-            quantity: Math.max(1, Number(item.quantity ?? item.qty ?? 1)),
-            size: String(item.size ?? '30 ML'),
-            price: Math.max(0, Number(item.price ?? 0))
-          }));
-          
-          const receivedAmount = Number(row.total ?? meta.receivedAmount ?? meta.saleAmount ?? 0);
-          return {
-            id: row.id,
-            user_id: row.user_id,
-            items,
-            perfumeName: items[0]?.perfumeName || row.perfume_name || 'Unknown',
-            niche: items[0]?.niche || row.niche || '',
-            size: items[0]?.size || '30 ML',
-            quantity: getSalePerfumeCount({items}),
-            date: row.sale_date || meta.date || new Date(row.created_at).toISOString().slice(0,10),
-            paymentMethod: row.payment_method || meta.paymentMethod || 'Cash',
-            paymentProvider: meta.paymentProvider || '',
-            receivedAmount,
-            saleAmount: receivedAmount,
-            deliveryAmount: Number(meta.deliveryAmount ?? 0),
-            dateTime: new Date(row.created_at).toLocaleString(),
-            status: row.status || 'confirmed'
-          };
-        });
-        
-        activeOrders = cloudSales.filter(s => s.status !== 'archived');
-        archivedSales = cloudSales.filter(s => s.status === 'archived');
-        completedHistory = [...activeOrders];
-        completedOrdersCount = activeOrders.length;
+        activeOrders = (data || []).map(row => ({
+          id: row.id,
+          user_id: row.user_id,
+          perfumeName: row.perfume_name || 'Unknown Perfume',
+          quantity: Number(row.quantity || 1),
+          price: Number(row.price || 0),
+          total: Number(row.total || 0),
+          paymentMethod: row.payment_method || 'Cash',
+          date: row.sale_date || todayISO(),
+          created_at: row.created_at,
+          updated_at: row.updated_at
+        }));
       } catch (e) {
         console.error('Error fetching sales from Supabase:', e);
       }
+      renderRecordedSales();
       renderBookings();
-      renderHistory();
-      renderArchive();
       renderSalesProgress();
       updateLoyaltyUI();
     }
@@ -1609,7 +1468,6 @@
       document.getElementById('profPhone').innerText = currentUserPhone || '';
     }
 
-    const PRODUCTION_URL = 'https://appearichsales.vercel.app/';
     function showLoginAuthScreen() {
       document.getElementById('resetPasswordContainer').style.display = 'none';
       document.querySelector('#screen-auth .auth-container:not(#resetPasswordContainer)').style.display = 'block';
@@ -1636,37 +1494,6 @@
       document.getElementById('phoneGroup').style.display = isRegisterMode ? 'block' : 'none';
       document.getElementById('confirmPasswordGroup').style.display = isRegisterMode ? 'block' : 'none';
       document.getElementById('forgotPasswordLink').style.display = isRegisterMode ? 'none' : 'block';
-    }
-
-    function showResetPasswordScreen() {
-      document.getElementById('screen-auth').style.display = 'flex';
-      document.getElementById('mainHeader').style.display = 'none';
-      document.getElementById('mainNavBar').style.display = 'none';
-      document.getElementById('resetPasswordContainer').style.display = 'block';
-      document.querySelector('#screen-auth .auth-container:not(#resetPasswordContainer)').style.display = 'none';
-      document.getElementById('resetPassword').value = '';
-      document.getElementById('resetConfirmPassword').value = '';
-      document.getElementById('resetPasswordMessage').innerText = '';
-    }
-
-    async function handleForgotPassword() {
-      const email = document.getElementById('authEmail').value.trim();
-      if (!email) { alert('Please enter your registered email.'); document.getElementById('authEmail').focus(); return; }
-      const { error } = await supabaseClient.auth.resetPasswordForEmail(email, { redirectTo: PRODUCTION_URL });
-      if (error) { alert('Password Reset Error: ' + error.message); return; }
-      alert('Password reset email sent. Please check your email.');
-    }
-
-    async function handleResetPassword() {
-      const password = document.getElementById('resetPassword').value;
-      const confirmPassword = document.getElementById('resetConfirmPassword').value;
-      const message = document.getElementById('resetPasswordMessage');
-      if (!password || !confirmPassword) { message.innerText = 'Please enter and confirm your new password.'; return; }
-      if (password !== confirmPassword) { message.innerText = 'Passwords do not match.'; return; }
-      const { error } = await supabaseClient.auth.updateUser({ password });
-      if (error) { message.innerText = 'Password reset failed: ' + error.message; return; }
-      message.innerText = 'Password reset successful. Return to Login.';
-      try { await supabaseClient.auth.signOut(); } catch {}
     }
 
     async function handleAuthSubmit() {
@@ -1710,7 +1537,6 @@
       currentUsername = "";
       currentUserPhone = "";
       activeOrders = [];
-      archivedSales = [];
       expenses = [];
       oilBottleStocks = [];
       perfumeBottleStocks = [];
@@ -1742,30 +1568,13 @@
     }
 
     function goBack() {
-      if (document.getElementById('screen-stocks').classList.contains('active') && document.getElementById('stockHistoryViewArea').style.display !== 'none') {
-        closeStockHistoryView();
-        return;
-      }
       switchTab('screen-home', document.getElementById('nav-home-btn'));
-    }
-
-    function openMonthlyReview() {
-      document.getElementById('reviewMonth').value = monthISO();
-      setReviewMode('monthly');
-      document.getElementById('monthlyReviewModal').classList.add('active');
-      renderMonthlyReview();
-    }
-
-    function closeSheet(id) {
-      const el = document.getElementById(id);
-      if (el) el.classList.remove('active');
     }
 
     function selectSalePayment(type) {
       selectedSalePayment = type;
       document.getElementById('saleCashBtn').classList.toggle('active', type === 'Cash');
       document.getElementById('saleMobileBtn').classList.toggle('active', type === 'Mobile Money');
-      document.getElementById('saleCashBox').classList.toggle('active', type === 'Cash');
       document.getElementById('saleMobileBox').classList.toggle('active', type === 'Mobile Money');
     }
 
@@ -1775,107 +1584,22 @@
       selectedMobileProvider = provider;
     }
 
-    function selectDelivery(value) {
-      selectedDelivery = value;
-      document.getElementById('deliveryYesBtn').classList.toggle('active', value);
-      document.getElementById('deliveryNoBtn').classList.toggle('active', !value);
-      document.getElementById('deliveryBox').classList.toggle('active', value);
-    }
-
-    function createPerfumeRow(item = {}) {
-      const row = document.createElement('div');
-      row.className = 'sale-item-row';
-      const name = escapeHtml(item.perfumeName || '');
-      const niche = escapeHtml(item.niche || '');
-      const qty = Math.max(1, Number(item.quantity || 1));
-      const size = item.size || '30 ML';
-      const price = Math.max(0, Number(item.price || 0));
-      row.innerHTML = `
-        <div style="display:flex; flex-direction:column; gap:4px;">
-          <input class="sale-item-name" type="text" placeholder="Perfume name" value="${name}">
-          <input class="sale-item-niche" type="text" placeholder="Niche (Required)" value="${niche}">
-        </div>
-        <input class="sale-item-qty" type="number" min="1" step="1" value="${qty}">
-        <select class="sale-item-size">${['10 ML','20 ML','30 ML','50 ML','100 ML'].map(v => `<option value="${v}" ${v === size ? 'selected' : ''}>${v}</option>`).join('')}</select>
-        <input class="sale-item-price" type="number" min="0" step="100" value="${price || ''}" placeholder="Price">
-        <button type="button" class="sale-item-remove" onclick="removePerfumeRow(this)"><i class="fa-solid fa-xmark"></i></button>
-        <div class="sale-item-amount">Amount: <strong>0 TZS</strong></div>`;
-      row.querySelectorAll('input,select').forEach(el => { el.addEventListener('input', updateSaleItemsSummary); el.addEventListener('change', updateSaleItemsSummary); });
-      return row;
-    }
-
-    function initializeSaleItems(items = []) {
-      const list = document.getElementById('saleItemsList');
-      if (!list) return;
-      list.innerHTML = '';
-      const normalized = Array.isArray(items) && items.length ? items : [{perfumeName:'', niche:'', quantity:1, size:'30 ML'}];
-      normalized.forEach(item => list.appendChild(createPerfumeRow(item)));
-      updateSaleItemsSummary();
-    }
-
-    function addPerfumeRow() {
-      const list = document.getElementById('saleItemsList');
-      if (!list) return;
-      list.appendChild(createPerfumeRow({perfumeName:'', niche:'', quantity:1, size:'30 ML'}));
-      updateSaleItemsSummary();
-    }
-
-    function removePerfumeRow(button) {
-      const list = document.getElementById('saleItemsList');
-      if (!list) return;
-      if (list.children.length <= 1) {
-        const row = list.firstElementChild;
-        if (row) { row.querySelector('.sale-item-name').value=''; row.querySelector('.sale-item-niche').value=''; row.querySelector('.sale-item-qty').value='1'; }
-      } else {
-        button.closest('.sale-item-row')?.remove();
-      }
-      updateSaleItemsSummary();
-    }
-
-    function collectSaleItems() {
-      return [...document.querySelectorAll('#saleItemsList .sale-item-row')].map(row => ({
-        perfumeName: row.querySelector('.sale-item-name')?.value.trim() || '',
-        niche: row.querySelector('.sale-item-niche')?.value.trim() || '',
-        quantity: Math.max(1, Number(row.querySelector('.sale-item-qty')?.value || 1)),
-        size: row.querySelector('.sale-item-size')?.value || '30 ML',
-        price: Math.max(0, Number(row.querySelector('.sale-item-price')?.value || 0))
-      }));
-    }
-
-    function calculateSaleTotals(items = collectSaleItems()) {
-      return items.reduce((sum, item) => sum + Number(item.quantity || 0) * Number(item.price || 0), 0);
-    }
-
-    function updateSaleItemsSummary() {
-      const summary = document.getElementById('saleItemsSummary');
-      const totalInput = document.getElementById('receivedAmount');
-      if (!summary) return;
-      const allItems = collectSaleItems();
-      const items = allItems.filter(x => x.perfumeName);
-      const count = items.reduce((sum,item) => sum + item.quantity, 0);
-      document.querySelectorAll('#saleItemsList .sale-item-row').forEach((row, index) => {
-        const item = allItems[index];
-        const amount = Number(item.quantity || 0) * Number(item.price || 0);
-        const amountEl = row.querySelector('.sale-item-amount strong');
-        if (amountEl) amountEl.textContent = money(amount);
-      });
-      const total = calculateSaleTotals(items);
-      summary.textContent = `${items.length || 1} perfume item${items.length === 1 ? '' : 's'} • ${count} bottle${count === 1 ? '' : 's'} total`;
-      if (totalInput) totalInput.value = total || '';
-    }
-
     async function saveSale() {
+      const perfumeName = document.getElementById('salePerfumeName').value.trim();
+      const quantity = Number(document.getElementById('saleQuantity').value || 0);
+      const price = Number(document.getElementById('salePrice').value || 0);
       const saleDateVal = document.getElementById('saleDate').value;
-      const items = collectSaleItems().filter(x => x.perfumeName);
-      const deliveryAmt = selectedDelivery ? Number(document.getElementById('deliveryAmount').value || 0) : 0;
       
-      if (!items.length) {
-        alert('Please add at least one perfume name to the sale.');
+      if (!perfumeName) {
+        alert('Please enter a perfume name.');
         return;
       }
-      
+      if (quantity <= 0 || price < 0) {
+        alert('Please enter a valid quantity and price.');
+        return;
+      }
       if (!selectedSalePayment) {
-        alert('Please select a payment method before adding this sale.');
+        alert('Please select a payment method for this sale.');
         return;
       }
 
@@ -1884,38 +1608,30 @@
         finalPaymentMethod = `Mobile Money (${selectedMobileProvider})`;
       }
 
-      const totalCalculated = calculateSaleTotals(items);
-      const firstItem = items[0];
+      const totalCalculated = quantity * price;
 
       const recordData = {
         user_id: currentUser.id,
-        perfume_name: firstItem.perfumeName,
-        niche: firstItem.niche,
-        quantity: getSalePerfumeCount({ items }),
-        price: firstItem.price,
+        perfume_name: perfumeName,
+        quantity: quantity,
+        price: price,
         total: totalCalculated,
         payment_method: finalPaymentMethod,
         sale_date: saleDateVal,
-        instructions: JSON.stringify({
-          items,
-          deliveryAmount: deliveryAmt,
-          paymentMethod: finalPaymentMethod,
-          paymentProvider: selectedMobileProvider,
-          receivedAmount: totalCalculated
-        })
+        updated_at: new Date().toISOString()
       };
 
       try {
         if (editingSaleId) {
           const { error } = await supabaseClient
-            .from('orders')
+            .from('sales')
             .update(recordData)
             .eq('id', editingSaleId);
           if (error) throw error;
           alert('Sale updated successfully!');
         } else {
           const { error } = await supabaseClient
-            .from('orders')
+            .from('sales')
             .insert([recordData]);
           if (error) throw error;
           alert('Sale added successfully!');
@@ -1923,14 +1639,13 @@
         
         cancelSaleEdit();
         await syncSalesFromSupabase();
-        switchTab('screen-bookings', document.querySelectorAll('.nav-item')[2]);
       } catch(err) {
         alert('Error saving sale: ' + err.message);
       }
     }
 
     function editSale(id) {
-      const sale = [...activeOrders, ...archivedSales].find(s => s.id === id);
+      const sale = activeOrders.find(s => s.id === id);
       if (!sale) return;
       editingSaleId = id;
       
@@ -1938,41 +1653,39 @@
       document.getElementById('saleSaveBtn').innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Update Sale';
       document.getElementById('saleCancelBtn').style.display = 'block';
       
+      document.getElementById('salePerfumeName').value = sale.perfumeName;
+      document.getElementById('saleQuantity').value = sale.quantity;
+      document.getElementById('salePrice').value = sale.price;
       document.getElementById('saleDate').value = sale.date;
-      initializeSaleItems(sale.items);
-      
+      calculateCurrentTotal();
+
       if (sale.paymentMethod.includes('Mobile')) {
         selectSalePayment('Mobile Money');
       } else {
         selectSalePayment('Cash');
       }
-
-      if (sale.deliveryAmount > 0) {
-        selectDelivery(true);
-        document.getElementById('deliveryAmount').value = sale.deliveryAmount;
-      } else {
-        selectDelivery(false);
-      }
-
       switchTab('screen-perfumes');
     }
 
     function cancelSaleEdit() {
       editingSaleId = null;
-      document.getElementById('saleFormTitle').textContent = 'Record Sale';
-      document.getElementById('saleSaveBtn').innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Save Sale';
+      document.getElementById('saleFormTitle').textContent = 'Record Individual Sale';
+      document.getElementById('saleSaveBtn').innerHTML = '<i class="fa-solid fa-plus"></i> Add Sale';
       document.getElementById('saleCancelBtn').style.display = 'none';
+      document.getElementById('salePerfumeName').value = '';
+      document.getElementById('saleQuantity').value = '1';
+      document.getElementById('salePrice').value = '';
+      document.getElementById('saleTotalCalculated').value = '';
       document.getElementById('saleDate').value = todayISO();
       selectedSalePayment = '';
+      selectedMobileProvider = '';
       selectSalePayment('');
-      selectDelivery(false);
-      initializeSaleItems();
     }
 
     async function deleteSale(id) {
       if (!confirm('Are you sure you want to delete this sale record?')) return;
       try {
-        const { error } = await supabaseClient.from('orders').delete().eq('id', id);
+        const { error } = await supabaseClient.from('sales').delete().eq('id', id);
         if (error) throw error;
         await syncSalesFromSupabase();
       } catch(e) {
@@ -1980,9 +1693,124 @@
       }
     }
 
-    // --- EXPENSES LOGIC ---
+    function renderRecordedSales() {
+      const container = document.getElementById('recordedSalesProgressList');
+      if (!container) return;
+      if (!activeOrders.length) {
+        container.innerHTML = '<div style="font-size:0.8rem; color:var(--text-sub);">No sales recorded yet.</div>';
+        return;
+      }
+      container.innerHTML = activeOrders.map((sale, index) => `
+        <div class="sale-card-item">
+          <div style="display:flex; justify-content:space-between; font-weight:800; font-size:0.9rem;">
+            <span>Sale #${activeOrders.length - index} — ${escapeHtml(sale.perfumeName)}</span>
+            <span style="color:var(--accent-gold);">${money(sale.total)}</span>
+          </div>
+          <div style="font-size:0.78rem; color:var(--text-sub); margin-top:4px;">
+            Quantity: ${sale.quantity} | Price: ${money(sale.price)}
+          </div>
+          <div style="font-size:0.78rem; color:var(--text-sub); margin-top:2px;">
+            Payment: <strong>${escapeHtml(sale.paymentMethod)}</strong> | Date: ${sale.date}
+          </div>
+          <div class="sale-actions">
+            <button class="small-action" onclick="editSale('${sale.id}')"><i class="fa-solid fa-pen"></i> Edit</button>
+            <button class="small-action delete" onclick="deleteSale('${sale.id}')"><i class="fa-solid fa-trash"></i> Delete</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderBookings() {
+      const container = document.getElementById('bookingsListContainer');
+      if (!container) return;
+      if (!activeOrders.length) {
+        container.innerHTML = '<div style="text-align:center; font-size:0.85rem; color:var(--text-sub); padding:20px;">No sales history found.</div>';
+        return;
+      }
+      container.innerHTML = activeOrders.map(sale => `
+        <div class="sales-entry-card">
+          <div style="display:flex; justify-content:space-between; font-weight:900;">
+            <span>${escapeHtml(sale.perfumeName)}</span>
+            <span style="color:var(--accent-gold);">${money(sale.total)}</span>
+          </div>
+          <div style="font-size:0.8rem; color:var(--text-sub); margin-top:6px;">
+            Qty: ${sale.quantity} × ${money(sale.price)}
+          </div>
+          <div style="font-size:0.8rem; color:var(--text-sub); margin-top:2px;">
+            Payment Method: <strong>${escapeHtml(sale.paymentMethod)}</strong>
+          </div>
+          <div style="font-size:0.75rem; color:var(--text-sub); margin-top:2px;">
+            Date: ${sale.date}
+          </div>
+          <div class="sale-actions">
+            <button class="small-action" onclick="editSale('${sale.id}')"><i class="fa-solid fa-pen"></i> Edit</button>
+            <button class="small-action delete" onclick="deleteSale('${sale.id}')"><i class="fa-solid fa-trash"></i> Delete</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderSalesProgress() {
+      renderBestSellers();
+      const metrics = document.getElementById('progressMetrics');
+      if (!metrics) return;
+
+      const totalRev = activeOrders.reduce((sum, s) => sum + s.total, 0);
+      const totalQty = activeOrders.reduce((sum, s) => sum + s.quantity, 0);
+
+      metrics.innerHTML = `
+        <div class="review-card" style="margin-bottom:0; text-align:center;">
+          <div style="font-size:0.75rem; color:var(--text-sub);">Total Sales Revenue</div>
+          <div style="font-size:1.1rem; font-weight:900; color:var(--accent-gold); margin-top:4px;">${money(totalRev)}</div>
+        </div>
+        <div class="review-card" style="margin-bottom:0; text-align:center;">
+          <div style="font-size:0.75rem; color:var(--text-sub);">Total Items Sold</div>
+          <div style="font-size:1.1rem; font-weight:900; margin-top:4px;">${totalQty} PCS</div>
+        </div>
+      `;
+    }
+
+    function renderBestSellers() {
+      const container = document.getElementById('bestSellersList');
+      if (!container) return;
+
+      const tally = {};
+      activeOrders.forEach(sale => {
+        const name = sale.perfumeName;
+        tally[name] = (tally[name] || 0) + sale.quantity;
+      });
+
+      const sorted = Object.entries(tally).sort((a, b) => b[1] - a[1]);
+
+      if (!sorted.length) {
+        container.innerHTML = '<div style="font-size:0.8rem; color:var(--text-sub);">No sales available to determine Best Sellers.</div>';
+        return;
+      }
+
+      container.innerHTML = sorted.map(([name, qty], index) => `
+        <div class="bestseller-item">
+          <span>${index + 1}. ${escapeHtml(name)}</span>
+          <span style="color:var(--accent-gold);">${qty} sold</span>
+        </div>
+      `).join('');
+    }
+
+    function updateLoyaltyUI() {
+      const badge = document.getElementById('loyaltyCountBadge');
+      if (badge) badge.textContent = `Total Orders: ${activeOrders.length}`;
+      const dots = document.querySelectorAll('.stamp-dot');
+      dots.forEach((dot, idx) => {
+        if (idx < (activeOrders.length % 5)) {
+          dot.classList.add('filled');
+        } else {
+          dot.classList.remove('filled');
+        }
+      });
+    }
+
+    /* EXPENSES LOGIC */
     let editingExpenseId = null;
-    
+
     function renderExpenses() {
       const list = document.getElementById('expensesList'), totalEl = document.getElementById('expenseTotalValue');
       if (!list) return;
@@ -2081,8 +1909,7 @@
       }
     }
 
-    // --- STOCKS AUTHORITATIVE LOGIC (SUPABASE SOURCE OF TRUTH) ---
-
+    /* STOCKS MANAGEMENT */
     async function syncAllStocksFromSupabase() {
       if (!currentUser) return;
       try {
@@ -2091,11 +1918,9 @@
           supabaseClient.from('perfume_bottles').select('*').eq('user_id', currentUser.id).order('created_at', {ascending: false}),
           supabaseClient.from('specific_perfumes').select('*').eq('user_id', currentUser.id).order('created_at', {ascending: false})
         ]);
-
         if (oilRes.data) oilBottleStocks = oilRes.data;
         if (pBottleRes.data) perfumeBottleStocks = pBottleRes.data;
         if (specRes.data) specificPerfumeStocks = specRes.data;
-
       } catch(e) {
         console.error('Error fetching stock data:', e);
       }
@@ -2111,10 +1936,9 @@
       renderOilBottlesList();
       renderPerfumeBottlesList();
       renderSpecificPerfumesList();
-      if (activeHistoryCategory) renderSelectedStockHistory();
     }
 
-    // A — Oil Bottles
+    /* A — Oil Bottles */
     function calcOilRem() {
       const cur = Number(document.getElementById('oilCurrent').value || 0);
       const used = Number(document.getElementById('oilUsed').value || 0);
@@ -2126,9 +1950,7 @@
       const current = Number(document.getElementById('oilCurrent').value || 0);
       const used = Number(document.getElementById('oilUsed').value || 0);
       const remaining = current - used;
-
       if (!name) { alert('Please enter name / size.'); return; }
-
       const payload = {
         user_id: currentUser.id,
         name,
@@ -2137,7 +1959,6 @@
         remaining_stock: remaining,
         date: todayISO()
       };
-
       try {
         if (editingOilId) {
           await supabaseClient.from('oil_bottles').update(payload).eq('id', editingOilId);
@@ -2194,47 +2015,46 @@
           <div class="stock-grid-3">
             <div><div class="stock-stat-lbl">Current</div><div class="stock-stat-val">${r.current_stock}</div></div>
             <div><div class="stock-stat-lbl">Used</div><div class="stock-stat-val">${r.used_stock}</div></div>
-            <div><div class="stock-stat-lbl">Remaining</div><div class="stock-stat-val" style="color:var(--accent-gold);">${r.remaining_stock}</div></div>
+            <div><div class="stock-stat-lbl">Remaining</div><div class="stock-stat-val">${r.remaining_stock}</div></div>
           </div>
-        </div>
-      `).join('');
+        </div>`).join('');
     }
 
-    // B — Perfume Bottles
+    /* B — Perfume Bottles */
     function calcPBottlePCS() {
       const size = document.getElementById('pBottleSize').value;
-      const fixedPcs = BOTTLE_FIXED_PCS[size] || 0;
-      const brought = Number(document.getElementById('pBoxesBrought').value || 0);
-      const used = Number(document.getElementById('pBoxesUsed').value || 0);
-
-      const totalPcs = brought * fixedPcs;
-      const usedPcs = used * fixedPcs;
-      const availPcs = totalPcs - usedPcs;
-
-      document.getElementById('pTotalPcsLbl').textContent = totalPcs;
-      document.getElementById('pUsedPcsLbl').textContent = usedPcs;
-      document.getElementById('pAvailPcsLbl').textContent = availPcs;
+      const bBrought = Number(document.getElementById('pBoxesBrought').value || 0);
+      const bUsed = Number(document.getElementById('pBoxesUsed').value || 0);
+      const mult = BOTTLE_FIXED_PCS[size] || 0;
+      
+      const totPcs = bBrought * mult;
+      const usedPcs = bUsed * mult;
+      const availPcs = totPcs - usedPcs;
+      
+      document.getElementById('pTotalPcsLbl').innerText = totPcs;
+      document.getElementById('pUsedPcsLbl').innerText = usedPcs;
+      document.getElementById('pAvailPcsLbl').innerText = availPcs;
     }
 
     async function savePerfumeBottleBox() {
-      const size = document.getElementById('pBottleSize').value;
-      const fixedPcs = BOTTLE_FIXED_PCS[size];
-      const brought = Number(document.getElementById('pBoxesBrought').value || 0);
-      const used = Number(document.getElementById('pBoxesUsed').value || 0);
-
-      const totalPcs = brought * fixedPcs;
-      const usedPcs = used * fixedPcs;
-      const availPcs = totalPcs - usedPcs;
+      const bottle_size = document.getElementById('pBottleSize').value;
+      const boxes_brought = Number(document.getElementById('pBoxesBrought').value || 0);
+      const boxes_used = Number(document.getElementById('pBoxesUsed').value || 0);
+      const pcs_per_box = BOTTLE_FIXED_PCS[bottle_size] || 0;
+      
+      const total_pcs = boxes_brought * pcs_per_box;
+      const used_pcs = boxes_used * pcs_per_box;
+      const available_pcs = total_pcs - used_pcs;
 
       const payload = {
         user_id: currentUser.id,
-        size,
-        fixed_pcs_per_box: fixedPcs,
-        boxes_brought: brought,
-        boxes_used: used,
-        total_pcs: totalPcs,
-        used_pcs: usedPcs,
-        available_pcs: availPcs,
+        bottle_size,
+        boxes_brought,
+        boxes_used,
+        pcs_per_box,
+        total_pcs,
+        used_pcs,
+        available_pcs,
         date: todayISO()
       };
 
@@ -2246,17 +2066,17 @@
         }
         resetPBottleForm();
         await syncAllStocksFromSupabase();
-      } catch(e) { alert('Failed to save Perfume Bottle record: ' + e.message); }
+      } catch(e) { alert('Failed to save Bottle Box record: ' + e.message); }
     }
 
     function editPerfumeBottleBox(id) {
       const rec = perfumeBottleStocks.find(x => x.id === id); if (!rec) return;
       editingPBottleId = id;
-      document.getElementById('pBottleSize').value = rec.size;
+      document.getElementById('pBottleSize').value = rec.bottle_size;
       document.getElementById('pBoxesBrought').value = rec.boxes_brought;
       document.getElementById('pBoxesUsed').value = rec.boxes_used;
       calcPBottlePCS();
-      document.getElementById('pBottleFormTitle').textContent = 'Edit Box Record';
+      document.getElementById('pBottleFormTitle').textContent = 'Edit Perfume Bottle Box Record';
       document.getElementById('pBottleSaveBtn').innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Update Box Record';
       document.getElementById('pBottleCancelBtn').style.display = 'block';
     }
@@ -2272,33 +2092,34 @@
     }
 
     async function deletePerfumeBottleBox(id) {
-      if (!confirm('Delete box record?')) return;
+      if (!confirm('Delete this box record?')) return;
       await supabaseClient.from('perfume_bottles').delete().eq('id', id);
       await syncAllStocksFromSupabase();
     }
 
     function renderPerfumeBottlesList() {
-      const el = document.getElementById('perfumeBottlesList'); if (!el) return;
-      if (!perfumeBottleStocks.length) { el.innerHTML = '<div style="font-size:0.75rem; color:var(--text-sub);">No Bottle Boxes recorded.</div>'; return; }
+      const el = document.getElementById('perfumeBottlesList');
+      if (!el) return;
+      if (!perfumeBottleStocks.length) { el.innerHTML = '<div style="font-size:0.75rem; color:var(--text-sub);">No Perfume Bottle Boxes recorded.</div>'; return; }
       el.innerHTML = perfumeBottleStocks.map(r => `
         <div class="stock-rec-card">
           <div class="stock-rec-head">
-            <span>Size: ${r.size} (${r.fixed_pcs_per_box} PCS/Box)</span>
+            <span>Size: ${escapeHtml(r.bottle_size)}</span>
             <div style="display:flex; gap:6px;">
               <button class="small-action" onclick="editPerfumeBottleBox('${r.id}')">Edit</button>
               <button class="small-action delete" onclick="deletePerfumeBottleBox('${r.id}')">Delete</button>
             </div>
           </div>
+          <div style="font-size:0.75rem; color:var(--text-sub);">Boxes: ${r.boxes_brought} Brought / ${r.boxes_used} Used (${r.pcs_per_box} PCS/Box)</div>
           <div class="stock-grid-3">
-            <div><div class="stock-stat-lbl">Brought (Pcs)</div><div class="stock-stat-val">${r.boxes_brought} (${r.total_pcs})</div></div>
-            <div><div class="stock-stat-lbl">Used (Pcs)</div><div class="stock-stat-val">${r.boxes_used} (${r.used_pcs})</div></div>
-            <div><div class="stock-stat-lbl">Available PCS</div><div class="stock-stat-val" style="color:var(--accent-gold);">${r.available_pcs}</div></div>
+            <div><div class="stock-stat-lbl">Total PCS</div><div class="stock-stat-val">${r.total_pcs}</div></div>
+            <div><div class="stock-stat-lbl">Used PCS</div><div class="stock-stat-val">${r.used_pcs}</div></div>
+            <div><div class="stock-stat-lbl">Available PCS</div><div class="stock-stat-val">${r.available_pcs}</div></div>
           </div>
-        </div>
-      `).join('');
+        </div>`).join('');
     }
 
-    // C — Specific Perfume Items
+    /* C — Specific Perfume Items */
     function calcSpecRem() {
       const cur = Number(document.getElementById('specCurrent').value || 0);
       const used = Number(document.getElementById('specUsed').value || 0);
@@ -2307,17 +2128,15 @@
 
     async function saveSpecificPerfume() {
       const name = document.getElementById('specName').value.trim();
-      const niche = document.getElementById('specNiche').value.trim();
       const current = Number(document.getElementById('specCurrent').value || 0);
       const used = Number(document.getElementById('specUsed').value || 0);
       const remaining = current - used;
 
-      if (!name || !niche) { alert('Perfume Name and Niche field are required!'); return; }
+      if (!name) { alert('Please enter Perfume Name.'); return; }
 
       const payload = {
         user_id: currentUser.id,
         perfume_name: name,
-        niche: niche,
         current_stock: current,
         used_stock: used,
         remaining_stock: remaining,
@@ -2332,14 +2151,13 @@
         }
         resetSpecForm();
         await syncAllStocksFromSupabase();
-      } catch(e) { alert('Failed to save Specific Perfume: ' + e.message); }
+      } catch(e) { alert('Failed to save Specific Perfume Item: ' + e.message); }
     }
 
     function editSpecificPerfume(id) {
       const rec = specificPerfumeStocks.find(x => x.id === id); if (!rec) return;
       editingSpecId = id;
       document.getElementById('specName').value = rec.perfume_name;
-      document.getElementById('specNiche').value = rec.niche || '';
       document.getElementById('specCurrent').value = rec.current_stock;
       document.getElementById('specUsed').value = rec.used_stock;
       calcSpecRem();
@@ -2351,7 +2169,6 @@
     function resetSpecForm() {
       editingSpecId = null;
       document.getElementById('specName').value = '';
-      document.getElementById('specNiche').value = '';
       document.getElementById('specCurrent').value = '';
       document.getElementById('specUsed').value = '';
       document.getElementById('specRemaining').value = '';
@@ -2361,21 +2178,19 @@
     }
 
     async function deleteSpecificPerfume(id) {
-      if (!confirm('Delete item?')) return;
+      if (!confirm('Delete this perfume item?')) return;
       await supabaseClient.from('specific_perfumes').delete().eq('id', id);
       await syncAllStocksFromSupabase();
     }
 
     function renderSpecificPerfumesList() {
-      const el = document.getElementById('specificPerfumesList'); if (!el) return;
+      const el = document.getElementById('specificPerfumesList');
+      if (!el) return;
       if (!specificPerfumeStocks.length) { el.innerHTML = '<div style="font-size:0.75rem; color:var(--text-sub);">No Specific Perfumes recorded.</div>'; return; }
       el.innerHTML = specificPerfumeStocks.map(r => `
         <div class="stock-rec-card">
           <div class="stock-rec-head">
-            <div>
-              <div style="font-weight:800;">${escapeHtml(r.perfume_name)}</div>
-              <div style="font-size:0.72rem; color:var(--accent-gold);">Niche: ${escapeHtml(r.niche || 'N/A')}</div>
-            </div>
+            <span>${escapeHtml(r.perfume_name)}</span>
             <div style="display:flex; gap:6px;">
               <button class="small-action" onclick="editSpecificPerfume('${r.id}')">Edit</button>
               <button class="small-action delete" onclick="deleteSpecificPerfume('${r.id}')">Delete</button>
@@ -2384,196 +2199,96 @@
           <div class="stock-grid-3">
             <div><div class="stock-stat-lbl">Current</div><div class="stock-stat-val">${r.current_stock}</div></div>
             <div><div class="stock-stat-lbl">Used</div><div class="stock-stat-val">${r.used_stock}</div></div>
-            <div><div class="stock-stat-lbl">Remaining</div><div class="stock-stat-val" style="color:var(--accent-gold);">${r.remaining_stock}</div></div>
+            <div><div class="stock-stat-lbl">Remaining</div><div class="stock-stat-val">${r.remaining_stock}</div></div>
           </div>
-        </div>
-      `).join('');
-    }
-
-    // CATEGORY HISTORIES
-    function openStockHistoryView(type) {
-      activeHistoryCategory = type;
-      document.getElementById('stocksMainArea').style.display = 'none';
-      document.getElementById('stockHistoryViewArea').style.display = 'block';
-
-      const titleEl = document.getElementById('historyViewTitle');
-      if (type === 'oil') titleEl.textContent = 'A — Oil Bottle History';
-      else if (type === 'bottle') titleEl.textContent = 'B — Perfume Bottle History';
-      else if (type === 'specific') titleEl.textContent = 'C — Specific Perfume History';
-
-      renderSelectedStockHistory();
-    }
-
-    function closeStockHistoryView() {
-      activeHistoryCategory = null;
-      document.getElementById('stocksMainArea').style.display = 'block';
-      document.getElementById('stockHistoryViewArea').style.display = 'none';
-    }
-
-    function renderSelectedStockHistory() {
-      const listEl = document.getElementById('stockHistoryContentList');
-      const selectedMonth = document.getElementById('stockHistoryMonth').value || monthISO();
-      if (!listEl) return;
-
-      if (activeHistoryCategory === 'oil') {
-        const filtered = oilBottleStocks.filter(x => (x.date || x.created_at || '').startsWith(selectedMonth));
-        if (!filtered.length) { listEl.innerHTML = '<div style="font-size:0.8rem; color:var(--text-sub);">No records for this month.</div>'; return; }
-        listEl.innerHTML = filtered.map(r => `
-          <div class="stock-rec-card">
-            <div style="font-size:0.75rem; color:var(--text-sub); margin-bottom:4px;">Date: ${r.date || 'N/A'}</div>
-            <div style="font-weight:800; margin-bottom:6px;">${escapeHtml(r.name)}</div>
-            <div class="stock-grid-3">
-              <div><div class="stock-stat-lbl">Current</div><div class="stock-stat-val">${r.current_stock}</div></div>
-              <div><div class="stock-stat-lbl">Used</div><div class="stock-stat-val">${r.used_stock}</div></div>
-              <div><div class="stock-stat-lbl">Remaining</div><div class="stock-stat-val">${r.remaining_stock}</div></div>
-            </div>
-          </div>
-        `).join('');
-      } else if (activeHistoryCategory === 'bottle') {
-        const filtered = perfumeBottleStocks.filter(x => (x.date || x.created_at || '').startsWith(selectedMonth));
-        if (!filtered.length) { listEl.innerHTML = '<div style="font-size:0.8rem; color:var(--text-sub);">No box records for this month.</div>'; return; }
-        listEl.innerHTML = filtered.map(r => `
-          <div class="stock-rec-card">
-            <div style="font-size:0.75rem; color:var(--text-sub); margin-bottom:4px;">Size: ${r.size} (${r.fixed_pcs_per_box} PCS/Box)</div>
-            <div class="stock-grid-3">
-              <div><div class="stock-stat-lbl">Boxes Brought</div><div class="stock-stat-val">${r.boxes_brought} (${r.total_pcs} PCS)</div></div>
-              <div><div class="stock-stat-lbl">Boxes Used</div><div class="stock-stat-val">${r.boxes_used} (${r.used_pcs} PCS)</div></div>
-              <div><div class="stock-stat-lbl">Available PCS</div><div class="stock-stat-val" style="color:var(--accent-gold);">${r.available_pcs}</div></div>
-            </div>
-          </div>
-        `).join('');
-      } else if (activeHistoryCategory === 'specific') {
-        const filtered = specificPerfumeStocks.filter(x => (x.date || x.created_at || '').startsWith(selectedMonth));
-        if (!filtered.length) { listEl.innerHTML = '<div style="font-size:0.8rem; color:var(--text-sub);">No perfume history records for this month.</div>'; return; }
-        listEl.innerHTML = filtered.map(r => `
-          <div class="stock-rec-card">
-            <div style="font-size:0.75rem; color:var(--text-sub); margin-bottom:2px;">Date: ${r.date || 'N/A'}</div>
-            <div style="font-weight:800;">${escapeHtml(r.perfume_name)}</div>
-            <div style="font-size:0.72rem; color:var(--accent-gold); margin-bottom:6px;">Niche: ${escapeHtml(r.niche || 'N/A')}</div>
-            <div class="stock-grid-3">
-              <div><div class="stock-stat-lbl">Current</div><div class="stock-stat-val">${r.current_stock}</div></div>
-              <div><div class="stock-stat-lbl">Used</div><div class="stock-stat-val">${r.used_stock}</div></div>
-              <div><div class="stock-stat-lbl">Remaining</div><div class="stock-stat-val">${r.remaining_stock}</div></div>
-            </div>
-          </div>
-        `).join('');
-      }
-    }
-
-    // RENDER SALES LIST & PROGRESS
-    function renderBookings() {
-      const container = document.getElementById('bookingsListContainer'); if (!container) return;
-      if (!activeOrders.length) { container.innerHTML = '<div class="review-card" style="text-align:center;color:var(--text-sub);">No sales recorded yet.</div>'; return; }
-      
-      container.innerHTML = activeOrders.map(s => `
-        <div class="review-card">
-          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
-            <div>
-              <div style="font-weight:900;font-size:0.95rem;">${escapeHtml(getSaleNames(s))}</div>
-              <div style="font-size:0.72rem;color:var(--text-sub);">${s.date} • ${escapeHtml(s.paymentMethod)}</div>
-            </div>
-            <div style="font-weight:900;color:var(--accent-gold);">${money(saleTotal(s))}</div>
-          </div>
-          <div class="sale-actions">
-            <button class="small-action" onclick="editSale('${s.id}')"><i class="fa-solid fa-pen"></i> Edit</button>
-            <button class="small-action delete" onclick="deleteSale('${s.id}')"><i class="fa-solid fa-trash"></i> Delete</button>
-          </div>
-        </div>
-      `).join('');
-    }
-
-    function renderHistory() {
-      const container = document.getElementById('historyListContainer'); if (!container) return;
-      container.innerHTML = completedHistory.map(s => `
-        <div class="review-card">
-          <div style="font-weight:800;font-size:0.85rem;">${escapeHtml(getSaleNames(s))}</div>
-          <div style="font-size:0.72rem;color:var(--text-sub);">${s.date} • ${money(saleTotal(s))}</div>
-        </div>
-      `).join('');
-    }
-
-    function renderArchive() {
-      const container = document.getElementById('archiveListContainer'); if (!container) return;
-      container.innerHTML = archivedSales.map(s => `
-        <div class="archive-card">
-          <div style="font-weight:800;">${escapeHtml(getSaleNames(s))}</div>
-          <div style="font-size:0.72rem;color:var(--text-sub);">${s.date} • ${money(saleTotal(s))}</div>
-        </div>
-      `).join('');
-    }
-
-    function toggleArchive() {
-      archiveOpen = !archiveOpen;
-      document.getElementById('archiveListContainer').classList.toggle('open', archiveOpen);
-      document.getElementById('archiveToggleIcon').textContent = archiveOpen ? '▾' : '▸';
-    }
-
-    function updateLoyaltyUI() {
-      const count = activeOrders.length;
-      document.getElementById('loyaltyCountBadge').textContent = `Total Orders: ${count}`;
-      const dots = document.querySelectorAll('#stampsRow .stamp-dot');
-      dots.forEach((dot, index) => {
-        if (index < (count % 5)) dot.classList.add('filled');
-        else dot.classList.remove('filled');
-      });
-    }
-
-    function setReviewMode(mode) {
-      reviewMode = mode;
-      document.querySelectorAll('.review-tab').forEach(b => b.classList.remove('active'));
-      if (mode === 'daily') document.getElementById('tabDaily')?.classList.add('active');
-      if (mode === 'weekly') document.getElementById('tabWeekly')?.classList.add('active');
-      if (mode === 'monthly') document.getElementById('tabMonthly')?.classList.add('active');
-
-      document.getElementById('dailyFilters').style.display = mode === 'daily' ? 'block' : 'none';
-      document.getElementById('monthlyFilters').style.display = mode === 'monthly' ? 'block' : 'none';
-      document.getElementById('customFilters').style.display = mode === 'custom' ? 'block' : 'none';
-      renderSalesProgress();
-    }
-
-    function showCustomRange() { setReviewMode('custom'); }
-
-    function renderSalesProgress() {
-      const container = document.getElementById('progressMetrics'); if (!container) return;
-      let filtered = [...activeOrders];
-      if (reviewMode === 'daily') {
-        const d = document.getElementById('dailyDate').value;
-        filtered = filtered.filter(s => s.date === d);
-      } else if (reviewMode === 'monthly') {
-        const m = document.getElementById('reviewMonth').value;
-        filtered = filtered.filter(s => (s.date || '').startsWith(m));
-      }
-
-      const totalRevenue = filtered.reduce((sum, s) => sum + saleTotal(s), 0);
-      const totalBottles = filtered.reduce((sum, s) => sum + getSalePerfumeCount(s), 0);
-
-      container.innerHTML = `
-        <div class="metric-card"><div class="metric-label">Total Revenue</div><div class="metric-value">${money(totalRevenue)}</div></div>
-        <div class="metric-card"><div class="metric-label">Bottles Sold</div><div class="metric-value">${totalBottles}</div></div>
-      `;
-    }
-
-    function renderMonthlyReview() {
-      const content = document.getElementById('monthlyReviewContent'); if (!content) return;
-      const m = document.getElementById('reviewMonth').value;
-      const filtered = activeOrders.filter(s => (s.date || '').startsWith(m));
-      const totalRevenue = filtered.reduce((sum, s) => sum + saleTotal(s), 0);
-
-      content.innerHTML = `
-        <div class="sales-entry-card">
-          <h3>Summary for ${m}</h3>
-          <div style="font-size:1.1rem; font-weight:900; color:var(--accent-gold);">${money(totalRevenue)}</div>
-          <div style="font-size:0.8rem; margin-top:4px;">Total Sales Count: ${filtered.length}</div>
-        </div>
-      `;
+        </div>`).join('');
     }
 
     function igniteTeaserToast() {
       const toast = document.getElementById('soonToast');
-      if (!toast) return;
-      toast.classList.add('trigger-fly');
-      setTimeout(() => toast.classList.remove('trigger-fly'), 3500);
+      if (toast) {
+        toast.classList.add('trigger-fly');
+        setTimeout(() => toast.classList.remove('trigger-fly'), 3000);
+      }
+    }
+
+    function setReviewMode(m) {
+      reviewMode = m;
+      document.getElementById('tabDaily').classList.toggle('active', m==='daily');
+      document.getElementById('tabWeekly').classList.toggle('active', m==='weekly');
+      document.getElementById('tabMonthly').classList.toggle('active', m==='monthly');
+      document.getElementById('dailyFilters').style.display = m==='daily' ? 'block' : 'none';
+      document.getElementById('monthlyFilters').style.display = m==='monthly' ? 'block' : 'none';
+      document.getElementById('customFilters').style.display = 'none';
+      renderSalesProgress();
+    }
+
+    function showCustomRange() {
+      document.getElementById('dailyFilters').style.display = 'none';
+      document.getElementById('monthlyFilters').style.display = 'none';
+      document.getElementById('customFilters').style.display = 'block';
+    }
+
+    function openMonthlyReview() {
+      document.getElementById('monthlyReviewModal').classList.add('active');
+      const content = document.getElementById('monthlyReviewContent');
+      const month = document.getElementById('reviewMonth').value || monthISO();
+      
+      const monthSales = activeOrders.filter(s => (s.date || '').startsWith(month));
+      const totalRev = monthSales.reduce((sum, s) => sum + s.total, 0);
+      const totalQty = monthSales.reduce((sum, s) => sum + s.quantity, 0);
+
+      content.innerHTML = `
+        <div class="sales-entry-card">
+          <h3>Summary for ${month}</h3>
+          <div style="font-size:0.9rem; margin-bottom:8px;">Total Revenue: <strong>${money(totalRev)}</strong></div>
+          <div style="font-size:0.9rem; margin-bottom:8px;">Total Quantity Sold: <strong>${totalQty} PCS</strong></div>
+          <div style="font-size:0.9rem;">Total Sales Transactions: <strong>${monthSales.length}</strong></div>
+        </div>
+      `;
+    }
+
+    function closeSheet(id) {
+      document.getElementById(id).classList.remove('active');
     }
   </script>
+
+  <!-- SUPABASE SQL DATABASE SETUP SCHEMA REQUIREMENT -->
+  <!--
+    -- EXECUTE THIS IN YOUR SUPABASE SQL EDITOR TO ENFORCE SINGLE SALES & SECURITY RULES:
+
+    CREATE TABLE IF NOT EXISTS public.sales (
+        id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+        user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+        perfume_name TEXT NOT NULL,
+        quantity NUMERIC NOT NULL DEFAULT 1,
+        price NUMERIC NOT NULL DEFAULT 0,
+        total NUMERIC NOT NULL DEFAULT 0,
+        payment_method TEXT NOT NULL,
+        sale_date DATE NOT NULL DEFAULT CURRENT_DATE,
+        created_at TIMESTAMPTZ DEFAULT NOW(),
+        updated_at TIMESTAMPTZ DEFAULT NOW()
+    );
+
+    ALTER TABLE public.sales ENABLE ROW LEVEL SECURITY;
+
+    CREATE POLICY "Users can view their own sales"
+    ON public.sales FOR SELECT
+    USING (auth.uid() = user_id);
+
+    CREATE POLICY "Users can insert their own sales"
+    ON public.sales FOR INSERT
+    WITH CHECK (auth.uid() = user_id);
+
+    CREATE POLICY "Users can update their own sales"
+    ON public.sales FOR UPDATE
+    USING (auth.uid() = user_id);
+
+    CREATE POLICY "Users can delete their own sales"
+    ON public.sales FOR DELETE
+    USING (auth.uid() = user_id);
+
+    ALTER PUBLICATION supabase_realtime ADD TABLE public.sales;
+  -->
 </body>
 </html>
