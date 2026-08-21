@@ -1,11 +1,15 @@
+rary
+/
+manifest.json
+
+
 {
   "name": "Glamo Scents",
   "short_name": "Glamo Scents",
   "start_url": "/",
-  "scope": "/",
   "display": "standalone",
+  "background_color": "#000000",
   "theme_color": "#ffffff",
-  "background_color": "#ffffff",
   "icons": [
     {
       "src": "/images/splash-logo.png",
