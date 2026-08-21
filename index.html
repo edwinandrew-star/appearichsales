@@ -899,6 +899,13 @@
     .pos-table th { background:var(--card-bg-sub); color:var(--text-sub); font-size:.7rem; padding:9px 7px; text-align:left; white-space:nowrap; }
     .pos-table td { border-top:1px solid var(--card-border); padding:7px; vertical-align:middle; }
     .pos-table input { width:100%; background:var(--input-bg); border:1px solid var(--input-border); border-radius:8px; padding:8px; color:var(--text-main); font-size:.78rem; outline:none; }
+    .pos-table select { width:100%; min-width:120px; background:var(--input-bg); border:1px solid var(--input-border); border-radius:8px; padding:8px; color:var(--text-main); font-size:.78rem; outline:none; }
+    .pos-mixed-box { margin-top:7px; padding:8px; border:1px solid var(--card-border); border-radius:9px; background:var(--card-bg-sub); min-width:190px; }
+    .pos-mixed-title { font-size:.65rem; font-weight:900; color:var(--text-sub); margin-bottom:6px; }
+    .pos-mixed-box label { display:flex; align-items:center; justify-content:space-between; gap:6px; font-size:.68rem; color:var(--text-sub); margin-top:4px; }
+    .pos-mixed-box input { max-width:105px; padding:6px; }
+    .pos-mixed-total { margin-top:6px; font-size:.7rem; font-weight:900; }
+
     .pos-line-total { font-weight:900; color:var(--accent-gold); white-space:nowrap; font-size:.8rem; }
     .pos-remove { border:1px solid #e74c3c; background:transparent; color:#e74c3c; border-radius:8px; padding:7px 9px; cursor:pointer; }
     .pos-grand-total { display:flex; justify-content:space-between; align-items:center; background:var(--card-bg-sub); border:1.5px solid var(--accent-gold); border-radius:12px; padding:12px; margin-top:12px; font-weight:900; }
@@ -1105,29 +1112,6 @@
       <div class="pos-grand-total">
         <span>GRAND TOTAL</span><strong id="posGrandTotal">0 TZS</strong>
       </div>
-
-      <div class="pos-payment-buttons">
-        <button id="posCashBtn" type="button" class="pos-payment-btn" onclick="setPOSPaymentMode('cash')">
-          <i class="fa-solid fa-money-bill-wave"></i> CASH
-        </button>
-        <button id="posDigitalBtn" type="button" class="pos-payment-btn" onclick="setPOSPaymentMode('digital')">
-          <i class="fa-solid fa-mobile-screen-button"></i> DIGITAL
-        </button>
-      </div>
-
-      <div id="posCashSection" class="pos-payment-section">
-        <div style="font-weight:900;font-size:.82rem;margin-bottom:8px;">Cash Allocation</div>
-        <div id="posCashAllocations"></div>
-      </div>
-
-      <div id="posDigitalSection" class="pos-payment-section">
-        <div style="font-weight:900;font-size:.82rem;margin-bottom:8px;">Digital Allocation</div>
-        <div id="posDigitalAllocations"></div>
-        <button type="button" class="reorder-btn" style="width:100%;margin-top:8px;" onclick="addDigitalSplit()">
-          <i class="fa-solid fa-plus"></i> SPLIT PAYMENT
-        </button>
-      </div>
-
       <div class="form-group" style="margin-top:12px;">
         <label>SALE DATE</label>
         <input id="posSaleDate" class="date-control" type="date">
@@ -2481,6 +2465,7 @@
     let posPaymentMode = '';
     let posDigitalSplits = 1;
     let reportPeriod = 'today';
+    let editingPOSSaleId = null;
 
     function parsePOSSale(sale) {
       if (!sale || typeof sale.perfumeName !== 'string' || !sale.perfumeName.startsWith(POS_PREFIX)) return null;
@@ -2493,15 +2478,18 @@
     function saleLines(sale) {
       const pos = parsePOSSale(sale);
       if (pos) return pos.lines || [];
-      return [{ name:sale.perfumeName, size:'', quantity:Number(sale.quantity||0), price:Number(sale.price||0), total:Number(sale.total||0) }];
+      return [{ name:sale.perfumeName, size:'', quantity:Number(sale.quantity||0), price:Number(sale.price||0), total:Number(sale.total||0), paymentMethod:sale.paymentMethod || 'Cash' }];
     }
 
     function salePayments(sale) {
       const pos = parsePOSSale(sale);
-      if (pos) return pos.payments || [];
+      if (pos) {
+        if (Array.isArray(pos.payments)) return pos.payments;
+        return [];
+      }
       const amount = Number(sale.total || 0);
-      const method = sale.paymentMethod || 'Unknown';
-      return [{ mode:method, method:method, amount, allocations:[] }];
+      const method = sale.paymentMethod || 'Cash';
+      return [{ method, amount, allocations:[{lineIndex:0, quantity:Number(sale.quantity||0), amount}] }];
     }
 
     function saleDisplayName(sale) {
@@ -2540,39 +2528,60 @@
       updateLoyaltyUI();
     }
 
-    function resetPOS() {
-      posPaymentMode='';
-      posDigitalSplits=1;
-      document.getElementById('posLineCount').value=1;
-      document.getElementById('posSaleDate').value=todayISO();
-      document.getElementById('posCashBtn').classList.remove('active');
-      document.getElementById('posDigitalBtn').classList.remove('active');
-      document.getElementById('posCashSection').classList.remove('active');
-      document.getElementById('posDigitalSection').classList.remove('active');
-      generatePOSLines();
+    function capturePOSLineState() {
+      return [...document.querySelectorAll('.pos-line-row')].map(row => ({
+        name:row.querySelector('.pos-name')?.value || '',
+        size:row.querySelector('.pos-size')?.value || '',
+        quantity:row.querySelector('.pos-qty')?.value || '',
+        price:row.querySelector('.pos-price')?.value || '',
+        paymentMethod:row.querySelector('.pos-payment-method')?.value || 'Cash',
+        mixedPayments:{
+          'Cash':row.querySelector('.mix-cash')?.value || '',
+          'M-Pesa':row.querySelector('.mix-mpesa')?.value || '',
+          'CRDB':row.querySelector('.mix-crdb')?.value || '',
+          'Mixx by Yas':row.querySelector('.mix-mixx')?.value || '',
+          'Halotel':row.querySelector('.mix-halotel')?.value || ''
+        }
+      }));
     }
 
-    function generatePOSLines() {
+    function generatePOSLines(preserve=true) {
       const count=Math.max(1,Math.min(50,Number(document.getElementById('posLineCount').value||1)));
-      const old=[...document.querySelectorAll('.pos-line-row')].map(row=>({
-        name:row.querySelector('.pos-name')?.value||'',
-        size:row.querySelector('.pos-size')?.value||'',
-        quantity:row.querySelector('.pos-qty')?.value||'',
-        price:row.querySelector('.pos-price')?.value||''
-      }));
+      const old=preserve ? capturePOSLineState() : [];
       const container=document.getElementById('posLinesContainer');
       let html=`<div class="pos-table-wrap"><table class="pos-table"><thead><tr>
-        <th>#</th><th>Perfume Name</th><th>Size (MLS)</th><th>Quantity</th><th>Price / Unit</th><th>Line Total</th><th></th>
+        <th>#</th><th>Perfume Name</th><th>MLS</th><th>Quantity</th><th>Price / Unit</th><th>Total</th><th>Payment</th><th></th>
       </tr></thead><tbody>`;
       for(let i=0;i<count;i++){
         const x=old[i]||{};
+        const method=x.paymentMethod||'Cash';
+        const mp=x.mixedPayments||{};
         html+=`<tr class="pos-line-row" data-index="${i}">
           <td>${i+1}</td>
-          <td><input class="pos-name" type="text" placeholder="Perfume" value="${escapeHtml(x.name)}" oninput="updatePOS()"></td>
-          <td><input class="pos-size" type="number" min="0" step="1" placeholder="50" value="${escapeHtml(x.size)}" oninput="updatePOS()"></td>
-          <td><input class="pos-qty" type="number" min="0" step="1" placeholder="1" value="${escapeHtml(x.quantity)}" oninput="updatePOS()"></td>
-          <td><input class="pos-price" type="number" min="0" step="100" placeholder="30000" value="${escapeHtml(x.price)}" oninput="updatePOS()"></td>
+          <td><input class="pos-name" type="text" placeholder="Perfume" value="${escapeHtml(x.name||'')}" oninput="updatePOS()"></td>
+          <td><input class="pos-size" type="number" min="0" step="1" placeholder="30" value="${escapeHtml(x.size||'')}" oninput="updatePOS()"></td>
+          <td><input class="pos-qty" type="number" min="1" step="1" placeholder="1" value="${escapeHtml(x.quantity||'')}" oninput="updatePOS()"></td>
+          <td><input class="pos-price" type="number" min="0" step="100" placeholder="25000" value="${escapeHtml(x.price||'')}" oninput="updatePOS()"></td>
           <td class="pos-line-total">0 TZS</td>
+          <td>
+            <select class="pos-payment-method" onchange="handlePOSPaymentChange(this)">
+              <option value="Cash" ${method==='Cash'?'selected':''}>Cash</option>
+              <option value="M-Pesa" ${method==='M-Pesa'?'selected':''}>M-Pesa</option>
+              <option value="CRDB" ${method==='CRDB'?'selected':''}>CRDB</option>
+              <option value="Mixx by Yas" ${method==='Mixx by Yas'?'selected':''}>Mixx by Yas</option>
+              <option value="Halotel" ${method==='Halotel'?'selected':''}>Halotel</option>
+              <option value="Mixed" ${method==='Mixed'?'selected':''}>Mixed</option>
+            </select>
+            <div class="pos-mixed-box" ${method==='Mixed'?'':'style="display:none;"'}>
+              <div class="pos-mixed-title">PAYMENT AMOUNTS</div>
+              <label>Cash<input class="mix-cash" type="number" min="0" step="100" value="${escapeHtml(mp['Cash']||'')}" oninput="updatePOS()"></label>
+              <label>M-Pesa<input class="mix-mpesa" type="number" min="0" step="100" value="${escapeHtml(mp['M-Pesa']||'')}" oninput="updatePOS()"></label>
+              <label>CRDB<input class="mix-crdb" type="number" min="0" step="100" value="${escapeHtml(mp['CRDB']||'')}" oninput="updatePOS()"></label>
+              <label>Mixx by Yas<input class="mix-mixx" type="number" min="0" step="100" value="${escapeHtml(mp['Mixx by Yas']||'')}" oninput="updatePOS()"></label>
+              <label>Halotel<input class="mix-halotel" type="number" min="0" step="100" value="${escapeHtml(mp['Halotel']||'')}" oninput="updatePOS()"></label>
+              <div class="pos-mixed-total">Allocated: <strong class="mix-total">0 TZS</strong></div>
+            </div>
+          </td>
           <td><button type="button" class="pos-remove" onclick="removePOSLine(${i})"><i class="fa-solid fa-xmark"></i></button></td>
         </tr>`;
       }
@@ -2581,102 +2590,74 @@
       updatePOS();
     }
 
+    function handlePOSPaymentChange(select) {
+      const box=select.closest('.pos-line-row')?.querySelector('.pos-mixed-box');
+      if(box) box.style.display=select.value==='Mixed'?'block':'none';
+      updatePOS();
+    }
+
     function removePOSLine(index) {
-      const count=document.querySelectorAll('.pos-line-row').length;
-      if(count<=1){ alert('A sale must contain at least one perfume line.'); return; }
+      const rows=document.querySelectorAll('.pos-line-row');
+      if(rows.length<=1){ alert('A sale must contain at least one perfume line.'); return; }
       const row=document.querySelector(`.pos-line-row[data-index="${index}"]`);
       if(row) row.remove();
-      document.querySelectorAll('.pos-line-row').forEach((r,i)=>r.dataset.index=i);
+      document.querySelectorAll('.pos-line-row').forEach((r,i)=>{
+        r.dataset.index=i;
+        r.querySelector('td:first-child').textContent=i+1;
+        const btn=r.querySelector('.pos-remove');
+        if(btn) btn.setAttribute('onclick',`removePOSLine(${i})`);
+      });
       document.getElementById('posLineCount').value=document.querySelectorAll('.pos-line-row').length;
       updatePOS();
     }
 
     function getPOSLines() {
-      return [...document.querySelectorAll('.pos-line-row')].map(row=>({
-        name:row.querySelector('.pos-name').value.trim(),
-        size:Number(row.querySelector('.pos-size').value||0),
-        quantity:Number(row.querySelector('.pos-qty').value||0),
-        price:Number(row.querySelector('.pos-price').value||0),
-        total:Number(row.querySelector('.pos-qty').value||0)*Number(row.querySelector('.pos-price').value||0)
-      }));
+      return [...document.querySelectorAll('.pos-line-row')].map(row=>{
+        const q=Number(row.querySelector('.pos-qty')?.value||0);
+        const p=Number(row.querySelector('.pos-price')?.value||0);
+        const mixed={
+          'Cash':Number(row.querySelector('.mix-cash')?.value||0),
+          'M-Pesa':Number(row.querySelector('.mix-mpesa')?.value||0),
+          'CRDB':Number(row.querySelector('.mix-crdb')?.value||0),
+          'Mixx by Yas':Number(row.querySelector('.mix-mixx')?.value||0),
+          'Halotel':Number(row.querySelector('.mix-halotel')?.value||0)
+        };
+        return {
+          name:row.querySelector('.pos-name')?.value.trim()||'',
+          size:row.querySelector('.pos-size')?.value ? Number(row.querySelector('.pos-size').value) : '',
+          quantity:q,
+          price:p,
+          total:q*p,
+          paymentMethod:row.querySelector('.pos-payment-method')?.value||'Cash',
+          mixedPayments:mixed
+        };
+      });
     }
 
-    function setPOSPaymentMode(mode) {
-      posPaymentMode=mode;
-      document.getElementById('posCashBtn').classList.toggle('active',mode==='cash');
-      document.getElementById('posDigitalBtn').classList.toggle('active',mode==='digital');
-      document.getElementById('posCashSection').classList.toggle('active',mode==='cash');
-      document.getElementById('posDigitalSection').classList.toggle('active',mode==='digital');
-      renderPOSAllocations();
-    }
-
-    function renderPOSAllocations() {
-      const lines=getPOSLines();
-      const cash=document.getElementById('posCashAllocations');
-      const digital=document.getElementById('posDigitalAllocations');
-      cash.innerHTML=lines.map((l,i)=>allocationHTML(l,i,'cash',0)).join('');
-      digital.innerHTML=lines.map((l,i)=>allocationHTML(l,i,'digital',0)).join('');
-      updatePOS();
-    }
-
-    function allocationHTML(line,i,mode,split) {
-      const key=`${mode}-${i}-${split}`;
-      const providers=['M-PESA','MIXX BY YAS','AIRTEL MONEY','HALOTEL','CRDB','CARD','OTHER'];
-      return `<div class="pos-allocation" data-allocation="${key}">
-        <div class="pos-allocation-head"><span>${escapeHtml(line.name||'Perfume line')} ${line.size?line.size+'ml':''}</span><span>${money(line.price)} each</span></div>
-        <div class="pos-allocation-grid">
-          <div><label>Quantity</label><input class="alloc-qty" type="number" min="0" max="${line.quantity}" value="0" oninput="updatePOS()"></div>
-          <div><label>Price / Unit</label><input class="alloc-price" type="number" value="${line.price}" readonly></div>
-          ${mode==='digital'?`<div><label>HOW WAS IT PAID?</label><select class="alloc-method" onchange="updatePOS()"><option value="">Select</option>${providers.map(p=>`<option value="${p}">${p}</option>`).join('')}</select></div>`:`<div><label>Payment</label><input value="CASH" readonly></div>`}
-        </div>
-        <div class="pos-remaining">Allocated: <span class="alloc-total">0</span> / ${line.quantity} | Amount: <span class="alloc-amount">0 TZS</span></div>
-      </div>`;
-    }
-
-    function addDigitalSplit() {
-      const lines=getPOSLines();
-      const box=document.getElementById('posDigitalAllocations');
-      lines.forEach((l,i)=>box.insertAdjacentHTML('beforeend',allocationHTML(l,i,'digital',posDigitalSplits++)));
-      updatePOS();
+    function resetPOS() {
+      editingPOSSaleId=null;
+      document.getElementById('posLineCount').value=1;
+      document.getElementById('posSaleDate').value=todayISO();
+      generatePOSLines(false);
     }
 
     function updatePOS() {
       const lines=getPOSLines();
       let grand=0;
       document.querySelectorAll('.pos-line-row').forEach((row,i)=>{
-        const q=Number(row.querySelector('.pos-qty').value||0), p=Number(row.querySelector('.pos-price').value||0);
-        const total=q*p; grand+=total;
-        row.querySelector('.pos-line-total').textContent=money(total);
+        const line=lines[i]; if(!line)return;
+        grand+=line.total;
+        row.querySelector('.pos-line-total').textContent=money(line.total);
+        const mixedTotal=Object.values(line.mixedPayments).reduce((a,b)=>a+b,0);
+        const mixedEl=row.querySelector('.mix-total');
+        if(mixedEl) mixedEl.textContent=money(mixedTotal);
       });
       document.getElementById('posGrandTotal').textContent=money(grand);
-
-      if(posPaymentMode && !document.querySelector('#posCashAllocations .pos-allocation')?.dataset.bound){
-        renderPOSAllocations();
-        return;
-      }
-
-      const lineRows=lines;
-      const allocationBoxes=posPaymentMode==='cash' ? [...document.querySelectorAll('#posCashAllocations .pos-allocation')] :
-        [...document.querySelectorAll('#posDigitalAllocations .pos-allocation')];
-
-      allocationBoxes.forEach(box=>{
-        const match=(box.getAttribute('data-allocation')||'').split('-');
-        const idx=Number(match[1]);
-        const line=lineRows[idx];
-        if(!line) return;
-        const qtyInput=box.querySelector('.alloc-qty');
-        qtyInput.max=line.quantity;
-        const qty=Math.min(line.quantity,Math.max(0,Number(qtyInput.value||0)));
-        qtyInput.value=qty;
-        box.querySelector('.alloc-price').value=line.price;
-        box.querySelector('.alloc-total').textContent=qty;
-        box.querySelector('.alloc-amount').textContent=money(qty*line.price);
-      });
-
-      const validation=document.getElementById('posValidation');
       const result=validatePOS();
+      const validation=document.getElementById('posValidation');
       validation.textContent=result.message;
       validation.classList.toggle('ok',result.ok);
+      validation.style.display=result.message?'block':'none';
       document.getElementById('posCompleteBtn').disabled=!result.ok;
       renderPOSSummary();
     }
@@ -2687,59 +2668,43 @@
       if(lines.some(l=>!l.name || l.quantity<=0 || l.price<0)) return {ok:false,message:'Every line needs a perfume name, quantity and valid price.'};
       const grand=lines.reduce((s,l)=>s+l.total,0);
       if(grand<=0) return {ok:false,message:'Grand total must be greater than 0 TZS.'};
-      if(!posPaymentMode) return {ok:false,message:'Choose CASH or DIGITAL.'};
-
-      const allocations={};
-      let amount=0;
-      let invalidDigital=false;
-      const selector=posPaymentMode==='cash' ? '#posCashAllocations .pos-allocation' : '#posDigitalAllocations .pos-allocation';
-      [...document.querySelectorAll(selector)].forEach(box=>{
-        const idx=Number((box.getAttribute('data-allocation')||'').split('-')[1]);
-        const q=Number(box.querySelector('.alloc-qty')?.value||0);
-        const line=lines[idx];
-        if(!line) return;
-        allocations[idx]=(allocations[idx]||0)+q;
-        amount+=q*line.price;
-        if(posPaymentMode==='digital' && q>0 && !box.querySelector('.alloc-method')?.value) invalidDigital=true;
-      });
-
-      const missing=lines.reduce((s,l,i)=>s+Math.max(0,l.quantity-(allocations[i]||0)),0);
-      const over=lines.some((l,i)=>(allocations[i]||0)>l.quantity);
-      if(over) return {ok:false,message:'A payment allocation exceeds the quantity sold.'};
-      if(missing>0) return {ok:false,message:`${missing} bottle${missing===1?'':'s'} still needs a payment method.`};
-      if(invalidDigital) return {ok:false,message:'Select the actual digital payment method for every digital allocation.'};
-      if(Math.abs(amount-grand)>0.001) return {ok:false,message:`Payment total ${money(amount)} does not equal the grand total ${money(grand)}.`};
-      return {ok:true,message:'All quantities and payment amounts are fully allocated ✓'};
+      for(let i=0;i<lines.length;i++){
+        const l=lines[i];
+        for(let j=i+1;j<lines.length;j++){
+          const other=lines[j];
+          if(l.name.trim().toLowerCase()===other.name.trim().toLowerCase() && String(l.size)===String(other.size)){
+            return {ok:false,message:`${l.name}${l.size ? ' '+l.size+'ml' : ''} is entered more than once. Use the Quantity field instead.`};
+          }
+        }
+        if(!l.paymentMethod) return {ok:false,message:`Select a payment method for line ${i+1}.`};
+        if(l.paymentMethod==='Mixed'){
+          const allocated=Object.values(l.mixedPayments).reduce((a,b)=>a+b,0);
+          if(Math.abs(allocated-l.total)>0.001) return {ok:false,message:`Mixed payment for line ${i+1} must equal ${money(l.total)}.`};
+          if(Object.values(l.mixedPayments).some(v=>v<0)) return {ok:false,message:`Invalid mixed payment amount on line ${i+1}.`};
+        }
+      }
+      return {ok:true,message:'All sale lines are complete ✓'};
     }
 
     function collectPOSPayments() {
       const lines=getPOSLines();
-      const payments=[];
-      if(posPaymentMode==='cash'){
-        const allocations=[];
-        document.querySelectorAll('#posCashAllocations .pos-allocation').forEach(box=>{
-          const idx=Number((box.getAttribute('data-allocation')||'').split('-')[1]);
-          const q=Number(box.querySelector('.alloc-qty').value||0);
-          if(q>0) allocations.push({lineIndex:idx,quantity:q,amount:q*lines[idx].price});
-        });
-        const amount=allocations.reduce((s,x)=>s+x.amount,0);
-        payments.push({mode:'CASH',method:'CASH',amount,allocations});
-      } else {
-        const grouped={};
-        document.querySelectorAll('#posDigitalAllocations .pos-allocation').forEach(box=>{
-          const idx=Number((box.getAttribute('data-allocation')||'').split('-')[1]);
-          const q=Number(box.querySelector('.alloc-qty').value||0);
-          const method=box.querySelector('.alloc-method')?.value||'';
-          if(q>0){
-            const amount=q*lines[idx].price;
-            if(!grouped[method]) grouped[method]={mode:'DIGITAL',method,amount:0,allocations:[]};
+      const grouped={};
+      lines.forEach((l,i)=>{
+        if(l.paymentMethod==='Mixed'){
+          Object.entries(l.mixedPayments).forEach(([method,amount])=>{
+            if(amount<=0)return;
+            if(!grouped[method]) grouped[method]={mode:'LINE',method,amount:0,allocations:[]};
             grouped[method].amount+=amount;
-            grouped[method].allocations.push({lineIndex:idx,quantity:q,amount});
-          }
-        });
-        payments.push(...Object.values(grouped));
-      }
-      return payments;
+            grouped[method].allocations.push({lineIndex:i,quantity:l.quantity,amount});
+          });
+        } else {
+          const method=l.paymentMethod;
+          if(!grouped[method]) grouped[method]={mode:'LINE',method,amount:0,allocations:[]};
+          grouped[method].amount+=l.total;
+          grouped[method].allocations.push({lineIndex:i,quantity:l.quantity,amount:l.total});
+        }
+      });
+      return Object.values(grouped);
     }
 
     function renderPOSSummary() {
@@ -2760,14 +2725,12 @@
       const total=lines.reduce((s,l)=>s+l.total,0);
       const qty=lines.reduce((s,l)=>s+l.quantity,0);
       const saleDate=document.getElementById('posSaleDate').value||todayISO();
+      const oldSale=editingPOSSaleId ? activeOrders.find(s=>s.id===editingPOSSaleId) : null;
+      const oldPOS=oldSale ? parsePOSSale(oldSale) : null;
       const payload={
-        type:'POS',
-        version:1,
-        transactionId:crypto.randomUUID ? crypto.randomUUID() : ('pos-'+Date.now()+'-'+Math.random().toString(16).slice(2)),
-        lines,
-        payments,
-        total,
-        quantity:qty
+        type:'POS', version:2,
+        transactionId:oldPOS?.transactionId || (crypto.randomUUID ? crypto.randomUUID() : ('pos-'+Date.now()+'-'+Math.random().toString(16).slice(2))),
+        lines, payments, total, quantity:qty
       };
       const record={
         user_id:currentUser.id,
@@ -2780,77 +2743,59 @@
         updated_at:new Date().toISOString()
       };
       try{
-        const {error}=await supabaseClient.from('sales').insert([record]);
-        if(error) throw error;
-        alert('Sale completed successfully!');
+        let query;
+        if(editingPOSSaleId) query=supabaseClient.from('sales').update(record).eq('id',editingPOSSaleId).eq('user_id',currentUser.id);
+        else query=supabaseClient.from('sales').insert([record]);
+        const {error}=await query;
+        if(error)throw error;
+        alert(editingPOSSaleId?'Sale updated successfully!':'Sale completed successfully!');
+        editingPOSSaleId=null;
         resetPOS();
         await syncSalesFromSupabase();
-      }catch(e){ alert('Error completing POS sale: '+e.message); }
+      }catch(e){ alert('Error saving POS sale: '+e.message); }
     }
 
-    function renderRecordedSales() {
-      const container=document.getElementById('recordedSalesProgressList');
-      if(!container)return;
-      if(!activeOrders.length){container.innerHTML='<div class="expense-empty">No sales recorded yet.</div>';return;}
-      container.innerHTML=activeOrders.map((sale,index)=>{
-        const pos=parsePOSSale(sale), name=saleDisplayName(sale);
-        const detail=pos ? `${sale.quantity} bottles • ${pos.lines.length} perfume lines` : `Quantity: ${sale.quantity} | Price: ${money(sale.price)}`;
-        const pay=pos ? (pos.payments||[]).map(p=>`${p.method}: ${money(p.amount)}`).join(' • ') : sale.paymentMethod;
-        return `<div class="sale-card-item">
-          <div style="display:flex;justify-content:space-between;font-weight:800;font-size:.9rem;"><span>Sale #${activeOrders.length-index} — ${escapeHtml(name)}</span><span style="color:var(--accent-gold);">${money(sale.total)}</span></div>
-          <div style="font-size:.78rem;color:var(--text-sub);margin-top:4px;">${escapeHtml(detail)}</div>
-          <div style="font-size:.78rem;color:var(--text-sub);margin-top:2px;">Payment: <strong>${escapeHtml(pay)}</strong> | Date: ${escapeHtml(sale.date)}</div>
-          <div class="sale-actions"><button class="small-action" onclick="editSale('${sale.id}')"><i class="fa-solid fa-pen"></i> Edit</button><button class="small-action delete" onclick="deleteSale('${sale.id}')"><i class="fa-solid fa-trash"></i> Delete</button></div>
-        </div>`;
-      }).join('');
-    }
-
-    function renderBookings() {
-      const container=document.getElementById('bookingsListContainer');
-      if(!container)return;
-      if(!activeOrders.length){container.innerHTML='<div class="expense-empty">No sales history found.</div>';return;}
-      container.innerHTML=activeOrders.map(sale=>{
-        const pos=parsePOSSale(sale);
-        const lines=saleLines(sale);
-        const products=lines.map(l=>`${escapeHtml(l.name)}${l.size?` ${l.size}ml`:''} × ${l.quantity} = ${money(l.total)}`).join('<br>');
-        const payments=salePayments(sale).map(p=>`${escapeHtml(p.method)}: ${money(p.amount)}`).join('<br>');
-        return `<div class="sales-entry-card">
-          <div style="display:flex;justify-content:space-between;font-weight:900;"><span>${escapeHtml(pos?'POS Sale':sale.perfumeName)}</span><span style="color:var(--accent-gold);">${money(sale.total)}</span></div>
-          <div style="font-size:.78rem;color:var(--text-sub);margin-top:6px;">${products}</div>
-          <div style="font-size:.78rem;color:var(--text-sub);margin-top:5px;">Payment: ${payments}</div>
-          <div style="font-size:.75rem;color:var(--text-sub);margin-top:3px;">Date: ${escapeHtml(sale.date)}</div>
-          <div class="sale-actions"><button class="small-action" onclick="editSale('${sale.id}')"><i class="fa-solid fa-pen"></i> Edit</button><button class="small-action delete" onclick="deleteSale('${sale.id}')"><i class="fa-solid fa-trash"></i> Delete</button></div>
-        </div>`;
-      }).join('');
-    }
-
-    function dateISOFromLocal(d){ const x=new Date(d.getFullYear(),d.getMonth(),d.getDate()); return `${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,'0')}-${String(x.getDate()).padStart(2,'0')}`; }
-    function addDaysISO(iso,n){ const [y,m,d]=iso.split('-').map(Number); const x=new Date(y,m-1,d); x.setDate(x.getDate()+n); return dateISOFromLocal(x); }
-    function startOfWeekISO(iso){ const [y,m,d]=iso.split('-').map(Number); const x=new Date(y,m-1,d); const day=x.getDay(); x.setDate(x.getDate()-(day===0?6:day-1)); return dateISOFromLocal(x); }
-    function endOfWeekISO(iso){ return addDaysISO(startOfWeekISO(iso),6); }
-    function currentReportRange(){
-      const today=todayISO();
-      if(reportPeriod==='today') return [today,today];
-      if(reportPeriod==='yesterday') return [addDaysISO(today,-1),addDaysISO(today,-1)];
-      if(reportPeriod==='thisWeek') return [startOfWeekISO(today),endOfWeekISO(today)];
-      if(reportPeriod==='lastWeek'){const s=addDaysISO(startOfWeekISO(today),-7);return [s,addDaysISO(s,6)];}
-      if(reportPeriod==='thisMonth') return [today.slice(0,7)+'-01', new Date(Number(today.slice(0,4)),Number(today.slice(5,7)),0) && dateISOFromLocal(new Date(Number(today.slice(0,4)),Number(today.slice(5,7)),0))];
-      if(reportPeriod==='lastMonth'){const [y,m]=today.slice(0,7).split('-').map(Number);const last=new Date(y,m-1,0);return [`${last.getFullYear()}-${String(last.getMonth()+1).padStart(2,'0')}-01`,dateISOFromLocal(last)];}
-      if(reportPeriod==='specificDate'){const d=document.getElementById('reportDate').value||today;return [d,d];}
-      if(reportPeriod==='specificMonth'){const mo=document.getElementById('reportMonth').value||today.slice(0,7);const [y,m]=mo.split('-').map(Number);const last=new Date(y,m,0);return [`${mo}-01`,dateISOFromLocal(last)];}
-      let from=document.getElementById('reportFrom').value||today, to=document.getElementById('reportTo').value||today;
-      if(from>to)[from,to]=[to,from]; return [from,to];
-    }
-
-    function setReportPeriod(period){
-      reportPeriod=period;
-      document.querySelectorAll('.report-period-btn').forEach(b=>b.classList.remove('active'));
-      const map={today:'periodToday',yesterday:'periodYesterday',thisWeek:'periodThisWeek',lastWeek:'periodLastWeek',thisMonth:'periodThisMonth',lastMonth:'periodLastMonth',specificDate:'periodSpecificDate',specificMonth:'periodSpecificMonth',custom:'periodCustom'};
-      document.getElementById(map[period]).classList.add('active');
-      document.getElementById('reportSpecificDate').style.display=period==='specificDate'?'block':'none';
-      document.getElementById('reportSpecificMonth').style.display=period==='specificMonth'?'block':'none';
-      document.getElementById('reportCustom').style.display=period==='custom'?'block':'none';
-      renderSalesProgress();
+    function editSale(id){
+      const sale=activeOrders.find(s=>s.id===id); if(!sale)return;
+      const pos=parsePOSSale(sale);
+      if(!pos){
+        editingSaleId=id;
+        document.getElementById('saleFormTitle').textContent='Edit Sale';
+        document.getElementById('saleSaveBtn').innerHTML='<i class="fa-solid fa-floppy-disk"></i> Update Sale';
+        document.getElementById('saleCancelBtn').style.display='block';
+        document.getElementById('salePerfumeName').value=sale.perfumeName;
+        document.getElementById('saleQuantity').value=sale.quantity;
+        document.getElementById('salePrice').value=sale.price;
+        document.getElementById('saleDate').value=sale.date;
+        calculateCurrentTotal();
+        selectSalePayment(sale.paymentMethod.includes('Mobile')?'Mobile Money':'Cash');
+        switchTab('screen-perfumes'); return;
+      }
+      editingPOSSaleId=id;
+      document.getElementById('posLineCount').value=(pos.lines||[]).length||1;
+      document.getElementById('posSaleDate').value=sale.date||todayISO();
+      generatePOSLines(false);
+      document.querySelectorAll('.pos-line-row').forEach((row,i)=>{
+        const l=pos.lines[i]||{};
+        row.querySelector('.pos-name').value=l.name||'';
+        row.querySelector('.pos-size').value=l.size||'';
+        row.querySelector('.pos-qty').value=l.quantity||'';
+        row.querySelector('.pos-price').value=l.price||'';
+        let inferredMethod=l.paymentMethod||'';
+        if(!inferredMethod && Array.isArray(pos.payments)){
+          const methods=pos.payments.filter(payment=>(payment.allocations||[]).some(a=>Number(a.lineIndex)===i)).map(payment=>payment.method).filter(Boolean);
+          inferredMethod=methods.length===1 ? methods[0] : (methods.length>1 ? 'Mixed' : 'Cash');
+        }
+        row.querySelector('.pos-payment-method').value=inferredMethod||'Cash';
+        const mp=l.mixedPayments||{};
+        ['Cash','M-Pesa','CRDB','Mixx by Yas','Halotel'].forEach(method=>{
+          const cls={'Cash':'mix-cash','M-Pesa':'mix-mpesa','CRDB':'mix-crdb','Mixx by Yas':'mix-mixx','Halotel':'mix-halotel'}[method];
+          const input=row.querySelector('.'+cls); if(input)input.value=mp[method]||'';
+        });
+        const mixed=row.querySelector('.pos-mixed-box'); if(mixed)mixed.style.display=(l.paymentMethod==='Mixed')?'block':'none';
+      });
+      updatePOS();
+      switchTab('screen-perfumes');
     }
 
     function filteredSalesForReport(){
@@ -2861,9 +2806,11 @@
     function buildReportData(sales){
       const data={revenue:0,bottles:0,transactions:sales.length,payments:{},products:{},lines:[]};
       sales.forEach(s=>{
-        data.revenue+=Number(s.total||0); data.bottles+=Number(s.quantity||0);
+        data.revenue+=Number(s.total||0);
+        data.bottles+=Number(s.quantity||0);
         saleLines(s).forEach(l=>{
-          const name=l.name||'Unknown Perfume'; data.products[name]=(data.products[name]||0)+Number(l.quantity||0);
+          const name=l.name||'Unknown Perfume';
+          data.products[name]=(data.products[name]||0)+Number(l.quantity||0);
           data.lines.push({sale:s,line:l});
         });
         salePayments(s).forEach(p=>data.payments[p.method]=(data.payments[p.method]||0)+Number(p.amount||0));
@@ -2878,7 +2825,6 @@
       const paymentRows=Object.keys(data.payments).length
         ? Object.entries(data.payments).sort((a,b)=>b[1]-a[1]).map(([m,v])=>`<div class="payment-report-row"><span>${escapeHtml(m)}</span><strong>${money(v)}</strong></div>`).join('')
         : '<div class="payment-report-row"><span>No payments</span><strong>0 TZS</strong></div>';
-      const productRows=Object.entries(data.products).sort((a,b)=>b[1]-a[1]).slice(0,10).map(([n,q],i)=>`<div class="bestseller-item"><span>${i+1}. ${escapeHtml(n)}</span><span style="color:var(--accent-gold);">${q} bottles</span></div>`).join('');
       metrics.innerHTML=`<div style="font-size:.72rem;color:var(--text-sub);margin-bottom:8px;">REPORT PERIOD: <strong>${from}</strong> → <strong>${to}</strong></div>
         <div class="report-kpi-grid">
           <div class="report-kpi"><div class="report-kpi-label">TOTAL SALES</div><div class="report-kpi-value">${money(data.revenue)}</div></div>
@@ -2886,8 +2832,7 @@
           <div class="report-kpi"><div class="report-kpi-label">TRANSACTIONS</div><div class="report-kpi-value">${data.transactions}</div></div>
         </div>
         <div class="report-section"><h4>PAYMENT METHOD TOTALS</h4>${paymentRows}<div class="payment-report-row" style="font-weight:900;"><span>TOTAL</span><strong>${money(Object.values(data.payments).reduce((a,b)=>a+b,0))}</strong></div></div>
-        <div class="report-section"><h4>PRODUCTS SOLD</h4>${data.lines.length ? data.lines.map(x=>`<div class="payment-report-row"><span>${escapeHtml(x.line.name)}${x.line.size?` ${x.line.size}ml`:''}</span><strong>${x.line.quantity} × ${money(x.line.price)} = ${money(x.line.total)}</strong></div>`).join('') : '<div class="expense-empty">No sales in this period.</div>'}</div>
-        <div class="report-section"><h4>BEST SELLERS</h4>${productRows||'<div class="expense-empty">No sales in this period.</div>'}</div>`;
+        <div class="report-section"><h4>PRODUCTS SOLD</h4>${data.lines.length ? data.lines.map(x=>`<div class="payment-report-row"><span>${escapeHtml(x.line.name)}${x.line.size?` ${x.line.size}ml`:''}</span><strong>${money(x.line.total)}</strong></div>`).join('') : '<div class="expense-empty">No sales in this period.</div>'}</div>`;
       renderBestSellers(data);
     }
 
@@ -2895,85 +2840,7 @@
       const container=document.getElementById('bestSellersList'); if(!container)return;
       const data=dataArg||buildReportData(filteredSalesForReport());
       const sorted=Object.entries(data.products).sort((a,b)=>b[1]-a[1]);
-      container.innerHTML=sorted.length?sorted.map(([name,qty],i)=>`<div class="bestseller-item"><span>${i+1}. ${escapeHtml(name)}</span><span style="color:var(--accent-gold);">${qty} bottles</span></div>`).join(''):'<div class="expense-empty">No sales in this period.</div>';
-    }
-
-    /* POS edit support: update the exact existing row, never create a duplicate. */
-    let editingPOSSaleId=null;
-    function editSale(id){
-      const sale=activeOrders.find(s=>s.id===id); if(!sale)return;
-      const pos=parsePOSSale(sale);
-      if(!pos){
-        /* Preserve the original individual-sale editor. */
-        editingSaleId=id;
-        document.getElementById('saleFormTitle').textContent='Edit Sale';
-        document.getElementById('saleSaveBtn').innerHTML='<i class="fa-solid fa-floppy-disk"></i> Update Sale';
-        document.getElementById('saleCancelBtn').style.display='block';
-        document.getElementById('salePerfumeName').value=sale.perfumeName;
-        document.getElementById('saleQuantity').value=sale.quantity;
-        document.getElementById('salePrice').value=sale.price;
-        document.getElementById('saleDate').value=sale.date;
-        calculateCurrentTotal();
-        selectSalePayment(sale.paymentMethod.includes('Mobile')?'Mobile Money':'Cash');
-        switchTab('screen-perfumes'); return;
-      }
-      editingPOSSaleId=id;
-      document.getElementById('posLineCount').value=pos.lines.length;
-      document.getElementById('posSaleDate').value=sale.date;
-      generatePOSLines();
-      document.querySelectorAll('.pos-line-row').forEach((row,i)=>{
-        const l=pos.lines[i]||{};
-        row.querySelector('.pos-name').value=l.name||'';
-        row.querySelector('.pos-size').value=l.size||'';
-        row.querySelector('.pos-qty').value=l.quantity||0;
-        row.querySelector('.pos-price').value=l.price||0;
-      });
-      posPaymentMode='';
-      updatePOS();
-      setPOSPaymentMode((pos.payments||[]).some(p=>p.mode==='CASH')?'cash':'digital');
-      renderPOSAllocationsFromData(pos);
-      document.getElementById('posCompleteBtn').disabled=false;
-      switchTab('screen-perfumes');
-    }
-
-    function renderPOSAllocationsFromData(pos){
-      const lines=getPOSLines();
-      const cashAlloc=document.querySelectorAll('#posCashAllocations .pos-allocation');
-      const digAlloc=document.querySelectorAll('#posDigitalAllocations .pos-allocation');
-      [...cashAlloc,...digAlloc].forEach(b=>{b.querySelector('.alloc-qty').value=0; if(b.querySelector('.alloc-method'))b.querySelector('.alloc-method').value='';});
-      (pos.payments||[]).forEach(p=>{
-        (p.allocations||[]).forEach(a=>{
-          const selector=p.mode==='CASH'?'#posCashAllocations .pos-allocation':'#posDigitalAllocations .pos-allocation';
-          const boxes=[...document.querySelectorAll(selector)];
-          const box=boxes.find(b=>Number((b.dataset.allocation||'').split('-')[1])===a.lineIndex);
-          if(box){box.querySelector('.alloc-qty').value=Number(box.querySelector('.alloc-qty').value||0)+Number(a.quantity||0);if(box.querySelector('.alloc-method'))box.querySelector('.alloc-method').value=p.method;}
-        });
-      });
-      updatePOS();
-    }
-
-    async function completePOSSale(){
-      const result=validatePOS(); if(!result.ok){alert(result.message);return;}
-      const lines=getPOSLines(),payments=collectPOSPayments(),total=lines.reduce((s,l)=>s+l.total,0),qty=lines.reduce((s,l)=>s+l.quantity,0);
-      const payload={type:'POS',version:1,transactionId:(parsePOSSale(activeOrders.find(s=>s.id===editingPOSSaleId))?.transactionId)||(crypto.randomUUID?crypto.randomUUID():'pos-'+Date.now()),lines,payments,total,quantity:qty};
-      const record={user_id:currentUser.id,perfume_name:POS_PREFIX+JSON.stringify(payload),quantity:qty,price:qty?total/qty:0,total,payment_method:'POS',sale_date:document.getElementById('posSaleDate').value||todayISO(),updated_at:new Date().toISOString()};
-      try{
-        let q;
-        if(editingPOSSaleId) q=supabaseClient.from('sales').update(record).eq('id',editingPOSSaleId).eq('user_id',currentUser.id);
-        else q=supabaseClient.from('sales').insert([record]);
-        const {error}=await q;if(error)throw error;
-        alert(editingPOSSaleId?'Sale updated successfully!':'Sale completed successfully!');
-        editingPOSSaleId=null; resetPOS(); await syncSalesFromSupabase();
-      }catch(e){alert('Error saving POS sale: '+e.message);}
-    }
-
-    function resetPOS(){
-      editingPOSSaleId=null; posPaymentMode=''; posDigitalSplits=1;
-      const lc=document.getElementById('posLineCount'); if(lc)lc.value=1;
-      const date=document.getElementById('posSaleDate'); if(date)date.value=todayISO();
-      document.getElementById('posCashBtn').classList.remove('active'); document.getElementById('posDigitalBtn').classList.remove('active');
-      document.getElementById('posCashSection').classList.remove('active'); document.getElementById('posDigitalSection').classList.remove('active');
-      generatePOSLines();
+      container.innerHTML=sorted.length?sorted.map(([name,qty],i)=>`<div class="bestseller-item"><span>${i+1}. ${escapeHtml(name)}</span><span style="color:var(--accent-gold);">${qty} sold</span></div>`).join(''):'<div class="expense-empty">No sales in this period.</div>';
     }
 
     /* Override monthly review so it uses the exact selected month and exact database rows. */
