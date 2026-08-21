@@ -721,7 +721,7 @@
       border:1px solid var(--card-border);
       background:var(--card-bg-sub);
       border-radius:10px;
-      padding:9px 5px;
+      padding:99px 5px;
       font-size:.72rem;
       font-weight:800;
       cursor:pointer;
@@ -765,6 +765,30 @@
     .auth-reset-message { font-size: 0.82rem; color: var(--accent-gold); margin-top: 10px; min-height: 18px; text-align: center; }
     
     /* STOCKS & ACCORDION STYLES */
+    .stock-header-wrapper {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .stock-history-btn {
+      background: linear-gradient(135deg, var(--accent-gold) 0%, #b89628 100%);
+      color: #000;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.72rem;
+      font-weight: 900;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 2px 6px var(--shadow-color);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .stock-history-btn:active {
+      transform: scale(0.96);
+    }
     .accordion-item {
       background: var(--card-bg);
       border: 1px solid var(--card-border);
@@ -813,7 +837,6 @@
     }
     .stock-stat-lbl { font-size: 0.7rem; color: var(--text-sub); }
     .stock-stat-val { font-size: 0.9rem; font-weight: 800; margin-top: 2px; }
-
     /* INDIVIDUAL SALE BOX & BEST SELLERS FORMATTING */
     .sale-card-item {
       background: var(--card-bg);
@@ -834,13 +857,42 @@
       font-weight: 800;
       font-size: 0.85rem;
     }
+
+    /* STOCK ACTIVITY LOG ITEM STYLES */
+    .activity-log-item {
+      background: var(--card-bg-sub);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 10px;
+    }
+    .activity-log-type {
+      font-size: 0.68rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      padding: 2px 8px;
+      border-radius: 10px;
+      background: var(--accent-gold-light);
+      color: var(--accent-gold);
+      display: inline-block;
+      margin-bottom: 6px;
+    }
+    .activity-log-title {
+      font-size: 0.9rem;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+    .activity-log-meta {
+      font-size: 0.75rem;
+      color: var(--text-sub);
+      margin-top: 4px;
+    }
   </style>
 </head>
 <body>
   <div id="splash-screen">
     <img src="/images/splash-logo.png" alt="Glamo Scents Splash Logo" class="splash-logo">
   </div>
-
   <div id="screen-auth" class="app-screen" style="display:none; justify-content:center; align-items:center;">
     <video class="auth-hero-video" autoplay muted loop playsinline preload="auto">
       <source src="login-hero.mp4" type="video/mp4">
@@ -893,7 +945,6 @@
       <div class="auth-switch" onclick="showLoginAuthScreen()"><span>Return to Login</span></div>
     </div>
   </div>
-
   <header class="app-header" id="mainHeader" style="display:none;">
     <div class="header-left">
       <button id="globalBackBtn" class="back-btn" onclick="goBack()" title="Back">
@@ -913,7 +964,6 @@
       </button>
     </div>
   </header>
-
   <!-- SCREEN 1: HOME -->
   <div id="screen-home" class="app-screen">
     <div class="hero-banner">
@@ -965,7 +1015,6 @@
       <i class="fa-solid fa-right-from-bracket"></i> Log Out
     </button>
   </div>
-
   <!-- SCREEN: EXPENSES -->
   <div id="screen-expenses" class="app-screen">
     <div class="section-title"><i class="fa-solid fa-receipt" style="color:var(--accent-gold);"></i> Expenses</div>
@@ -992,7 +1041,6 @@
       <div id="expensesList"></div>
     </div>
   </div>
-
   <!-- SCREEN 2: PERFUME SALE ENTRY -->
   <div id="screen-perfumes" class="app-screen">
     <div class="section-title">
@@ -1049,14 +1097,12 @@
       </button>
       <button id="saleCancelBtn" class="reorder-btn" style="width:100%;margin-top:8px;display:none;" onclick="cancelSaleEdit()">Cancel Edit</button>
     </div>
-
     <!-- PRESERVED SALES PROGRESS STATE / RECORDED LIST -->
     <div class="progress-panel">
       <h3>Recorded Sales List</h3>
       <div id="recordedSalesProgressList"></div>
     </div>
   </div>
-
   <!-- SCREEN 3: AI GUIDE -->
   <div id="screen-ai" class="app-screen">
     <div class="ambient-glow"></div>
@@ -1082,7 +1128,6 @@
       </button>
     </div>
   </div>
-
   <!-- SALES PROGRESS SCREEN -->
   <div id="screen-sales-progress" class="app-screen">
     <div class="section-title">
@@ -1131,7 +1176,6 @@
       <div id="bestSellersList"></div>
     </div>
   </div>
-
   <!-- SCREEN 4: SALES -->
   <div id="screen-bookings" class="app-screen">
     <div class="section-title">
@@ -1139,7 +1183,6 @@
     </div>
     <div id="bookingsListContainer"></div>
   </div>
-
   <!-- SCREEN 5: PROFILE -->
   <div id="screen-profile" class="app-screen">
     <div class="profile-header-card">
@@ -1168,14 +1211,18 @@
       <i class="fa-solid fa-right-from-bracket"></i> Log Out
     </button>
   </div>
-
-  <!-- SCREEN 6: STOCKS (REVIEWS HISTORY FULLY REMOVED) -->
+  <!-- SCREEN 6: STOCKS -->
   <div id="screen-stocks" class="app-screen">
     <div class="section-title">
       <i class="fa-solid fa-boxes-stacked" style="color:var(--accent-gold);"></i> Stocks
     </div>
     <div id="stocksMainArea">
-      <div style="font-weight: 800; font-size: 0.95rem; margin-bottom: 12px; color: var(--text-sub);">STOCK ACTIVITIES</div>
+      <div class="stock-header-wrapper">
+        <div style="font-weight: 800; font-size: 0.95rem; color: var(--text-sub);">STOCK ACTIVITIES</div>
+        <button class="stock-history-btn" onclick="openStockHistoryModal()">
+          <i class="fa-solid fa-clock-rotate-left"></i> Activities History
+        </button>
+      </div>
       
       <!-- A — Oil Bottles -->
       <div class="accordion-item">
@@ -1198,7 +1245,6 @@
           <div id="oilBottlesList" style="margin-top:12px;"></div>
         </div>
       </div>
-
       <!-- B — Perfume Bottles -->
       <div class="accordion-item">
         <div class="accordion-header" onclick="toggleAccordion('perfumeBottlesAcc')">
@@ -1231,8 +1277,7 @@
           <div id="perfumeBottlesList" style="margin-top:12px;"></div>
         </div>
       </div>
-
-      <!-- C — Specific Perfume Items (Niche Manual Addition Removed) -->
+      <!-- C — Specific Perfume Items -->
       <div class="accordion-item">
         <div class="accordion-header" onclick="toggleAccordion('specificPerfumesAcc')">
           <span>C — Specific Perfume Items</span>
@@ -1255,7 +1300,6 @@
       </div>
     </div>
   </div>
-
   <!-- MONTHLY REVIEW MODAL -->
   <div id="monthlyReviewModal" class="modal-overlay">
     <div class="sheet-content full-screen">
@@ -1264,7 +1308,16 @@
       <div id="monthlyReviewContent"></div>
     </div>
   </div>
-
+  <!-- STOCKS HISTORY ACTIVITIES MODAL -->
+  <div id="stockHistoryModal" class="modal-overlay">
+    <div class="sheet-content full-screen">
+      <span class="sheet-close" onclick="closeSheet('stockHistoryModal')">&times;</span>
+      <div class="modal-sticky-header">
+        <div class="sheet-title"><i class="fa-solid fa-clock-rotate-left" style="color:var(--accent-gold);"></i> Stock Activities History</div>
+      </div>
+      <div id="stockHistoryContent" style="padding-top:10px;"></div>
+    </div>
+  </div>
   <!-- BOTTOM NAVIGATION -->
   <nav class="bottom-nav" id="mainNavBar" style="display:none;">
     <button id="nav-home-btn" class="nav-item active" onclick="switchTab('screen-home', this)">
@@ -1288,7 +1341,6 @@
       <span>Stocks</span>
     </button>
   </nav>
-
   <script>
     const SUPABASE_URL = 'https://zudqubbglwphfxaviqsg.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp1ZHF1YmJnbHdwaGZ4YXZpcXNnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI0NjcyNTUsImV4cCI6MjA5ODA0MzI1NX0.7pRbRqz9-5gN8SG_ALn5ecHOWQofykPvhbrE2HQROCE';
@@ -1307,7 +1359,6 @@
     let selectedMobileProvider = '';
     let reviewMode = 'daily';
     let editingSaleId = null;
-
     // Stock state
     let oilBottleStocks = [];
     let perfumeBottleStocks = [];
@@ -1316,16 +1367,13 @@
     let editingOilId = null;
     let editingPBottleId = null;
     let editingSpecId = null;
-
     const BOTTLE_FIXED_PCS = {
       '10 ml': 273,
       '30 ml': 140,
       '50 ml': 70
     };
-
     const todayISO = () => new Date().toISOString().slice(0,10);
     const monthISO = () => new Date().toISOString().slice(0,7);
-
     function escapeHtml(value) {
       return String(value ?? '').replace(/[&<>"']/g, c => ({
         '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'
@@ -1333,26 +1381,22 @@
     }
     
     function money(v) { return Number(v || 0).toLocaleString() + ' TZS'; }
-
     function calculateCurrentTotal() {
       const q = Number(document.getElementById('saleQuantity').value || 0);
       const p = Number(document.getElementById('salePrice').value || 0);
       document.getElementById('saleTotalCalculated').value = q * p;
     }
-
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('service-worker.js').catch(()=>{});
       });
     }
-
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
       deferredPrompt = e;
       const btn = document.getElementById('pwaInstallBtn');
       if (btn) btn.style.display = 'flex';
     });
-
     function installPWA() {
       if (!deferredPrompt) return;
       deferredPrompt.prompt();
@@ -1361,11 +1405,9 @@
         deferredPrompt = null;
       });
     }
-
     supabaseClient.auth.onAuthStateChange((event, session) => {
       if (event === 'PASSWORD_RECOVERY' && session) showResetPasswordScreen();
     });
-
     window.addEventListener('DOMContentLoaded', async () => {
       document.getElementById('saleDate').value = todayISO();
       document.getElementById('dailyDate').value = todayISO();
@@ -1389,7 +1431,6 @@
         }
       }, 800);
     });
-
     async function fetchAndSetupUserData(userId) {
       const { data } = await supabaseClient
         .from('profiles')
@@ -1403,7 +1444,6 @@
       if (!currentUsername && currentUser) currentUsername = currentUser.email.split('@')[0];
       setupUserInterface();
     }
-
     function setupRealtimeSubscriptions() {
       if (!currentUser) return;
       
@@ -1416,7 +1456,6 @@
         .on('postgres_changes', { event: '*', schema: 'public', table: 'specific_perfumes', filter: `user_id=eq.${currentUser.id}` }, () => syncAllStocksFromSupabase())
         .subscribe();
     }
-
     async function syncSalesFromSupabase() {
       if (!currentUser) return;
       try {
@@ -1448,7 +1487,6 @@
       renderSalesProgress();
       updateLoyaltyUI();
     }
-
     function showAuthScreen() {
       document.getElementById('screen-auth').style.display = 'flex';
       showLoginAuthScreen();
@@ -1456,7 +1494,6 @@
       document.getElementById('mainNavBar').style.display = 'none';
       document.querySelectorAll('.app-screen').forEach(s => s.classList.remove('active'));
     }
-
     function setupUserInterface() {
       document.getElementById('screen-auth').style.display = 'none';
       document.getElementById('mainHeader').style.display = 'flex';
@@ -1467,7 +1504,6 @@
       document.getElementById('profAvatar').innerText = currentUsername.charAt(0).toUpperCase();
       document.getElementById('profPhone').innerText = currentUserPhone || '';
     }
-
     function showLoginAuthScreen() {
       document.getElementById('resetPasswordContainer').style.display = 'none';
       document.querySelector('#screen-auth .auth-container:not(#resetPasswordContainer)').style.display = 'block';
@@ -1481,7 +1517,6 @@
       document.getElementById('confirmPasswordGroup').style.display = 'none';
       document.getElementById('forgotPasswordLink').style.display = 'block';
     }
-
     function toggleAuthMode() {
       document.getElementById('resetPasswordContainer').style.display = 'none';
       document.querySelector('#screen-auth .auth-container:not(#resetPasswordContainer)').style.display = 'block';
@@ -1495,7 +1530,6 @@
       document.getElementById('confirmPasswordGroup').style.display = isRegisterMode ? 'block' : 'none';
       document.getElementById('forgotPasswordLink').style.display = isRegisterMode ? 'none' : 'block';
     }
-
     async function handleAuthSubmit() {
       const email = document.getElementById('authEmail').value.trim();
       const password = document.getElementById('authPassword').value;
@@ -1530,7 +1564,6 @@
         await syncAllStocksFromSupabase();
       }
     }
-
     async function handleLogout() {
       await supabaseClient.auth.signOut();
       currentUser = null;
@@ -1543,7 +1576,6 @@
       specificPerfumeStocks = [];
       showAuthScreen();
     }
-
     function toggleTheme() {
       const currentTheme = document.documentElement.getAttribute('data-theme');
       const icon = document.querySelector('#themeToggleBtn i');
@@ -1555,7 +1587,6 @@
         icon.className = 'fa-solid fa-sun';
       }
     }
-
     function switchTab(screenId, element) {
       document.querySelectorAll('.app-screen').forEach(s => s.classList.remove('active'));
       document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
@@ -1566,24 +1597,20 @@
       if (screenId === 'screen-bookings') renderBookings();
       if (screenId === 'screen-stocks') renderStocksArea();
     }
-
     function goBack() {
       switchTab('screen-home', document.getElementById('nav-home-btn'));
     }
-
     function selectSalePayment(type) {
       selectedSalePayment = type;
       document.getElementById('saleCashBtn').classList.toggle('active', type === 'Cash');
       document.getElementById('saleMobileBtn').classList.toggle('active', type === 'Mobile Money');
       document.getElementById('saleMobileBox').classList.toggle('active', type === 'Mobile Money');
     }
-
     function selectMobileProvider(el, provider) {
       document.querySelectorAll('#saleMobileBox .pay-option-btn').forEach(x => x.classList.remove('active'));
       el.classList.add('active');
       selectedMobileProvider = provider;
     }
-
     async function saveSale() {
       const perfumeName = document.getElementById('salePerfumeName').value.trim();
       const quantity = Number(document.getElementById('saleQuantity').value || 0);
@@ -1602,14 +1629,11 @@
         alert('Please select a payment method for this sale.');
         return;
       }
-
       let finalPaymentMethod = selectedSalePayment;
       if (selectedSalePayment === 'Mobile Money' && selectedMobileProvider) {
         finalPaymentMethod = `Mobile Money (${selectedMobileProvider})`;
       }
-
       const totalCalculated = quantity * price;
-
       const recordData = {
         user_id: currentUser.id,
         perfume_name: perfumeName,
@@ -1620,7 +1644,6 @@
         sale_date: saleDateVal,
         updated_at: new Date().toISOString()
       };
-
       try {
         if (editingSaleId) {
           const { error } = await supabaseClient
@@ -1643,7 +1666,6 @@
         alert('Error saving sale: ' + err.message);
       }
     }
-
     function editSale(id) {
       const sale = activeOrders.find(s => s.id === id);
       if (!sale) return;
@@ -1658,7 +1680,6 @@
       document.getElementById('salePrice').value = sale.price;
       document.getElementById('saleDate').value = sale.date;
       calculateCurrentTotal();
-
       if (sale.paymentMethod.includes('Mobile')) {
         selectSalePayment('Mobile Money');
       } else {
@@ -1666,7 +1687,6 @@
       }
       switchTab('screen-perfumes');
     }
-
     function cancelSaleEdit() {
       editingSaleId = null;
       document.getElementById('saleFormTitle').textContent = 'Record Individual Sale';
@@ -1681,7 +1701,6 @@
       selectedMobileProvider = '';
       selectSalePayment('');
     }
-
     async function deleteSale(id) {
       if (!confirm('Are you sure you want to delete this sale record?')) return;
       try {
@@ -1692,7 +1711,6 @@
         alert('Failed to delete sale: ' + e.message);
       }
     }
-
     function renderRecordedSales() {
       const container = document.getElementById('recordedSalesProgressList');
       if (!container) return;
@@ -1719,7 +1737,6 @@
         </div>
       `).join('');
     }
-
     function renderBookings() {
       const container = document.getElementById('bookingsListContainer');
       if (!container) return;
@@ -1749,15 +1766,12 @@
         </div>
       `).join('');
     }
-
     function renderSalesProgress() {
       renderBestSellers();
       const metrics = document.getElementById('progressMetrics');
       if (!metrics) return;
-
       const totalRev = activeOrders.reduce((sum, s) => sum + s.total, 0);
       const totalQty = activeOrders.reduce((sum, s) => sum + s.quantity, 0);
-
       metrics.innerHTML = `
         <div class="review-card" style="margin-bottom:0; text-align:center;">
           <div style="font-size:0.75rem; color:var(--text-sub);">Total Sales Revenue</div>
@@ -1769,24 +1783,19 @@
         </div>
       `;
     }
-
     function renderBestSellers() {
       const container = document.getElementById('bestSellersList');
       if (!container) return;
-
       const tally = {};
       activeOrders.forEach(sale => {
         const name = sale.perfumeName;
         tally[name] = (tally[name] || 0) + sale.quantity;
       });
-
       const sorted = Object.entries(tally).sort((a, b) => b[1] - a[1]);
-
       if (!sorted.length) {
         container.innerHTML = '<div style="font-size:0.8rem; color:var(--text-sub);">No sales available to determine Best Sellers.</div>';
         return;
       }
-
       container.innerHTML = sorted.map(([name, qty], index) => `
         <div class="bestseller-item">
           <span>${index + 1}. ${escapeHtml(name)}</span>
@@ -1794,7 +1803,6 @@
         </div>
       `).join('');
     }
-
     function updateLoyaltyUI() {
       const badge = document.getElementById('loyaltyCountBadge');
       if (badge) badge.textContent = `Total Orders: ${activeOrders.length}`;
@@ -1807,10 +1815,8 @@
         }
       });
     }
-
     /* EXPENSES LOGIC */
     let editingExpenseId = null;
-
     function renderExpenses() {
       const list = document.getElementById('expensesList'), totalEl = document.getElementById('expenseTotalValue');
       if (!list) return;
@@ -1825,7 +1831,6 @@
           <div class="expense-actions"><button class="expense-action" onclick="editExpense('${e.id}')"><i class="fa-solid fa-pen"></i> Edit</button><button class="expense-action delete" onclick="deleteExpense('${e.id}')"><i class="fa-solid fa-trash"></i> Delete</button></div>
         </div>`).join('');
     }
-
     async function syncExpensesFromSupabase() {
       if (!currentUser) return;
       try {
@@ -1848,7 +1853,6 @@
       }
       renderExpenses();
     }
-
     async function saveExpense() {
       const name = document.getElementById('expenseName').value.trim();
       const date = document.getElementById('expenseDate').value;
@@ -1871,7 +1875,6 @@
         alert('Error saving expense: ' + e.message);
       }
     }
-
     function editExpense(id) {
       const e = expenses.find(x => x.id === id); if (!e) return;
       editingExpenseId = id;
@@ -1884,7 +1887,6 @@
       document.getElementById('expenseSaveBtn').innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Update Expense';
       document.getElementById('expenseCancelBtn').style.display = 'block';
     }
-
     function resetExpenseForm() {
       editingExpenseId = null;
       document.getElementById('expenseName').value = '';
@@ -1896,9 +1898,7 @@
       document.getElementById('expenseSaveBtn').innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Save Expense';
       document.getElementById('expenseCancelBtn').style.display = 'none';
     }
-
     function cancelExpenseEdit() { resetExpenseForm(); }
-
     async function deleteExpense(id) {
       if (!confirm('Delete this expense?')) return;
       try {
@@ -1908,7 +1908,6 @@
         alert('Failed to delete expense: ' + e.message);
       }
     }
-
     /* STOCKS MANAGEMENT */
     async function syncAllStocksFromSupabase() {
       if (!currentUser) return;
@@ -1926,25 +1925,21 @@
       }
       renderStocksArea();
     }
-
     function toggleAccordion(id) {
       const content = document.getElementById(id);
       if (content) content.classList.toggle('active');
     }
-
     function renderStocksArea() {
       renderOilBottlesList();
       renderPerfumeBottlesList();
       renderSpecificPerfumesList();
     }
-
     /* A — Oil Bottles */
     function calcOilRem() {
       const cur = Number(document.getElementById('oilCurrent').value || 0);
       const used = Number(document.getElementById('oilUsed').value || 0);
       document.getElementById('oilRemaining').value = cur - used;
     }
-
     async function saveOilBottle() {
       const name = document.getElementById('oilName').value.trim();
       const current = Number(document.getElementById('oilCurrent').value || 0);
@@ -1969,7 +1964,6 @@
         await syncAllStocksFromSupabase();
       } catch(e) { alert('Failed to save Oil Bottle: ' + e.message); }
     }
-
     function editOilBottle(id) {
       const rec = oilBottleStocks.find(x => x.id === id); if (!rec) return;
       editingOilId = id;
@@ -1981,7 +1975,6 @@
       document.getElementById('oilSaveBtn').innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Update Record';
       document.getElementById('oilCancelBtn').style.display = 'block';
     }
-
     function resetOilForm() {
       editingOilId = null;
       document.getElementById('oilName').value = '';
@@ -1992,13 +1985,11 @@
       document.getElementById('oilSaveBtn').innerHTML = '<i class="fa-solid fa-plus"></i> Save Record';
       document.getElementById('oilCancelBtn').style.display = 'none';
     }
-
     async function deleteOilBottle(id) {
       if (!confirm('Delete this record?')) return;
       await supabaseClient.from('oil_bottles').delete().eq('id', id);
       await syncAllStocksFromSupabase();
     }
-
     function renderOilBottlesList() {
       const el = document.getElementById('oilBottlesList');
       if (!el) return;
@@ -2019,7 +2010,6 @@
           </div>
         </div>`).join('');
     }
-
     /* B — Perfume Bottles */
     function calcPBottlePCS() {
       const size = document.getElementById('pBottleSize').value;
@@ -2035,7 +2025,6 @@
       document.getElementById('pUsedPcsLbl').innerText = usedPcs;
       document.getElementById('pAvailPcsLbl').innerText = availPcs;
     }
-
     async function savePerfumeBottleBox() {
       const bottle_size = document.getElementById('pBottleSize').value;
       const boxes_brought = Number(document.getElementById('pBoxesBrought').value || 0);
@@ -2045,7 +2034,6 @@
       const total_pcs = boxes_brought * pcs_per_box;
       const used_pcs = boxes_used * pcs_per_box;
       const available_pcs = total_pcs - used_pcs;
-
       const payload = {
         user_id: currentUser.id,
         bottle_size,
@@ -2057,7 +2045,6 @@
         available_pcs,
         date: todayISO()
       };
-
       try {
         if (editingPBottleId) {
           await supabaseClient.from('perfume_bottles').update(payload).eq('id', editingPBottleId);
@@ -2068,7 +2055,6 @@
         await syncAllStocksFromSupabase();
       } catch(e) { alert('Failed to save Bottle Box record: ' + e.message); }
     }
-
     function editPerfumeBottleBox(id) {
       const rec = perfumeBottleStocks.find(x => x.id === id); if (!rec) return;
       editingPBottleId = id;
@@ -2080,7 +2066,6 @@
       document.getElementById('pBottleSaveBtn').innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Update Box Record';
       document.getElementById('pBottleCancelBtn').style.display = 'block';
     }
-
     function resetPBottleForm() {
       editingPBottleId = null;
       document.getElementById('pBoxesBrought').value = '';
@@ -2090,13 +2075,11 @@
       document.getElementById('pBottleSaveBtn').innerHTML = '<i class="fa-solid fa-plus"></i> Save Box Record';
       document.getElementById('pBottleCancelBtn').style.display = 'none';
     }
-
     async function deletePerfumeBottleBox(id) {
       if (!confirm('Delete this box record?')) return;
       await supabaseClient.from('perfume_bottles').delete().eq('id', id);
       await syncAllStocksFromSupabase();
     }
-
     function renderPerfumeBottlesList() {
       const el = document.getElementById('perfumeBottlesList');
       if (!el) return;
@@ -2118,22 +2101,18 @@
           </div>
         </div>`).join('');
     }
-
     /* C — Specific Perfume Items */
     function calcSpecRem() {
       const cur = Number(document.getElementById('specCurrent').value || 0);
       const used = Number(document.getElementById('specUsed').value || 0);
       document.getElementById('specRemaining').value = cur - used;
     }
-
     async function saveSpecificPerfume() {
       const name = document.getElementById('specName').value.trim();
       const current = Number(document.getElementById('specCurrent').value || 0);
       const used = Number(document.getElementById('specUsed').value || 0);
       const remaining = current - used;
-
       if (!name) { alert('Please enter Perfume Name.'); return; }
-
       const payload = {
         user_id: currentUser.id,
         perfume_name: name,
@@ -2142,7 +2121,6 @@
         remaining_stock: remaining,
         date: todayISO()
       };
-
       try {
         if (editingSpecId) {
           await supabaseClient.from('specific_perfumes').update(payload).eq('id', editingSpecId);
@@ -2153,7 +2131,6 @@
         await syncAllStocksFromSupabase();
       } catch(e) { alert('Failed to save Specific Perfume Item: ' + e.message); }
     }
-
     function editSpecificPerfume(id) {
       const rec = specificPerfumeStocks.find(x => x.id === id); if (!rec) return;
       editingSpecId = id;
@@ -2165,7 +2142,6 @@
       document.getElementById('specSaveBtn').innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Update Perfume';
       document.getElementById('specCancelBtn').style.display = 'block';
     }
-
     function resetSpecForm() {
       editingSpecId = null;
       document.getElementById('specName').value = '';
@@ -2176,13 +2152,11 @@
       document.getElementById('specSaveBtn').innerHTML = '<i class="fa-solid fa-plus"></i> Add Perfume';
       document.getElementById('specCancelBtn').style.display = 'none';
     }
-
     async function deleteSpecificPerfume(id) {
       if (!confirm('Delete this perfume item?')) return;
       await supabaseClient.from('specific_perfumes').delete().eq('id', id);
       await syncAllStocksFromSupabase();
     }
-
     function renderSpecificPerfumesList() {
       const el = document.getElementById('specificPerfumesList');
       if (!el) return;
@@ -2203,6 +2177,61 @@
           </div>
         </div>`).join('');
     }
+    /* STOCKS HISTORY LOGIC */
+    function openStockHistoryModal() {
+      document.getElementById('stockHistoryModal').classList.add('active');
+      const container = document.getElementById('stockHistoryContent');
+      
+      const allActivities = [
+        ...oilBottleStocks.map(item => ({
+          type: 'Oil Bottle',
+          title: item.name,
+          current: item.current_stock,
+          used: item.used_stock,
+          remaining: item.remaining_stock,
+          date: item.date || item.created_at?.slice(0, 10) || 'N/A',
+          timestamp: new Date(item.created_at || Date.now()).getTime()
+        })),
+        ...perfumeBottleStocks.map(item => ({
+          type: 'Perfume Box',
+          title: `${item.bottle_size} Box`,
+          current: `${item.boxes_brought} Boxes (${item.total_pcs} PCS)`,
+          used: `${item.boxes_used} Boxes (${item.used_pcs} PCS)`,
+          remaining: `${item.available_pcs} PCS`,
+          date: item.date || item.created_at?.slice(0, 10) || 'N/A',
+          timestamp: new Date(item.created_at || Date.now()).getTime()
+        })),
+        ...specificPerfumeStocks.map(item => ({
+          type: 'Perfume Item',
+          title: item.perfume_name,
+          current: item.current_stock,
+          used: item.used_stock,
+          remaining: item.remaining_stock,
+          date: item.date || item.created_at?.slice(0, 10) || 'N/A',
+          timestamp: new Date(item.created_at || Date.now()).getTime()
+        }))
+      ];
+      
+      allActivities.sort((a, b) => b.timestamp - a.timestamp);
+      
+      if (!allActivities.length) {
+        container.innerHTML = '<div style="text-align:center; font-size:0.85rem; color:var(--text-sub); padding:30px 10px;">No stock activities recorded yet.</div>';
+        return;
+      }
+      
+      container.innerHTML = allActivities.map(act => `
+        <div class="activity-log-item">
+          <span class="activity-log-type">${escapeHtml(act.type)}</span>
+          <div class="activity-log-title">${escapeHtml(act.title)}</div>
+          <div class="activity-log-meta">Date Recorded: <strong>${escapeHtml(act.date)}</strong></div>
+          <div class="stock-grid-3" style="margin-top:10px;">
+            <div><div class="stock-stat-lbl">Total / Brought</div><div class="stock-stat-val">${act.current}</div></div>
+            <div><div class="stock-stat-lbl">Used</div><div class="stock-stat-val">${act.used}</div></div>
+            <div><div class="stock-stat-lbl">Available / Remaining</div><div class="stock-stat-val" style="color:var(--accent-gold);">${act.remaining}</div></div>
+          </div>
+        </div>
+      `).join('');
+    }
 
     function igniteTeaserToast() {
       const toast = document.getElementById('soonToast');
@@ -2211,7 +2240,6 @@
         setTimeout(() => toast.classList.remove('trigger-fly'), 3000);
       }
     }
-
     function setReviewMode(m) {
       reviewMode = m;
       document.getElementById('tabDaily').classList.toggle('active', m==='daily');
@@ -2222,13 +2250,11 @@
       document.getElementById('customFilters').style.display = 'none';
       renderSalesProgress();
     }
-
     function showCustomRange() {
       document.getElementById('dailyFilters').style.display = 'none';
       document.getElementById('monthlyFilters').style.display = 'none';
       document.getElementById('customFilters').style.display = 'block';
     }
-
     function openMonthlyReview() {
       document.getElementById('monthlyReviewModal').classList.add('active');
       const content = document.getElementById('monthlyReviewContent');
@@ -2237,7 +2263,6 @@
       const monthSales = activeOrders.filter(s => (s.date || '').startsWith(month));
       const totalRev = monthSales.reduce((sum, s) => sum + s.total, 0);
       const totalQty = monthSales.reduce((sum, s) => sum + s.quantity, 0);
-
       content.innerHTML = `
         <div class="sales-entry-card">
           <h3>Summary for ${month}</h3>
@@ -2247,48 +2272,9 @@
         </div>
       `;
     }
-
     function closeSheet(id) {
       document.getElementById(id).classList.remove('active');
     }
   </script>
-
-  <!-- SUPABASE SQL DATABASE SETUP SCHEMA REQUIREMENT -->
-  <!--
-    -- EXECUTE THIS IN YOUR SUPABASE SQL EDITOR TO ENFORCE SINGLE SALES & SECURITY RULES:
-
-    CREATE TABLE IF NOT EXISTS public.sales (
-        id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-        user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-        perfume_name TEXT NOT NULL,
-        quantity NUMERIC NOT NULL DEFAULT 1,
-        price NUMERIC NOT NULL DEFAULT 0,
-        total NUMERIC NOT NULL DEFAULT 0,
-        payment_method TEXT NOT NULL,
-        sale_date DATE NOT NULL DEFAULT CURRENT_DATE,
-        created_at TIMESTAMPTZ DEFAULT NOW(),
-        updated_at TIMESTAMPTZ DEFAULT NOW()
-    );
-
-    ALTER TABLE public.sales ENABLE ROW LEVEL SECURITY;
-
-    CREATE POLICY "Users can view their own sales"
-    ON public.sales FOR SELECT
-    USING (auth.uid() = user_id);
-
-    CREATE POLICY "Users can insert their own sales"
-    ON public.sales FOR INSERT
-    WITH CHECK (auth.uid() = user_id);
-
-    CREATE POLICY "Users can update their own sales"
-    ON public.sales FOR UPDATE
-    USING (auth.uid() = user_id);
-
-    CREATE POLICY "Users can delete their own sales"
-    ON public.sales FOR DELETE
-    USING (auth.uid() = user_id);
-
-    ALTER PUBLICATION supabase_realtime ADD TABLE public.sales;
-  -->
 </body>
 </html>
