@@ -386,6 +386,7 @@
       margin-bottom: 20px;
     }
     .logout-main-btn:hover { background: rgba(231, 76, 60, 0.1); }
+
     .modal-overlay {
       display: none;
       position: fixed;
@@ -436,10 +437,11 @@
       margin-bottom: 16px;
     }
     .sheet-title { font-size: 1.4rem; font-weight: 900; color: var(--text-main); text-align: center; }
+
     .form-row { display: flex; gap: 10px; }
     .form-group { margin-bottom: 14px; text-align: left; flex: 1; }
     .form-group label { display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-sub); margin-bottom: 5px; }
-    .form-group input, .form-group textarea {
+    .form-group input, .form-group textarea, .form-group select {
       width: 100%;
       background: var(--input-bg);
       border: 1.5px solid var(--input-border);
@@ -449,6 +451,7 @@
       font-size: 0.85rem;
       outline: none;
     }
+    
     .pay-option-btn {
       background: var(--card-bg);
       border: 2px solid var(--card-border);
@@ -464,6 +467,7 @@
       color: var(--text-main);
     }
     .pay-option-btn.active { border-color: var(--accent-gold); background: var(--accent-gold-light); }
+
     .loyalty-card {
       background: var(--card-bg);
       border: 1.5px solid var(--accent-gold);
@@ -489,7 +493,7 @@
       color: var(--text-sub);
       font-weight: 800;
     }
-    .stamp-dot.filled { background: var(--accent-gold); border-style: solid; border-color: var(--accent-gold); color: #000; }
+
     .ai-screen-wrap {
       text-align: center;
       display: flex;
@@ -582,17 +586,7 @@
       font-size: 1.1rem;
       flex-shrink: 0;
     }
-    .order-card-track {
-      background: var(--card-bg);
-      border: 1.5px solid var(--card-border);
-      border-radius: 16px;
-      padding: 16px;
-      margin-bottom: 14px;
-      box-shadow: 0 4px 12px var(--shadow-color);
-    }
-    .track-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px dashed var(--card-border); padding-bottom: 8px; }
-    .order-id { font-size: 0.85rem; font-weight: 800; color: var(--text-main); }
-    .track-details p { font-size: 0.82rem; color: var(--text-sub); margin-bottom: 4px; }
+
     .profile-header-card {
       background: var(--card-bg);
       border: 1.5px solid var(--card-border);
@@ -704,8 +698,8 @@
       z-index: 2;
       width: min(400px, 90%);
     }
-    /* GLAMO SALES */
-    .sales-entry-card, .progress-panel, .stock-panel, .review-card {
+    /* GLAMO SALES & EXPENSES */
+    .sales-entry-card, .progress-panel, .stock-panel, .expenses-card, .archive-card {
       background: var(--card-bg);
       border: 1px solid var(--card-border);
       border-radius: 18px;
@@ -728,22 +722,6 @@
       font-size: .85rem;
       outline: none;
     }
-    .size-grid {
-      display:grid;
-      grid-template-columns:repeat(5,1fr);
-      gap:7px;
-    }
-    .size-option {
-      padding:10px 4px;
-      border-radius:10px;
-      border:1.5px solid var(--input-border);
-      background:var(--input-bg);
-      text-align:center;
-      cursor:pointer;
-      font-size:.75rem;
-      font-weight:800;
-    }
-    .size-option.active { border-color:var(--accent-gold); background:var(--accent-gold-light); }
     .payment-main-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
     .conditional-box {
       display:none;
@@ -766,14 +744,6 @@
       margin-top:4px;
     }
     .review-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
-    .metric-card {
-      background:var(--card-bg-sub);
-      border:1px solid var(--card-border);
-      border-radius:14px;
-      padding:12px;
-    }
-    .metric-label { font-size:.7rem; color:var(--text-sub); font-weight:700; }
-    .metric-value { font-size:1.05rem; font-weight:900; margin-top:4px; }
     .review-tabs { display:grid; grid-template-columns:repeat(3,1fr); gap:7px; margin-bottom:12px; }
     .review-tab {
       border:1px solid var(--card-border);
@@ -786,10 +756,6 @@
       color:var(--text-main);
     }
     .review-tab.active { border-color:var(--accent-gold); color:var(--accent-gold); }
-    .rank-row { margin:10px 0; }
-    .rank-head { display:flex; justify-content:space-between; font-size:.78rem; font-weight:800; margin-bottom:5px; }
-    .progress-track { height:8px; border-radius:20px; background:var(--card-bg-sub); overflow:hidden; }
-    .progress-fill { height:100%; border-radius:20px; background:var(--accent-gold); }
     .stock-item {
       display:flex; align-items:center; justify-content:space-between; gap:10px;
       padding:11px 0; border-bottom:1px dashed var(--card-border);
@@ -797,6 +763,10 @@
     .stock-item:last-child { border-bottom:none; }
     .stock-name { font-size:.82rem; font-weight:900; }
     .stock-meta { font-size:.7rem; color:var(--text-sub); margin-top:2px; }
+    .stock-status { font-size:.68rem; font-weight:900; padding:4px 8px; border-radius:15px; white-space:nowrap; }
+    .stock-status.low { color:#d97706; background:rgba(217,119,6,.12); }
+    .stock-status.out { color:#e74c3c; background:rgba(231,76,60,.12); }
+    .stock-status.ok { color:#28a745; background:rgba(40,167,69,.12); }
     .sale-actions { display:flex; gap:7px; margin-top:10px; }
     .small-action {
       flex:1; padding:8px; border-radius:9px; border:1px solid var(--card-border);
@@ -807,15 +777,7 @@
       background:var(--accent-gold); color:#111; border:none; padding:8px 12px;
       border-radius:20px; font-size:.72rem; font-weight:900; cursor:pointer;
     }
-    .archive-card {
-      background:var(--card-bg);
-      border:1px solid var(--card-border);
-      border-radius:18px;
-      padding:16px;
-      margin-bottom:14px;
-      box-shadow:0 4px 12px var(--shadow-color);
-      opacity:.92;
-    }
+    /* Compact multiple-perfume sale rows */
     .sale-items-list { display:flex; flex-direction:column; gap:8px; }
     .sale-item-row {
       display:grid; grid-template-columns:minmax(0,1.25fr) 54px 76px 86px 34px; gap:6px;
@@ -846,8 +808,7 @@
     .archive-list-collapsed { display:none; }
     .archive-list-collapsed.open { display:block; margin-top:10px; }
     
-    /* GLAMO EXPENSES - Record Keeping Only */
-    .expenses-card { background:var(--card-bg); border:1px solid var(--card-border); border-radius:18px; padding:16px; margin-bottom:14px; box-shadow:0 4px 12px var(--shadow-color); }
+    /* GLAMO EXPENSES */
     .expense-item { background:var(--card-bg); border:1px solid var(--card-border); border-radius:14px; padding:12px; margin-bottom:10px; }
     .expense-item-head { display:flex; justify-content:space-between; align-items:flex-start; gap:10px; }
     .expense-name { font-size:.88rem; font-weight:900; }
@@ -861,16 +822,57 @@
     .expense-total-box { background:var(--card-bg-sub); border:1.5px solid var(--accent-gold); border-radius:12px; padding:11px 13px; margin-bottom:12px; display:flex; justify-content:space-between; align-items:center; }
     .expense-total-label { font-size:.75rem; font-weight:800; color:var(--text-sub); }
     .expense-total-value { font-size:1rem; font-weight:900; }
-
-    /* STOCK MANAGEMENT TWO AREA SCALABILITY */
-    .stock-box-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
-    .stock-calc-display { background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 8px; padding: 8px; text-align: center; font-size: 0.8rem; font-weight: 800; }
-    
     #receivedAmount[readonly] { opacity:.95; cursor:default; }
+
+    /* EXPANDABLE STOCK ACCORDION STYLES */
+    .stock-accordion-btn {
+      width: 100%;
+      background: var(--card-bg-sub);
+      border: 1.5px solid var(--card-border);
+      border-radius: 14px;
+      padding: 14px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.92rem;
+      font-weight: 800;
+      color: var(--text-main);
+      cursor: pointer;
+      margin-bottom: 10px;
+      transition: border-color 0.2s ease, background-color 0.2s ease;
+    }
+    .stock-accordion-btn.active {
+      border-color: var(--accent-gold);
+      background: var(--accent-gold-light);
+    }
+    .stock-accordion-content {
+      display: none;
+      padding: 14px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      margin-bottom: 14px;
+    }
+    .stock-accordion-content.open {
+      display: block;
+    }
+    .stock-box-card {
+      background: var(--card-bg-sub);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+    .stock-box-title {
+      font-size: 0.88rem;
+      font-weight: 900;
+      color: var(--accent-gold);
+      margin-bottom: 8px;
+    }
+
     @media (max-width:420px) {
       .sale-item-row { grid-template-columns:minmax(0,1fr) 50px 70px 80px 32px; gap:5px; }
       .sale-item-row input, .sale-item-row select { padding:8px 5px; font-size:.7rem; }
-      .size-grid { grid-template-columns:repeat(3,1fr); }
     }
   
     .auth-forgot { font-size: 0.82rem; color: var(--accent-gold); margin-top: 10px; cursor: pointer; font-weight: 700; text-align: center; }
@@ -882,6 +884,7 @@
   <div id="splash-screen">
     <img src="/images/splash-logo.png" alt="Glamo Scents Splash Logo" class="splash-logo">
   </div>
+  
   <!-- AUTH SCREEN -->
   <div id="screen-auth" class="app-screen" style="display:none; justify-content:center; align-items:center;">
     <video class="auth-hero-video" autoplay muted loop playsinline preload="auto">
@@ -935,6 +938,7 @@
       <div class="auth-switch" onclick="showLoginAuthScreen()"><span>Return to Login</span></div>
     </div>
   </div>
+
   <!-- FIXED WHITE HEADER -->
   <header class="app-header" id="mainHeader" style="display:none;">
     <div class="header-left">
@@ -955,6 +959,7 @@
       </button>
     </div>
   </header>
+
   <!-- SCREEN 1: HOME -->
   <div id="screen-home" class="app-screen">
     <div class="hero-banner">
@@ -1006,7 +1011,8 @@
       <i class="fa-solid fa-right-from-bracket"></i> Log Out
     </button>
   </div>
-  <!-- SCREEN: EXPENSES - Record Keeping Only -->
+
+  <!-- SCREEN: EXPENSES -->
   <div id="screen-expenses" class="app-screen">
     <div class="section-title"><i class="fa-solid fa-receipt" style="color:var(--accent-gold);"></i> Expenses</div>
     <div class="sales-entry-card">
@@ -1032,6 +1038,7 @@
       <div id="expensesList"></div>
     </div>
   </div>
+
   <!-- SCREEN 2: PERFUME SALE ENTRY -->
   <div id="screen-perfumes" class="app-screen">
     <div class="section-title">
@@ -1052,41 +1059,21 @@
         <div id="saleItemsSummary" class="sale-items-summary">1 perfume item</div>
       </div>
       <div class="form-group">
-        <label>Method of Payment</label>
-        <div class="payment-main-grid">
-          <button id="saleCashBtn" type="button" class="pay-option-btn active" onclick="selectSalePayment('Cash')">
-            <i class="fa-solid fa-money-bill-wave" style="color:var(--accent-gold);"></i>
-            <span>Cash</span>
-          </button>
-          <button id="saleMobileBtn" type="button" class="pay-option-btn" onclick="selectSalePayment('Mobile Money')">
-            <i class="fa-solid fa-mobile-screen-button" style="color:var(--accent-gold);"></i>
-            <span>Mobile Money</span>
-          </button>
-          <button id="saleBankBtn" type="button" class="pay-option-btn" onclick="selectSalePayment('Bank')">
-            <i class="fa-solid fa-building-columns" style="color:var(--accent-gold);"></i>
-            <span>Bank</span>
-          </button>
-          <button id="saleOtherBtn" type="button" class="pay-option-btn" onclick="selectSalePayment('Other')">
-            <i class="fa-solid fa-credit-card" style="color:var(--accent-gold);"></i>
-            <span>Other</span>
-          </button>
-        </div>
-        <div id="saleCashBox" class="conditional-box active">
-          <div style="font-size:.74rem;color:var(--text-sub);">Cash payment selected.</div>
-        </div>
-        <div id="saleMobileBox" class="conditional-box">
-          <label style="font-size:.8rem;font-weight:800;">Mobile Money Network</label>
-          <div class="payment-main-grid" style="margin-top:8px;">
-            <button type="button" class="pay-option-btn" onclick="selectMobileProvider(this,'CRDB')">CRDB</button>
-            <button type="button" class="pay-option-btn" onclick="selectMobileProvider(this,'M-PESA')">M-PESA</button>
-            <button type="button" class="pay-option-btn" onclick="selectMobileProvider(this,'Mixx by Yas')">Mixx by Yas</button>
-            <button type="button" class="pay-option-btn" onclick="selectMobileProvider(this,'HaloPesa')">HaloPesa</button>
-          </div>
-        </div>
+        <label>Method of Payment *</label>
+        <select id="salePaymentMethod" class="select-control" required>
+          <option value="">-- Select Payment Method --</option>
+          <option value="Cash">Cash</option>
+          <option value="M-Pesa">M-Pesa</option>
+          <option value="Airtel Money">Airtel Money</option>
+          <option value="Tigo Pesa">Tigo Pesa</option>
+          <option value="HaloPesa">HaloPesa</option>
+          <option value="Bank">Bank</option>
+          <option value="Other">Other</option>
+        </select>
         <div class="form-group" style="margin-top:10px;margin-bottom:0;">
-          <label for="receivedAmount">Total Amount Received (TZS)</label>
+          <label for="receivedAmount">Amount Received (TZS)</label>
           <input id="receivedAmount" class="number-control" type="number" min="0" step="100" placeholder="Automatically calculated" readonly>
-          <div style="font-size:.7rem;color:var(--text-sub);margin-top:5px;">Calculated automatically: Quantity × Price Per Perfume.</div>
+          <div style="font-size:.7rem;color:var(--text-sub);margin-top:5px;">Calculated from quantity × price per perfume.</div>
         </div>
       </div>
       <div class="form-group">
@@ -1109,10 +1096,11 @@
     </div>
     <div class="stock-panel">
       <h3><i class="fa-solid fa-boxes-stacked" style="color:var(--accent-gold);"></i> Stock</h3>
-      <p style="font-size:.76rem;color:var(--text-sub);margin-bottom:10px;">Record stock here so saved sales can reduce the quantity automatically.</p>
+      <p style="font-size:.76rem;color:var(--text-sub);margin-bottom:10px;">Manage categorized stock inventory (Oil, Bottles, & Specific Items).</p>
       <button class="reorder-btn" style="width:100%;" onclick="openStockManager()">Manage Stock</button>
     </div>
   </div>
+
   <!-- SCREEN 3: AI GUIDE -->
   <div id="screen-ai" class="app-screen">
     <div class="ambient-glow"></div>
@@ -1138,6 +1126,7 @@
       </button>
     </div>
   </div>
+
   <!-- SALES PROGRESS -->
   <div id="screen-sales-progress" class="app-screen">
     <div class="section-title">
@@ -1194,10 +1183,11 @@
       <div id="stockAlerts"></div>
     </div>
   </div>
-  <!-- SCREEN 4: SALES -->
+
+  <!-- SCREEN 4: SALES HISTORY -->
   <div id="screen-bookings" class="app-screen">
     <div class="section-title">
-      <i class="fa-solid fa-receipt" style="color:var(--accent-gold);"></i> Sales
+      <i class="fa-solid fa-receipt" style="color:var(--accent-gold);"></i> Sales History
     </div>
     <div id="bookingsListContainer"></div>
     <div style="margin-top:12px;margin-bottom:10px;">
@@ -1208,6 +1198,7 @@
     </div>
     <div id="archiveListContainer" class="archive-list-collapsed"></div>
   </div>
+
   <!-- SCREEN 5: PROFILE -->
   <div id="screen-profile" class="app-screen">
     <div class="profile-header-card">
@@ -1235,123 +1226,140 @@
     <button class="logout-main-btn" onclick="handleLogout()">
       <i class="fa-solid fa-right-from-bracket"></i> Log Out
     </button>
-    <div class="section-title" style="margin-top:10px;">
-      <i class="fa-solid fa-history" style="color:var(--accent-gold);"></i> Order History
-    </div>
-    <div id="historyListContainer"></div>
   </div>
-  <!-- STOCK MANAGER MODAL -->
+
+  <!-- ADVANCED COLLAPSIBLE STOCK MANAGEMENT MODAL -->
   <div id="stockModal" class="modal-overlay">
     <div class="sheet-content full-screen">
       <span class="sheet-close" onclick="closeSheet('stockModal')">&times;</span>
       <div class="modal-sticky-header"><div class="sheet-title">Stock Management</div></div>
       
-      <!-- A. OIL BOTTLE QUANTITY AREA -->
-      <div class="sales-entry-card">
-        <h3>A. Oil Bottle Quantity</h3>
+      <!-- COLLAPSIBLE SECTION A: OIL BOTTLES -->
+      <button type="button" class="stock-accordion-btn" onclick="toggleStockAccordion('sec-oil', this)">
+        <span>A — Oil Bottles</span> <span class="acc-icon">▶</span>
+      </button>
+      <div id="sec-oil" class="stock-accordion-content">
         <div class="form-row">
           <div class="form-group">
-            <label for="oilTotalQty">Total Oil Bottle Quantity</label>
-            <input id="oilTotalQty" class="number-control" type="number" min="0" step="1" value="0" oninput="calculateOilStock()">
+            <label>Current Quantity</label>
+            <input id="oilCurrent" class="number-control" type="number" min="0" step="1" placeholder="0" oninput="calcOilStock()">
           </div>
           <div class="form-group">
-            <label for="oilUsedQty">Used</label>
-            <input id="oilUsedQty" class="number-control" type="number" min="0" step="1" value="0" oninput="calculateOilStock()">
+            <label>Used Quantity</label>
+            <input id="oilUsed" class="number-control" type="number" min="0" step="1" placeholder="0" oninput="calcOilStock()">
           </div>
         </div>
-        <div class="stock-calc-display" id="oilRemainingDisplay">
-          Remaining Oil: 0
-        </div>
-        <button class="sales-save-btn" style="margin-top:10px;" onclick="saveOilStock()">Save Oil Stock</button>
-      </div>
-
-      <!-- B. PERFUME BOTTLE PIECES AREA -->
-      <div class="sales-entry-card">
-        <h3>B. Perfume Bottle Pieces (Boxed)</h3>
-        
-        <!-- 10ml Bottles -->
-        <div style="border-bottom: 1px dashed var(--card-border); padding-bottom: 10px; margin-bottom: 10px;">
-          <label style="font-weight: 800; font-size: 0.85rem; color: var(--accent-gold);">10 ml Bottles (273 Pcs / Box)</label>
-          <div class="stock-box-grid">
-            <div>
-              <label style="font-size: 0.72rem;">Boxes</label>
-              <input id="box10ml" class="number-control" type="number" min="0" value="0" oninput="calculateBottleStock('10ml')">
-            </div>
-            <div>
-              <label style="font-size: 0.72rem;">Used Pcs</label>
-              <input id="used10ml" class="number-control" type="number" min="0" value="0" oninput="calculateBottleStock('10ml')">
-            </div>
-          </div>
-          <div class="stock-calc-display" style="margin-top: 6px;" id="display10ml">
-            Total Pcs: 0 | Remaining Pcs: 0
-          </div>
-        </div>
-
-        <!-- 30ml Bottles -->
-        <div style="border-bottom: 1px dashed var(--card-border); padding-bottom: 10px; margin-bottom: 10px;">
-          <label style="font-weight: 800; font-size: 0.85rem; color: var(--accent-gold);">30 ml Bottles (140 Pcs / Box)</label>
-          <div class="stock-box-grid">
-            <div>
-              <label style="font-size: 0.72rem;">Boxes</label>
-              <input id="box30ml" class="number-control" type="number" min="0" value="0" oninput="calculateBottleStock('30ml')">
-            </div>
-            <div>
-              <label style="font-size: 0.72rem;">Used Pcs</label>
-              <input id="used30ml" class="number-control" type="number" min="0" value="0" oninput="calculateBottleStock('30ml')">
-            </div>
-          </div>
-          <div class="stock-calc-display" style="margin-top: 6px;" id="display30ml">
-            Total Pcs: 0 | Remaining Pcs: 0
-          </div>
-        </div>
-
-        <!-- 50ml Bottles -->
-        <div style="margin-bottom: 10px;">
-          <label style="font-weight: 800; font-size: 0.85rem; color: var(--accent-gold);">50 ml Bottles (70 Pcs / Box)</label>
-          <div class="stock-box-grid">
-            <div>
-              <label style="font-size: 0.72rem;">Boxes</label>
-              <input id="box50ml" class="number-control" type="number" min="0" value="0" oninput="calculateBottleStock('50ml')">
-            </div>
-            <div>
-              <label style="font-size: 0.72rem;">Used Pcs</label>
-              <input id="used50ml" class="number-control" type="number" min="0" value="0" oninput="calculateBottleStock('50ml')">
-            </div>
-          </div>
-          <div class="stock-calc-display" style="margin-top: 6px;" id="display50ml">
-            Total Pcs: 0 | Remaining Pcs: 0
-          </div>
-        </div>
-
-        <button class="sales-save-btn" onclick="saveBottleStock()">Save Bottle Stock</button>
-      </div>
-
-      <!-- PERFUME INDIVIDUAL INVENTORY -->
-      <div class="sales-entry-card">
-        <h3>Specific Perfume Item Stock</h3>
         <div class="form-group">
-          <label for="stockPerfumeName">Perfume Name</label>
-          <input id="stockPerfumeName" type="text" placeholder="Enter perfume name">
+          <label>Remaining Quantity (Auto)</label>
+          <input id="oilRemaining" class="number-control" type="number" readonly placeholder="0" style="opacity:0.8;">
         </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label for="stockQuantity">Current Stock</label>
-            <input id="stockQuantity" class="number-control" type="number" min="0" step="1" placeholder="0">
-          </div>
-          <div class="form-group">
-            <label for="stockThreshold">Low-Stock Threshold</label>
-            <input id="stockThreshold" class="number-control" type="number" min="0" step="1" placeholder="5">
-          </div>
-        </div>
-        <button class="sales-save-btn" onclick="saveStockItem()">Save Specific Perfume Stock</button>
+        <button class="sales-save-btn" onclick="saveOilStock()"><i class="fa-solid fa-floppy-disk"></i> Save Oil Stock</button>
       </div>
 
-      <div class="stock-panel">
-        <h3>Current Inventory Overview</h3>
-        <div id="stockList"></div>
+      <!-- COLLAPSIBLE SECTION B: PERFUME BOTTLES / EMPTY BOTTLE STOCK -->
+      <button type="button" class="stock-accordion-btn" onclick="toggleStockAccordion('sec-bottles', this)">
+        <span>B — Perfume Bottles</span> <span class="acc-icon">▶</span>
+      </button>
+      <div id="sec-bottles" class="stock-accordion-content">
+        <!-- 10 ml -->
+        <div class="stock-box-card">
+          <div class="stock-box-title">10 ml (Fixed: 273 pcs / box)</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Boxes Brought</label>
+              <input id="b10_brought" class="number-control" type="number" min="0" placeholder="0" oninput="calcBottleStock(10)">
+            </div>
+            <div class="form-group">
+              <label>Boxes Used</label>
+              <input id="b10_used" class="number-control" type="number" min="0" placeholder="0" oninput="calcBottleStock(10)">
+            </div>
+          </div>
+          <div style="font-size:0.75rem; color:var(--text-sub); margin-top:4px;">
+            Total PCS: <strong id="b10_total">0</strong> | Used PCS: <strong id="b10_used_pcs">0</strong> | Available PCS: <strong id="b10_avail" style="color:var(--accent-gold);">0</strong>
+          </div>
+        </div>
+
+        <!-- 30 ml -->
+        <div class="stock-box-card">
+          <div class="stock-box-title">30 ml (Fixed: 140 pcs / box)</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Boxes Brought</label>
+              <input id="b30_brought" class="number-control" type="number" min="0" placeholder="0" oninput="calcBottleStock(30)">
+            </div>
+            <div class="form-group">
+              <label>Boxes Used</label>
+              <input id="b30_used" class="number-control" type="number" min="0" placeholder="0" oninput="calcBottleStock(30)">
+            </div>
+          </div>
+          <div style="font-size:0.75rem; color:var(--text-sub); margin-top:4px;">
+            Total PCS: <strong id="b30_total">0</strong> | Used PCS: <strong id="b30_used_pcs">0</strong> | Available PCS: <strong id="b30_avail" style="color:var(--accent-gold);">0</strong>
+          </div>
+        </div>
+
+        <!-- 50 ml -->
+        <div class="stock-box-card">
+          <div class="stock-box-title">50 ml (Fixed: 70 pcs / box)</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Boxes Brought</label>
+              <input id="b50_brought" class="number-control" type="number" min="0" placeholder="0" oninput="calcBottleStock(50)">
+            </div>
+            <div class="form-group">
+              <label>Boxes Used</label>
+              <input id="b50_used" class="number-control" type="number" min="0" placeholder="0" oninput="calcBottleStock(50)">
+            </div>
+          </div>
+          <div style="font-size:0.75rem; color:var(--text-sub); margin-top:4px;">
+            Total PCS: <strong id="b50_total">0</strong> | Used PCS: <strong id="b50_used_pcs">0</strong> | Available PCS: <strong id="b50_avail" style="color:var(--accent-gold);">0</strong>
+          </div>
+        </div>
+        
+        <button class="sales-save-btn" onclick="saveBottleStock()"><i class="fa-solid fa-floppy-disk"></i> Save Bottle Stock</button>
       </div>
+
+      <!-- COLLAPSIBLE SECTION C: SPECIFIC PERFUME ITEMS -->
+      <button type="button" class="stock-accordion-btn" onclick="toggleStockAccordion('sec-specific', this)">
+        <span>C — Specific Perfume Items</span> <span class="acc-icon">▶</span>
+      </button>
+      <div id="sec-specific" class="stock-accordion-content">
+        <div class="sales-entry-card" style="margin-bottom:12px;">
+          <h4 style="font-size:0.88rem; font-weight:800; margin-bottom:8px;" id="specificFormTitle">Add / Edit Perfume Item</h4>
+          <div class="form-group">
+            <label>Perfume Name</label>
+            <input id="specPerfumeName" type="text" placeholder="e.g. Vanilla">
+          </div>
+          <div class="form-group">
+            <label>Niche</label>
+            <input id="specPerfumeNiche" type="text" placeholder="e.g. Sweet / Woody / Floral">
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Current</label>
+              <input id="specCurrent" class="number-control" type="number" min="0" placeholder="0" oninput="calcSpecRemaining()">
+            </div>
+            <div class="form-group">
+              <label>Used</label>
+              <input id="specUsed" class="number-control" type="number" min="0" placeholder="0" oninput="calcSpecRemaining()">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Remaining (Auto)</label>
+            <input id="specRemaining" class="number-control" type="number" readonly placeholder="0" style="opacity:0.8;">
+          </div>
+          <button class="sales-save-btn" onclick="saveSpecificPerfume()"><i class="fa-solid fa-floppy-disk"></i> Save Perfume Item</button>
+          <button id="specCancelBtn" class="reorder-btn" style="width:100%;margin-top:8px;display:none;" onclick="cancelSpecEdit()">Cancel Edit</button>
+        </div>
+
+        <div class="stock-panel">
+          <h3>Specific Perfumes Inventory</h3>
+          <div id="specificPerfumeList"></div>
+        </div>
+      </div>
+
     </div>
   </div>
+
   <!-- MONTHLY REVIEW MODAL -->
   <div id="monthlyReviewModal" class="modal-overlay">
     <div class="sheet-content full-screen">
@@ -1360,6 +1368,7 @@
       <div id="monthlyReviewContent"></div>
     </div>
   </div>
+
   <!-- BOTTOM NAVIGATION -->
   <nav class="bottom-nav" id="mainNavBar" style="display:none;">
     <button id="nav-home-btn" class="nav-item active" onclick="switchTab('screen-home', this)">
@@ -1379,16 +1388,19 @@
       <span>Profile</span>
     </button>
   </nav>
+
   <!-- LOGIC SCRIPT -->
   <script>
     const SUPABASE_URL = 'https://zudqubbglwphfxaviqsg.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp1ZHF1YmJnbHdwaGZ4YXZpcXNnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI0NjcyNTUsImV4cCI6MjA5ODA0MzI1NX0.7pRbRqz9-5gN8SG_ALn5ecHOWQofykPvhbrE2HQROCE';
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    
     let currentUser = null;
     let currentUsername = "";
     let currentUserPhone = "";
     let isRegisterMode = false;
     let deferredPrompt = null;
+    
     let activeOrders = [];
     let expenses = [];
     let archivedSales = [];
@@ -1396,23 +1408,20 @@
     let archiveOpen = false;
     let completedHistory = [];
     let completedOrdersCount = 0;
-    let selectedSaleSize = '30 ML';
-    let selectedSalePayment = 'Cash';
-    let selectedMobileProvider = '';
+    
     let selectedDelivery = false;
     let reviewMode = 'daily';
-    let customRangeMode = false;
-    let stockItems = [];
     let editingSaleId = null;
-    let editingExpenseId = null;
 
-    // Oil and Bottle Stocks
-    let oilStockData = { total_quantity: 0, used_quantity: 0 };
+    // Categorized Stock Data state
+    let oilStockData = { id: null, current_quantity: 0, used_quantity: 0, remaining_quantity: 0 };
     let bottleStockData = {
-      '10ml': { boxes: 0, used_pcs: 0, pcs_per_box: 273 },
-      '30ml': { boxes: 0, used_pcs: 0, pcs_per_box: 140 },
-      '50ml': { boxes: 0, used_pcs: 0, pcs_per_box: 70 }
+      10: { id: null, bottle_size: '10 ml', boxes_brought: 0, bottles_per_box: 273, boxes_used: 0, total_bottle_pcs: 0, used_bottle_pcs: 0, available_bottle_pcs: 0 },
+      30: { id: null, bottle_size: '30 ml', boxes_brought: 0, bottles_per_box: 140, boxes_used: 0, total_bottle_pcs: 0, used_bottle_pcs: 0, available_bottle_pcs: 0 },
+      50: { id: null, bottle_size: '50 ml', boxes_brought: 0, bottles_per_box: 70,  boxes_used: 0, total_bottle_pcs: 0, used_bottle_pcs: 0, available_bottle_pcs: 0 }
     };
+    let specificPerfumesData = [];
+    let editingSpecId = null;
 
     const todayISO = () => new Date().toISOString().slice(0,10);
     const monthISO = () => new Date().toISOString().slice(0,7);
@@ -1423,7 +1432,7 @@
       }[c]));
     }
     function money(v) { return Number(v || 0).toLocaleString() + ' TZS'; }
-
+    
     function getSaleItems(s) {
       if (Array.isArray(s?.items) && s.items.length) {
         return s.items.map(item => ({
@@ -1436,7 +1445,6 @@
       if (s?.perfumeName) return [{ perfumeName:s.perfumeName, quantity:Math.max(1, Number(s.quantity ?? 1)), size:s.size || '30 ML', price:Math.max(0, Number(s.price ?? 0)) }];
       return [];
     }
-
     function getSalePerfumeCount(s) { return getSaleItems(s).reduce((sum,item) => sum + Number(item.quantity || 0), 0); }
     function getSaleNames(s) { return getSaleItems(s).map(item => item.perfumeName).join(', '); }
     function saleReceived(s) { return Number(s.receivedAmount ?? s.saleAmount ?? s.cashReceived ?? 0); }
@@ -1457,14 +1465,12 @@
           .catch(err => console.log('ServiceWorker failed:', err));
       });
     }
-
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
       deferredPrompt = e;
       const btn = document.getElementById('pwaInstallBtn');
       if (btn) btn.style.display = 'flex';
     });
-
     function installPWA() {
       if (!deferredPrompt) return;
       deferredPrompt.prompt();
@@ -1484,10 +1490,9 @@
       document.getElementById('reviewMonth').value = monthISO();
       initializeSaleItems();
       document.getElementById('expenseDate').value = todayISO();
-      
+
       const { data: { session } } = await supabaseClient.auth.getSession();
       const isRecoveryFlow = /type=recovery/i.test(window.location.hash);
-      
       setTimeout(async () => {
         document.getElementById('splash-screen').style.opacity = '0';
         setTimeout(() => document.getElementById('splash-screen').style.display = 'none', 500);
@@ -1499,7 +1504,6 @@
           await syncSalesFromSupabase();
           await syncExpensesFromSupabase();
           await syncStockFromSupabase();
-          await syncOilAndBottleStockFromSupabase();
         } else {
           showAuthScreen();
         }
@@ -1521,117 +1525,6 @@
       setupUserInterface();
     }
 
-    // --- STOCK CALCULATIONS ---
-    function calculateOilStock() {
-      const total = Math.max(0, parseFloat(document.getElementById('oilTotalQty').value) || 0);
-      const used = Math.max(0, parseFloat(document.getElementById('oilUsedQty').value) || 0);
-      const remaining = Math.max(0, total - used);
-      document.getElementById('oilRemainingDisplay').innerText = `Remaining Oil: ${remaining}`;
-      oilStockData.total_quantity = total;
-      oilStockData.used_quantity = used;
-    }
-
-    function calculateBottleStock(size) {
-      const pcsPerBoxMap = { '10ml': 273, '30ml': 140, '50ml': 70 };
-      const pcsPerBox = pcsPerBoxMap[size];
-      
-      const boxInput = document.getElementById(`box${size}`);
-      const usedInput = document.getElementById(`used${size}`);
-      const display = document.getElementById(`display${size}`);
-
-      const boxes = Math.max(0, parseFloat(boxInput.value) || 0);
-      const usedPcs = Math.max(0, parseFloat(usedInput.value) || 0);
-      const totalPcs = boxes * pcsPerBox;
-      const remainingPcs = Math.max(0, totalPcs - usedPcs);
-
-      display.innerText = `Total Pcs: ${totalPcs} | Remaining Pcs: ${remainingPcs}`;
-      
-      bottleStockData[size] = {
-        boxes: boxes,
-        used_pcs: usedPcs,
-        pcs_per_box: pcsPerBox
-      };
-    }
-
-    async function saveOilStock() {
-      if (!currentUser) return;
-      try {
-        const { error } = await supabaseClient
-          .from('oil_stock')
-          .upsert([{
-            user_id: currentUser.id,
-            total_quantity: oilStockData.total_quantity,
-            used_quantity: oilStockData.used_quantity,
-            updated_at: new Date()
-          }], { onConflict: 'user_id' });
-        if (error) throw error;
-        alert('Oil Stock updated successfully!');
-      } catch (e) {
-        alert('Error saving oil stock: ' + e.message);
-      }
-    }
-
-    async function saveBottleStock() {
-      if (!currentUser) return;
-      try {
-        const rows = Object.keys(bottleStockData).map(size => ({
-          user_id: currentUser.id,
-          bottle_size: size,
-          boxes: bottleStockData[size].boxes,
-          bottle_pcs_per_box: bottleStockData[size].pcs_per_box,
-          used_pcs: bottleStockData[size].used_pcs,
-          updated_at: new Date()
-        }));
-
-        const { error } = await supabaseClient
-          .from('bottle_stock')
-          .upsert(rows, { onConflict: 'user_id, bottle_size' });
-
-        if (error) throw error;
-        alert('Bottle Stock updated successfully!');
-      } catch (e) {
-        alert('Error saving bottle stock: ' + e.message);
-      }
-    }
-
-    async function syncOilAndBottleStockFromSupabase() {
-      if (!currentUser) return;
-      try {
-        // Sync Oil
-        const { data: oilData } = await supabaseClient
-          .from('oil_stock')
-          .select('*')
-          .eq('user_id', currentUser.id)
-          .single();
-        if (oilData) {
-          oilStockData.total_quantity = oilData.total_quantity || 0;
-          oilStockData.used_quantity = oilData.used_quantity || 0;
-          document.getElementById('oilTotalQty').value = oilStockData.total_quantity;
-          document.getElementById('oilUsedQty').value = oilStockData.used_quantity;
-          calculateOilStock();
-        }
-
-        // Sync Bottles
-        const { data: bottleData } = await supabaseClient
-          .from('bottle_stock')
-          .select('*')
-          .eq('user_id', currentUser.id);
-        if (bottleData && bottleData.length) {
-          bottleData.forEach(item => {
-            if (bottleStockData[item.bottle_size]) {
-              bottleStockData[item.bottle_size].boxes = item.boxes || 0;
-              bottleStockData[item.bottle_size].used_pcs = item.used_pcs || 0;
-              document.getElementById(`box${item.bottle_size}`).value = item.boxes || 0;
-              document.getElementById(`used${item.bottle_size}`).value = item.used_pcs || 0;
-              calculateBottleStock(item.bottle_size);
-            }
-          });
-        }
-      } catch (e) {
-        console.log('Error syncing oil & bottle stock:', e);
-      }
-    }
-
     async function syncSalesFromSupabase() {
       if (!currentUser) return;
       try {
@@ -1641,33 +1534,36 @@
           .eq('user_id', currentUser.id)
           .order('created_at', { ascending: false });
         if (error) throw error;
-        
         const cloudSales = (data || []).map(row => {
           let meta = {};
-          try { meta = typeof row.instructions === 'string' ? JSON.parse(row.instructions) : (row.instructions || {}); } catch {}
-          if (meta.type !== 'glamo_sale' && !row.items) return null;
-          
-          const items = (Array.isArray(row.items) && row.items.length ? row.items : meta.items || []).map(item => ({
+          try { meta = JSON.parse(row.instructions || '{}'); } catch {}
+          if (meta.type !== 'glamo_sale') return null;
+          const cloudItems = Array.isArray(meta.items) && meta.items.length
+            ? meta.items
+            : (Array.isArray(row.items) && row.items.length ? row.items : [{
+                name: meta.perfumeName || 'Unknown', qty:1, size:meta.size || '30 ML'
+              }]);
+          const items = cloudItems.map(item => ({
             perfumeName: String(item.perfumeName ?? item.name ?? 'Unknown'),
             quantity: Math.max(1, Number(item.quantity ?? item.qty ?? 1)),
             size: String(item.size ?? '30 ML'),
             price: Math.max(0, Number(item.price ?? 0))
           }));
-
-          const receivedAmount = Number(meta.receivedAmount ?? row.total ?? 0);
+          const receivedAmount = Number(meta.receivedAmount ?? meta.saleAmount ?? row.total ?? 0);
           return {
-            id: row.order_id || row.id,
+            id: row.order_id,
             dbId: row.id,
             items,
             perfumeName: items[0]?.perfumeName || 'Unknown',
             size: items[0]?.size || '30 ML',
             quantity: getSalePerfumeCount({items}),
             date: meta.date || new Date(row.created_at).toISOString().slice(0,10),
-            paymentMethod: row.payment_method || meta.paymentMethod || 'Cash',
+            paymentMethod: meta.paymentMethod || row.payment_method || 'Cash',
             paymentProvider: meta.paymentProvider || '',
             receivedAmount,
             saleAmount: receivedAmount,
             deliveryAmount: Number(meta.deliveryAmount ?? 0),
+            cashReceived: Number(meta.cashReceived ?? (meta.paymentMethod === 'Cash' ? receivedAmount : 0)),
             dateTime: new Date(row.created_at).toLocaleString(),
             status: row.status || 'confirmed'
           };
@@ -1678,57 +1574,271 @@
         completedHistory = [...activeOrders];
         completedOrdersCount = activeOrders.length;
       } catch (e) {
-        console.log('Error syncing sales:', e);
+        console.log('Error syncing sales from Supabase:', e);
       }
       renderBookings();
-      renderHistory();
       renderArchive();
       renderSalesProgress();
       updateLoyaltyUI();
     }
 
-    async function syncExpensesFromSupabase() {
+    /* COLLAPSIBLE ACCORDION HANDLER */
+    function toggleStockAccordion(contentId, btn) {
+      const content = document.getElementById(contentId);
+      const isOpened = content.classList.contains('open');
+      if (isOpened) {
+        content.classList.remove('open');
+        btn.classList.remove('active');
+        btn.querySelector('.acc-icon').textContent = '▶';
+      } else {
+        content.classList.add('open');
+        btn.classList.add('active');
+        btn.querySelector('.acc-icon').textContent = '▲';
+      }
+    }
+
+    /* SECTION A - OIL STOCK LOGIC */
+    function calcOilStock() {
+      const cur = Number(document.getElementById('oilCurrent').value || 0);
+      const used = Number(document.getElementById('oilUsed').value || 0);
+      document.getElementById('oilRemaining').value = cur - used;
+    }
+
+    async function saveOilStock() {
       if (!currentUser) return;
+      const current_quantity = Number(document.getElementById('oilCurrent').value || 0);
+      const used_quantity = Number(document.getElementById('oilUsed').value || 0);
+      const remaining_quantity = current_quantity - used_quantity;
+
+      const record = {
+        user_id: currentUser.id,
+        current_quantity,
+        used_quantity,
+        remaining_quantity
+      };
+      if (oilStockData.id) record.id = oilStockData.id;
+
       try {
         const { data, error } = await supabaseClient
-          .from('expenses')
-          .select('*')
-          .eq('user_id', currentUser.id)
-          .order('expense_date', { ascending: false });
+          .from('oil_stock')
+          .upsert([record])
+          .select();
         if (error) throw error;
-        
-        expenses = (data || []).map(row => ({
-          id: row.id,
-          name: row.expense_name,
-          date: row.expense_date,
-          amount: Number(row.amount || 0),
-          category: row.category || 'General',
-          notes: row.notes || ''
-        }));
+        if (data && data.length) oilStockData = data[0];
+        alert('Oil bottle stock saved successfully.');
       } catch (e) {
-        console.log('Error syncing expenses:', e);
+        console.error('Error saving oil stock:', e);
+        alert('Could not save oil stock to database.');
       }
-      renderExpenses();
+    }
+
+    /* SECTION B - BOTTLE STOCK LOGIC */
+    function calcBottleStock(size) {
+      const perBox = size === 10 ? 273 : (size === 30 ? 140 : 70);
+      const brought = Number(document.getElementById(`b${size}_brought`).value || 0);
+      const used = Number(document.getElementById(`b${size}_used`).value || 0);
+      
+      const totalPcs = brought * perBox;
+      const usedPcs = used * perBox;
+      const availPcs = totalPcs - usedPcs;
+
+      document.getElementById(`b${size}_total`).textContent = totalPcs.toLocaleString();
+      document.getElementById(`b${size}_used_pcs`).textContent = usedPcs.toLocaleString();
+      document.getElementById(`b${size}_avail`).textContent = availPcs.toLocaleString();
+    }
+
+    async function saveBottleStock() {
+      if (!currentUser) return;
+      const sizes = [10, 30, 50];
+      for (let size of sizes) {
+        const perBox = size === 10 ? 273 : (size === 30 ? 140 : 70);
+        const boxes_brought = Number(document.getElementById(`b${size}_brought`).value || 0);
+        const boxes_used = Number(document.getElementById(`b${size}_used`).value || 0);
+        const total_bottle_pcs = boxes_brought * perBox;
+        const used_bottle_pcs = boxes_used * perBox;
+        const available_bottle_pcs = total_bottle_pcs - used_bottle_pcs;
+
+        const record = {
+          user_id: currentUser.id,
+          bottle_size: `${size} ml`,
+          boxes_brought,
+          bottles_per_box: perBox,
+          boxes_used,
+          total_bottle_pcs,
+          used_bottle_pcs,
+          available_bottle_pcs
+        };
+        if (bottleStockData[size].id) record.id = bottleStockData[size].id;
+
+        try {
+          const { data, error } = await supabaseClient
+            .from('perfume_bottle_box_stock')
+            .upsert([record])
+            .select();
+          if (error) throw error;
+          if (data && data.length) bottleStockData[size] = data[0];
+        } catch (e) {
+          console.error(`Error saving bottle stock for ${size}ml:`, e);
+        }
+      }
+      alert('Perfume bottle stock saved successfully.');
+    }
+
+    /* SECTION C - SPECIFIC PERFUME STOCK LOGIC */
+    function calcSpecRemaining() {
+      const cur = Number(document.getElementById('specCurrent').value || 0);
+      const used = Number(document.getElementById('specUsed').value || 0);
+      document.getElementById('specRemaining').value = cur - used;
+    }
+
+    function cancelSpecEdit() {
+      editingSpecId = null;
+      document.getElementById('specPerfumeName').value = '';
+      document.getElementById('specPerfumeNiche').value = '';
+      document.getElementById('specCurrent').value = '';
+      document.getElementById('specUsed').value = '';
+      document.getElementById('specRemaining').value = '';
+      document.getElementById('specificFormTitle').textContent = 'Add Perfume Item';
+      document.getElementById('specCancelBtn').style.display = 'none';
+    }
+
+    async function saveSpecificPerfume() {
+      if (!currentUser) return;
+      const perfume_name = document.getElementById('specPerfumeName').value.trim();
+      const niche = document.getElementById('specPerfumeNiche').value.trim();
+      const current_quantity = Number(document.getElementById('specCurrent').value || 0);
+      const used_quantity = Number(document.getElementById('specUsed').value || 0);
+      const remaining_quantity = current_quantity - used_quantity;
+
+      if (!perfume_name) {
+        alert('Please enter a perfume name.');
+        return;
+      }
+
+      const record = {
+        user_id: currentUser.id,
+        perfume_name,
+        niche,
+        current_quantity,
+        used_quantity,
+        remaining_quantity
+      };
+      if (editingSpecId) record.id = editingSpecId;
+
+      try {
+        const { error } = await supabaseClient
+          .from('specific_perfume_stock')
+          .upsert([record]);
+        if (error) throw error;
+        cancelSpecEdit();
+        await syncStockFromSupabase();
+        alert('Specific perfume stock saved.');
+      } catch (e) {
+        console.error('Error saving specific perfume stock:', e);
+        alert('Failed to save perfume stock item.');
+      }
+    }
+
+    function editSpecItem(id) {
+      const item = specificPerfumesData.find(x => x.id === id);
+      if (!item) return;
+      editingSpecId = item.id;
+      document.getElementById('specPerfumeName').value = item.perfume_name || '';
+      document.getElementById('specPerfumeNiche').value = item.niche || '';
+      document.getElementById('specCurrent').value = item.current_quantity || 0;
+      document.getElementById('specUsed').value = item.used_quantity || 0;
+      calcSpecRemaining();
+      document.getElementById('specificFormTitle').textContent = 'Edit Perfume Item';
+      document.getElementById('specCancelBtn').style.display = 'block';
+    }
+
+    async function deleteSpecItem(id) {
+      if (!confirm('Are you sure you want to delete this perfume item stock record?')) return;
+      try {
+        const { error } = await supabaseClient
+          .from('specific_perfume_stock')
+          .delete()
+          .eq('id', id);
+        if (error) throw error;
+        await syncStockFromSupabase();
+      } catch (e) {
+        console.error('Error deleting specific perfume:', e);
+        alert('Could not delete perfume stock item.');
+      }
     }
 
     async function syncStockFromSupabase() {
       if (!currentUser) return;
       try {
-        const { data, error } = await supabaseClient
-          .from('stock_items')
+        // Sync Oil Stock
+        const { data: oilData } = await supabaseClient
+          .from('oil_stock')
+          .select('*')
+          .eq('user_id', currentUser.id)
+          .limit(1);
+        if (oilData && oilData.length) {
+          oilStockData = oilData[0];
+          document.getElementById('oilCurrent').value = oilStockData.current_quantity;
+          document.getElementById('oilUsed').value = oilStockData.used_quantity;
+          calcOilStock();
+        }
+
+        // Sync Perfume Bottle Stock
+        const { data: bottleData } = await supabaseClient
+          .from('perfume_bottle_box_stock')
           .select('*')
           .eq('user_id', currentUser.id);
-        if (error) throw error;
-        stockItems = (data || []).map(row => ({
-          id: row.id,
-          perfumeName: row.perfume_name,
-          quantity: Number(row.quantity || 0),
-          threshold: Number(row.threshold || 5)
-        }));
+        if (bottleData) {
+          bottleData.forEach(row => {
+            const sizeNum = row.bottle_size.includes('10') ? 10 : (row.bottle_size.includes('30') ? 30 : 50);
+            bottleStockData[sizeNum] = row;
+            document.getElementById(`b${sizeNum}_brought`).value = row.boxes_brought;
+            document.getElementById(`b${sizeNum}_used`).value = row.boxes_used;
+            calcBottleStock(sizeNum);
+          });
+        }
+
+        // Sync Specific Perfume Stock
+        const { data: specData } = await supabaseClient
+          .from('specific_perfume_stock')
+          .select('*')
+          .eq('user_id', currentUser.id)
+          .order('perfume_name', { ascending: true });
+        if (specData) {
+          specificPerfumesData = specData;
+          renderSpecificPerfumesList();
+        }
       } catch (e) {
-        console.log('Error syncing stock items:', e);
+        console.error('Error fetching stock data:', e);
       }
-      renderStockList();
+    }
+
+    function renderSpecificPerfumesList() {
+      const container = document.getElementById('specificPerfumeList');
+      if (!container) return;
+      if (!specificPerfumesData.length) {
+        container.innerHTML = '<div class="expense-empty">No specific perfume items recorded.</div>';
+        return;
+      }
+      container.innerHTML = specificPerfumesData.map(item => `
+        <div class="stock-item" style="flex-direction:column; align-items:flex-start; gap:4px;">
+          <div style="display:flex; justify-content:space-between; width:100%;">
+            <span class="stock-name">${escapeHtml(item.perfume_name)}</span>
+            <span style="font-size:0.75rem; color:var(--accent-gold); font-weight:800;">Niche: ${escapeHtml(item.niche || 'N/A')}</span>
+          </div>
+          <div class="stock-meta">
+            Current: ${item.current_quantity} | Used: ${item.used_quantity} | <strong>Remaining: ${item.remaining_quantity}</strong>
+          </div>
+          <div class="sale-actions" style="width:100%; margin-top:6px;">
+            <button class="small-action" onclick="editSpecItem('${item.id}')"><i class="fa-solid fa-pen"></i> Edit</button>
+            <button class="small-action delete" onclick="deleteSpecItem('${item.id}')"><i class="fa-solid fa-trash"></i> Delete</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function openStockManager() {
+      document.getElementById('stockModal').classList.add('active');
     }
 
     function showAuthScreen() {
@@ -1738,7 +1848,6 @@
       document.getElementById('mainNavBar').style.display = 'none';
       document.querySelectorAll('.app-screen').forEach(s => s.classList.remove('active'));
     }
-
     function setupUserInterface() {
       document.getElementById('screen-auth').style.display = 'none';
       document.getElementById('mainHeader').style.display = 'flex';
@@ -1748,7 +1857,6 @@
       document.getElementById('profName').innerText = currentUsername;
       document.getElementById('profAvatar').innerText = currentUsername.charAt(0).toUpperCase();
       document.getElementById('profPhone').innerText = currentUserPhone || '';
-      if (navigator.vibrate) { try { navigator.vibrate(40); } catch {} }
     }
 
     const PRODUCTION_URL = 'https://appearichsales.vercel.app/';
@@ -1765,7 +1873,6 @@
       document.getElementById('confirmPasswordGroup').style.display = 'none';
       document.getElementById('forgotPasswordLink').style.display = 'block';
     }
-
     function toggleAuthMode() {
       document.getElementById('resetPasswordContainer').style.display = 'none';
       document.querySelector('#screen-auth .auth-container:not(#resetPasswordContainer)').style.display = 'block';
@@ -1779,38 +1886,30 @@
       document.getElementById('confirmPasswordGroup').style.display = isRegisterMode ? 'block' : 'none';
       document.getElementById('forgotPasswordLink').style.display = isRegisterMode ? 'none' : 'block';
     }
-
     function showResetPasswordScreen() {
       document.getElementById('screen-auth').style.display = 'flex';
       document.getElementById('mainHeader').style.display = 'none';
       document.getElementById('mainNavBar').style.display = 'none';
       document.getElementById('resetPasswordContainer').style.display = 'block';
       document.querySelector('#screen-auth .auth-container:not(#resetPasswordContainer)').style.display = 'none';
-      document.getElementById('resetPassword').value = '';
-      document.getElementById('resetConfirmPassword').value = '';
-      document.getElementById('resetPasswordMessage').innerText = '';
     }
 
     async function handleForgotPassword() {
       const email = document.getElementById('authEmail').value.trim();
-      if (!email) { alert('Please enter your registered email.'); document.getElementById('authEmail').focus(); return; }
+      if (!email) { alert('Please enter your registered email.'); return; }
       const { error } = await supabaseClient.auth.resetPasswordForEmail(email, { redirectTo: PRODUCTION_URL });
       if (error) { alert('Password Reset Error: ' + error.message); return; }
-      alert('Password reset email sent. Please check your email and open the recovery link.');
+      alert('Password reset email sent. Please check your email.');
     }
-
     async function handleResetPassword() {
       const password = document.getElementById('resetPassword').value;
       const confirmPassword = document.getElementById('resetConfirmPassword').value;
       const message = document.getElementById('resetPasswordMessage');
-      if (!password || !confirmPassword) { message.innerText = 'Please enter and confirm your new password.'; return; }
+      if (!password || !confirmPassword) { message.innerText = 'Please enter and confirm your password.'; return; }
       if (password !== confirmPassword) { message.innerText = 'Passwords do not match.'; return; }
       const { error } = await supabaseClient.auth.updateUser({ password });
-      if (error) { message.innerText = 'Password reset failed: ' + error.message; return; }
-      message.innerText = 'Password reset successful. You can now return to Login.';
-      document.getElementById('resetPassword').value = '';
-      document.getElementById('resetConfirmPassword').value = '';
-      try { await supabaseClient.auth.signOut(); } catch {}
+      if (error) { message.innerText = 'Reset failed: ' + error.message; return; }
+      message.innerText = 'Password reset successful. Return to Login.';
     }
 
     async function handleAuthSubmit() {
@@ -1819,10 +1918,9 @@
       const confirmPassword = document.getElementById('authConfirmPassword').value;
       const username = document.getElementById('authUsername').value.trim();
       const phone = document.getElementById('authPhone').value.trim();
-
-      if (!email || !password) { alert('Please enter both email and password.'); return; }
+      if (!email || !password) { alert('Please enter email and password.'); return; }
       if (isRegisterMode) {
-        if (!username || !phone) { alert('Please provide both a username and a phone number.'); return; }
+        if (!username || !phone) { alert('Please enter username and phone number.'); return; }
         if (password !== confirmPassword) { alert('Passwords do not match.'); return; }
         const { data, error } = await supabaseClient.auth.signUp({ email, password });
         if (error) { alert('Registration Error: ' + error.message); return; }
@@ -1830,7 +1928,9 @@
         currentUsername = username;
         currentUserPhone = phone;
         if (currentUser) await supabaseClient.from('profiles').upsert([{ id: currentUser.id, username, email, phone }]);
-        alert('Registration successful! Welcome, ' + username);
+        alert('Welcome, ' + username);
+        await syncStockFromSupabase();
+        await syncExpensesFromSupabase();
         setupUserInterface();
       } else {
         const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
@@ -1840,7 +1940,6 @@
         await syncSalesFromSupabase();
         await syncExpensesFromSupabase();
         await syncStockFromSupabase();
-        await syncOilAndBottleStockFromSupabase();
       }
     }
 
@@ -1852,18 +1951,8 @@
       activeOrders = [];
       archivedSales = [];
       expenses = [];
-      completedHistory = [];
-      completedOrdersCount = 0;
-      stockItems = [];
-      document.getElementById('authEmail').value = '';
-      document.getElementById('authPassword').value = '';
-      document.getElementById('authConfirmPassword').value = '';
-      document.getElementById('authUsername').value = '';
-      document.getElementById('authPhone').value = '';
-      renderBookings();
-      renderHistory();
-      renderExpenses();
-      renderSalesProgress();
+      oilStockData = { id: null, current_quantity: 0, used_quantity: 0, remaining_quantity: 0 };
+      specificPerfumesData = [];
       showAuthScreen();
     }
 
@@ -1889,46 +1978,7 @@
       if (screenId === 'screen-bookings') renderBookings();
     }
 
-    function goBack() {
-      switchTab('screen-home', document.getElementById('nav-home-btn'));
-    }
-
-    function openMonthlyReview() {
-      const now = monthISO();
-      document.getElementById('reviewMonth').value = now;
-      setReviewMode('monthly');
-      document.getElementById('monthlyReviewModal').classList.add('active');
-      renderMonthlyReview();
-    }
-
-    function closeSheet(id) {
-      const el = document.getElementById(id);
-      if (el) el.classList.remove('active');
-    }
-
-    function selectSalePayment(type) {
-      selectedSalePayment = type;
-      document.getElementById('saleCashBtn').classList.toggle('active', type === 'Cash');
-      document.getElementById('saleMobileBtn').classList.toggle('active', type === 'Mobile Money');
-      document.getElementById('saleBankBtn').classList.toggle('active', type === 'Bank');
-      document.getElementById('saleOtherBtn').classList.toggle('active', type === 'Other');
-      
-      document.getElementById('saleCashBox').classList.toggle('active', type === 'Cash');
-      document.getElementById('saleMobileBox').classList.toggle('active', type === 'Mobile Money');
-    }
-
-    function selectMobileProvider(el, provider) {
-      document.querySelectorAll('#saleMobileBox .pay-option-btn').forEach(x => x.classList.remove('active'));
-      el.classList.add('active');
-      selectedMobileProvider = provider;
-    }
-
-    function selectDelivery(value) {
-      selectedDelivery = value;
-      document.getElementById('deliveryYesBtn').classList.toggle('active', value);
-      document.getElementById('deliveryNoBtn').classList.toggle('active', !value);
-      document.getElementById('deliveryBox').classList.toggle('active', value);
-    }
+    function goBack() { switchTab('screen-home', document.getElementById('nav-home-btn')); }
 
     function createPerfumeRow(item = {}) {
       const row = document.createElement('div');
@@ -1939,357 +1989,224 @@
       const price = Math.max(0, Number(item.price || 0));
       row.innerHTML = `
         <input class="sale-item-name" type="text" placeholder="Perfume name" value="${name}">
-        <input class="sale-item-qty" type="number" min="1" step="1" value="${qty}" aria-label="Quantity" oninput="calculateSaleTotals()">
-        <select class="sale-item-size" aria-label="ML / Size">
-          <option value="10 ML" ${size==='10 ML'?'selected':''}>10 ML</option>
-          <option value="20 ML" ${size==='20 ML'?'selected':''}>20 ML</option>
-          <option value="30 ML" ${size==='30 ML'?'selected':''}>30 ML</option>
-          <option value="50 ML" ${size==='50 ML'?'selected':''}>50 ML</option>
-          <option value="100 ML" ${size==='100 ML'?'selected':''}>100 ML</option>
-        </select>
-        <input class="sale-item-price" type="number" min="0" step="500" placeholder="Price" value="${price || ''}" oninput="calculateSaleTotals()">
-        <button type="button" class="sale-item-remove" onclick="removePerfumeRow(this)"><i class="fa-solid fa-trash"></i></button>
-      `;
+        <input class="sale-item-qty" type="number" min="1" step="1" value="${qty}" aria-label="Quantity">
+        <select class="sale-item-size" aria-label="ML / Size">${['10 ML','20 ML','30 ML','50 ML','100 ML'].map(v => `<option value="${v}" ${v === size ? 'selected' : ''}>${v}</option>`).join('')}</select>
+        <input class="sale-item-price" type="number" min="0" step="100" value="${price || ''}" placeholder="Price">
+        <button type="button" class="sale-item-remove" onclick="removePerfumeRow(this)" title="Remove perfume"><i class="fa-solid fa-xmark"></i></button>
+        <div class="sale-item-amount">Amount: <strong>0 TZS</strong></div>`;
+      row.querySelectorAll('input,select').forEach(el => { el.addEventListener('input', updateSaleItemsSummary); el.addEventListener('change', updateSaleItemsSummary); });
       return row;
     }
 
-    function initializeSaleItems() {
+    function initializeSaleItems(items = []) {
       const list = document.getElementById('saleItemsList');
+      if (!list) return;
       list.innerHTML = '';
-      list.appendChild(createPerfumeRow());
-      calculateSaleTotals();
+      const normalized = Array.isArray(items) && items.length ? items : [{perfumeName:'', quantity:1, size:'30 ML'}];
+      normalized.forEach(item => list.appendChild(createPerfumeRow(item)));
+      updateSaleItemsSummary();
     }
 
-    function addPerfumeRow(item = {}) {
-      document.getElementById('saleItemsList').appendChild(createPerfumeRow(item));
-      calculateSaleTotals();
-    }
-
-    function removePerfumeRow(btn) {
+    function addPerfumeRow() {
       const list = document.getElementById('saleItemsList');
-      if (list.children.length > 1) {
-        btn.closest('.sale-item-row').remove();
-        calculateSaleTotals();
+      if (!list) return;
+      list.appendChild(createPerfumeRow({perfumeName:'', quantity:1, size:'30 ML'}));
+      updateSaleItemsSummary();
+    }
+
+    function removePerfumeRow(button) {
+      const list = document.getElementById('saleItemsList');
+      if (!list) return;
+      if (list.children.length <= 1) {
+        const row = list.firstElementChild;
+        if (row) { row.querySelector('.sale-item-name').value=''; row.querySelector('.sale-item-qty').value='1'; row.querySelector('.sale-item-size').value='30 ML'; }
       } else {
-        alert('At least one perfume item is required.');
+        button.closest('.sale-item-row')?.remove();
       }
+      updateSaleItemsSummary();
     }
 
-    function getSaleInputData() {
-      const rows = Array.from(document.querySelectorAll('#saleItemsList .sale-item-row'));
-      const items = rows.map(r => {
-        const name = r.querySelector('.sale-item-name').value.trim();
-        const quantity = Math.max(1, parseInt(r.querySelector('.sale-item-qty').value) || 1);
-        const size = r.querySelector('.sale-item-size').value;
-        const price = Math.max(0, parseFloat(r.querySelector('.sale-item-price').value) || 0);
-        return { perfumeName: name, quantity, size, price };
+    function collectSaleItems() {
+      return [...document.querySelectorAll('#saleItemsList .sale-item-row')].map(row => ({
+        perfumeName: row.querySelector('.sale-item-name')?.value.trim() || '',
+        quantity: Math.max(1, Number(row.querySelector('.sale-item-qty')?.value || 1)),
+        size: row.querySelector('.sale-item-size')?.value || '30 ML',
+        price: Math.max(0, Number(row.querySelector('.sale-item-price')?.value || 0))
+      }));
+    }
+
+    function calculateSaleTotals(items = collectSaleItems()) {
+      return items.reduce((sum, item) => sum + Number(item.quantity || 0) * Number(item.price || 0), 0);
+    }
+
+    function updateSaleItemsSummary() {
+      const summary = document.getElementById('saleItemsSummary');
+      const totalInput = document.getElementById('receivedAmount');
+      if (!summary) return;
+      const allItems = collectSaleItems();
+      const items = allItems.filter(x => x.perfumeName);
+      const count = items.reduce((sum,item) => sum + item.quantity, 0);
+      document.querySelectorAll('#saleItemsList .sale-item-row').forEach((row, index) => {
+        const item = allItems[index];
+        const amount = Number(item.quantity || 0) * Number(item.price || 0);
+        const amountEl = row.querySelector('.sale-item-amount strong');
+        if (amountEl) amountEl.textContent = money(amount);
       });
-
-      const totalCalculated = items.reduce((sum, item) => sum + (item.quantity * item.price), 0);
-      return { items, totalCalculated };
+      const total = calculateSaleTotals(items);
+      summary.textContent = `${items.length || 1} perfume item${items.length === 1 ? '' : 's'} • ${count} bottle${count === 1 ? '' : 's'} total`;
+      if (totalInput) totalInput.value = total || '';
     }
 
-    function calculateSaleTotals() {
-      const { items, totalCalculated } = getSaleInputData();
-      const totalCount = items.reduce((sum, i) => sum + i.quantity, 0);
-      document.getElementById('receivedAmount').value = totalCalculated;
-      document.getElementById('saleItemsSummary').innerText = `${items.length} perfume line(s), ${totalCount} bottle(s) total.`;
+    function selectDelivery(value) {
+      selectedDelivery = value;
+      document.getElementById('deliveryYesBtn').classList.toggle('active', value);
+      document.getElementById('deliveryNoBtn').classList.toggle('active', !value);
+      document.getElementById('deliveryBox').classList.toggle('active', value);
     }
 
+    /* SAVE / EDIT SALE WITH INDIVIDUAL PAYMENT METHOD REQUIREMENT */
     async function saveSale() {
-      if (!currentUser) { alert('You must be logged in to record sales.'); return; }
-      const { items, totalCalculated } = getSaleInputData();
-      if (!items.length || items.some(i => !i.perfumeName)) {
-        alert('Please specify a perfume name for all items.');
+      const saleDateVal = document.getElementById('saleDate').value || todayISO();
+      const paymentMethod = document.getElementById('salePaymentMethod').value;
+      const items = collectSaleItems().filter(x => x.perfumeName);
+      
+      if (!items.length) {
+        alert('Please enter at least one perfume name.');
+        return;
+      }
+      if (!paymentMethod) {
+        alert('Please select a payment method for this specific sale.');
+        document.getElementById('salePaymentMethod').focus();
         return;
       }
 
-      const saleDateVal = document.getElementById('saleDate').value || todayISO();
-      const deliveryAmt = selectedDelivery ? (parseFloat(document.getElementById('deliveryAmount').value) || 0) : 0;
-      
-      const salePayload = {
+      const receivedAmount = calculateSaleTotals(items);
+      const deliveryAmount = selectedDelivery ? Number(document.getElementById('deliveryAmount').value || 0) : 0;
+      const wasEditing = !!editingSaleId;
+      const orderId = wasEditing ? editingSaleId : ('SALE-' + Date.now().toString().slice(-8));
+
+      const instructionsPayload = JSON.stringify({
         type: 'glamo_sale',
-        items,
         date: saleDateVal,
-        paymentMethod: selectedSalePayment,
-        paymentProvider: selectedMobileProvider,
-        receivedAmount: totalCalculated,
-        deliveryAmount: deliveryAmt,
-      };
+        items,
+        receivedAmount,
+        deliveryAmount,
+        paymentMethod
+      });
 
-      try {
-        if (editingSaleId) {
-          const { error } = await supabaseClient
+      if (currentUser) {
+        try {
+          const { data, error } = await supabaseClient
             .from('orders')
-            .update({
-              items,
-              total: totalCalculated + deliveryAmt,
-              payment_method: selectedSalePayment,
-              instructions: JSON.stringify(salePayload),
-              updated_at: new Date()
-            })
-            .eq('id', editingSaleId)
-            .eq('user_id', currentUser.id);
-          if (error) throw error;
-          editingSaleId = null;
-        } else {
-          const orderIdStr = 'GLM-' + Math.floor(100000 + Math.random() * 900000);
-          const { error } = await supabaseClient
-            .from('orders')
-            .insert([{
+            .upsert([{
+              order_id: orderId,
               user_id: currentUser.id,
-              order_id: orderIdStr,
-              items,
-              total: totalCalculated + deliveryAmt,
-              payment_method: selectedSalePayment,
-              status: 'confirmed',
-              instructions: JSON.stringify(salePayload)
-            }]);
+              total: receivedAmount + deliveryAmount,
+              payment_method: paymentMethod,
+              instructions: instructionsPayload,
+              status: 'confirmed'
+            }])
+            .select();
           if (error) throw error;
+        } catch (e) {
+          console.error('Error saving sale to database:', e);
+          alert('Failed to save sale record to database.');
+          return;
         }
-
-        // Auto deduct bottle usage
-        items.forEach(item => {
-          let szKey = item.size.toLowerCase().replace(' ', '');
-          if (bottleStockData[szKey]) {
-            bottleStockData[szKey].used_pcs += item.quantity;
-            document.getElementById(`used${szKey}`).value = bottleStockData[szKey].used_pcs;
-            calculateBottleStock(szKey);
-          }
-        });
-        saveBottleStock();
-
-        cancelSaleEdit();
-        await syncSalesFromSupabase();
-        alert('Sale saved and synchronized successfully!');
-      } catch (e) {
-        alert('Error saving sale: ' + e.message);
       }
+
+      await syncSalesFromSupabase();
+      resetSaleForm();
+      alert(wasEditing ? 'Sale updated successfully!' : 'Sale saved successfully!');
+      switchTab('screen-bookings');
     }
 
     function editSale(id) {
-      const sale = activeOrders.find(s => s.id === id || s.dbId === id);
+      const sale = [...activeOrders, ...archivedSales].find(s => s.id === id);
       if (!sale) return;
-      editingSaleId = sale.dbId || sale.id;
-      document.getElementById('saleFormTitle').innerText = 'Edit Sale';
-      document.getElementById('saleDate').value = sale.date;
+      editingSaleId = id;
+      document.getElementById('saleDate').value = saleDate(sale);
+      document.getElementById('salePaymentMethod').value = sale.paymentMethod || 'Cash';
+      initializeSaleItems(sale.items);
+      selectDelivery(Number(sale.deliveryAmount || 0) > 0);
+      if (sale.deliveryAmount) document.getElementById('deliveryAmount').value = sale.deliveryAmount;
       
-      const list = document.getElementById('saleItemsList');
-      list.innerHTML = '';
-      sale.items.forEach(item => list.appendChild(createPerfumeRow(item)));
-      
-      selectSalePayment(sale.paymentMethod || 'Cash');
-      if (sale.paymentProvider) {
-        document.querySelectorAll('#saleMobileBox .pay-option-btn').forEach(btn => {
-          if (btn.innerText.includes(sale.paymentProvider)) btn.classList.add('active');
-        });
-      }
-      
-      if (sale.deliveryAmount > 0) {
-        selectDelivery(true);
-        document.getElementById('deliveryAmount').value = sale.deliveryAmount;
-      } else {
-        selectDelivery(false);
-      }
-      
-      calculateSaleTotals();
+      document.getElementById('saleFormTitle').textContent = 'Edit Sale';
+      document.getElementById('saleSaveBtn').innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Save Changes';
       document.getElementById('saleCancelBtn').style.display = 'block';
       switchTab('screen-perfumes');
     }
 
-    function cancelSaleEdit() {
+    function cancelSaleEdit() { resetSaleForm(); }
+
+    function resetSaleForm() {
       editingSaleId = null;
-      document.getElementById('saleFormTitle').innerText = 'Record Sale';
       document.getElementById('saleDate').value = todayISO();
-      document.getElementById('saleCancelBtn').style.display = 'none';
-      selectSalePayment('Cash');
+      document.getElementById('salePaymentMethod').value = '';
+      initializeSaleItems([]);
       selectDelivery(false);
-      initializeSaleItems();
+      document.getElementById('deliveryAmount').value = '';
+      document.getElementById('saleFormTitle').textContent = 'Record Sale';
+      document.getElementById('saleSaveBtn').innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Save Sale';
+      document.getElementById('saleCancelBtn').style.display = 'none';
     }
 
-    async function deleteSale(dbId) {
-      if (!confirm('Are you sure you want to delete this sale?')) return;
-      try {
-        const { error } = await supabaseClient
-          .from('orders')
-          .delete()
-          .eq('id', dbId)
-          .eq('user_id', currentUser.id);
-        if (error) throw error;
-        await syncSalesFromSupabase();
-      } catch (e) {
-        alert('Error deleting sale: ' + e.message);
-      }
-    }
-
-    async function archiveSale(dbId) {
-      try {
-        const { error } = await supabaseClient
-          .from('orders')
-          .update({ status: 'archived', updated_at: new Date() })
-          .eq('id', dbId)
-          .eq('user_id', currentUser.id);
-        if (error) throw error;
-        await syncSalesFromSupabase();
-      } catch (e) {
-        alert('Error archiving sale: ' + e.message);
-      }
-    }
-
-    async function restoreSale(dbId) {
-      try {
-        const { error } = await supabaseClient
-          .from('orders')
-          .update({ status: 'confirmed', updated_at: new Date() })
-          .eq('id', dbId)
-          .eq('user_id', currentUser.id);
-        if (error) throw error;
-        await syncSalesFromSupabase();
-      } catch (e) {
-        alert('Error restoring sale: ' + e.message);
-      }
-    }
-
-    async function saveExpense() {
-      if (!currentUser) { alert('You must be logged in to record expenses.'); return; }
-      const name = document.getElementById('expenseName').value.trim();
-      const date = document.getElementById('expenseDate').value || todayISO();
-      const amount = parseFloat(document.getElementById('expenseAmount').value) || 0;
-      const category = document.getElementById('expenseCategory').value;
-      const notes = document.getElementById('expenseNotes').value.trim();
-
-      if (!name || amount <= 0) { alert('Please fill in expense name and amount.'); return; }
-
-      try {
-        if (editingExpenseId) {
-          const { error } = await supabaseClient
-            .from('expenses')
-            .update({
-              expense_name: name,
-              expense_date: date,
-              amount,
-              category,
-              notes,
-              updated_at: new Date()
-            })
-            .eq('id', editingExpenseId)
-            .eq('user_id', currentUser.id);
-          if (error) throw error;
-          editingExpenseId = null;
-        } else {
-          const { error } = await supabaseClient
-            .from('expenses')
-            .insert([{
-              user_id: currentUser.id,
-              expense_name: name,
-              expense_date: date,
-              amount,
-              category,
-              notes
-            }]);
-          if (error) throw error;
+    async function deleteSale(id) {
+      if (!confirm('Are you sure you want to delete this sale record?')) return;
+      if (currentUser) {
+        try {
+          await supabaseClient.from('orders').delete().eq('order_id', id);
+        } catch (e) {
+          console.error('Error deleting sale:', e);
         }
-
-        cancelExpenseEdit();
-        await syncExpensesFromSupabase();
-        alert('Expense saved successfully!');
-      } catch (e) {
-        alert('Error saving expense: ' + e.message);
       }
+      await syncSalesFromSupabase();
     }
 
-    function editExpense(id) {
-      const exp = expenses.find(e => e.id === id);
-      if (!exp) return;
-      editingExpenseId = exp.id;
-      document.getElementById('expenseFormTitle').innerText = 'Edit Expense';
-      document.getElementById('expenseName').value = exp.name;
-      document.getElementById('expenseDate').value = exp.date;
-      document.getElementById('expenseAmount').value = exp.amount;
-      document.getElementById('expenseCategory').value = exp.category;
-      document.getElementById('expenseNotes').value = exp.notes;
-      document.getElementById('expenseCancelBtn').style.display = 'block';
-    }
-
-    function cancelExpenseEdit() {
-      editingExpenseId = null;
-      document.getElementById('expenseFormTitle').innerText = 'Record Expense';
-      document.getElementById('expenseName').value = '';
-      document.getElementById('expenseDate').value = todayISO();
-      document.getElementById('expenseAmount').value = '';
-      document.getElementById('expenseCategory').value = 'General';
-      document.getElementById('expenseNotes').value = '';
-      document.getElementById('expenseCancelBtn').style.display = 'none';
-    }
-
-    async function deleteExpense(id) {
-      if (!confirm('Are you sure you want to delete this expense?')) return;
-      try {
-        const { error } = await supabaseClient
-          .from('expenses')
-          .delete()
-          .eq('id', id)
-          .eq('user_id', currentUser.id);
-        if (error) throw error;
-        await syncExpensesFromSupabase();
-      } catch (e) {
-        alert('Error deleting expense: ' + e.message);
+    async function archiveSale(id) {
+      if (currentUser) {
+        try {
+          const sale = activeOrders.find(s => s.id === id);
+          if (!sale) return;
+          await supabaseClient
+            .from('orders')
+            .update({ status: 'archived' })
+            .eq('order_id', id);
+        } catch (e) {
+          console.error('Error archiving sale:', e);
+        }
       }
+      await syncSalesFromSupabase();
     }
 
-    function renderExpenses() {
-      const listContainer = document.getElementById('expensesList');
-      const totalEl = document.getElementById('expenseTotalValue');
-      
-      const totalExp = expenses.reduce((sum, e) => sum + e.amount, 0);
-      totalEl.innerText = money(totalExp);
-
-      if (!expenses.length) {
-        listContainer.innerHTML = '<div class="expense-empty">No expenses recorded yet.</div>';
-        return;
-      }
-
-      listContainer.innerHTML = expenses.map(e => `
-        <div class="expense-item">
-          <div class="expense-item-head">
-            <div>
-              <div class="expense-name">${escapeHtml(e.name)}</div>
-              <div class="expense-meta">${e.date} • ${escapeHtml(e.category)}</div>
-            </div>
-            <div class="expense-amount">${money(e.amount)}</div>
-          </div>
-          ${e.notes ? `<div class="expense-notes">${escapeHtml(e.notes)}</div>` : ''}
-          <div class="expense-actions">
-            <button class="expense-action" onclick="editExpense('${e.id}')"><i class="fa-solid fa-pen"></i> Edit</button>
-            <button class="expense-action delete" onclick="deleteExpense('${e.id}')"><i class="fa-solid fa-trash"></i> Delete</button>
-          </div>
-        </div>
-      `).join('');
+    function toggleArchive() {
+      archiveOpen = !archiveOpen;
+      const container = document.getElementById('archiveListContainer');
+      const icon = document.getElementById('archiveToggleIcon');
+      if (container) container.classList.toggle('open', archiveOpen);
+      if (icon) icon.textContent = archiveOpen ? '▾' : '▸';
     }
 
     function renderBookings() {
       const container = document.getElementById('bookingsListContainer');
+      if (!container) return;
       if (!activeOrders.length) {
-        container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-sub);">No active sales found.</div>';
+        container.innerHTML = '<div class="expense-empty">No active sales recorded.</div>';
         return;
       }
-
-      container.innerHTML = activeOrders.map(s => `
-        <div class="order-card-track">
-          <div class="track-header">
-            <span class="order-id">${s.id}</span>
-            <span class="status-badge verified">${s.paymentMethod}</span>
-          </div>
-          <div class="track-details">
-            <p><strong>Date:</strong> ${s.date}</p>
-            <p><strong>Items:</strong> ${getSaleNames(s)} (${getSalePerfumeCount(s)} pcs)</p>
-            <p><strong>Received:</strong> ${money(s.receivedAmount)}</p>
-            ${s.deliveryAmount ? `<p><strong>Delivery:</strong> ${money(s.deliveryAmount)}</p>` : ''}
+      container.innerHTML = activeOrders.map(sale => `
+        <div class="sales-entry-card">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+            <div>
+              <div style="font-size:0.95rem; font-weight:900;">${escapeHtml(getSaleNames(sale))}</div>
+              <div style="font-size:0.72rem; color:var(--text-sub); margin-top:2px;">${saleDate(sale)} • Payment: <strong style="color:var(--accent-gold);">${escapeHtml(sale.paymentMethod || 'Cash')}</strong></div>
+            </div>
+            <div style="font-size:0.95rem; font-weight:900; color:var(--accent-gold);">${money(saleTotal(sale))}</div>
           </div>
           <div class="sale-actions">
-            <button class="small-action" onclick="editSale('${s.dbId}')"><i class="fa-solid fa-pen"></i> Edit</button>
-            <button class="small-action" onclick="archiveSale('${s.dbId}')"><i class="fa-solid fa-box-archive"></i> Archive</button>
-            <button class="small-action delete" onclick="deleteSale('${s.dbId}')"><i class="fa-solid fa-trash"></i> Delete</button>
+            <button class="small-action" onclick="editSale('${sale.id}')"><i class="fa-solid fa-pen"></i> Edit</button>
+            <button class="small-action" onclick="archiveSale('${sale.id}')"><i class="fa-solid fa-box-archive"></i> Archive</button>
+            <button class="small-action delete" onclick="deleteSale('${sale.id}')"><i class="fa-solid fa-trash"></i> Delete</button>
           </div>
         </div>
       `).join('');
@@ -2297,64 +2214,25 @@
 
     function renderArchive() {
       const container = document.getElementById('archiveListContainer');
+      if (!container) return;
       if (!archivedSales.length) {
-        container.innerHTML = '<div style="text-align:center;padding:10px;color:var(--text-sub);">No archived sales.</div>';
+        container.innerHTML = '<div class="expense-empty">No archived sales.</div>';
         return;
       }
-
-      container.innerHTML = archivedSales.map(s => `
+      container.innerHTML = archivedSales.map(sale => `
         <div class="archive-card">
-          <div class="track-header">
-            <span class="order-id">${s.id}</span>
-            <span class="status-badge pending">Archived</span>
-          </div>
-          <div class="track-details">
-            <p><strong>Date:</strong> ${s.date}</p>
-            <p><strong>Items:</strong> ${getSaleNames(s)}</p>
-            <p><strong>Total:</strong> ${money(saleTotal(s))}</p>
+          <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+            <div>
+              <div style="font-size:0.9rem; font-weight:900;">${escapeHtml(getSaleNames(sale))}</div>
+              <div style="font-size:0.7rem; color:var(--text-sub);">${saleDate(sale)} • ${escapeHtml(sale.paymentMethod || 'Cash')}</div>
+            </div>
+            <div style="font-size:0.9rem; font-weight:900; color:var(--accent-gold);">${money(saleTotal(sale))}</div>
           </div>
           <div class="sale-actions">
-            <button class="small-action" onclick="restoreSale('${s.dbId}')"><i class="fa-solid fa-rotate-left"></i> Restore</button>
-            <button class="small-action delete" onclick="deleteSale('${s.dbId}')"><i class="fa-solid fa-trash"></i> Delete</button>
+            <button class="small-action delete" onclick="deleteSale('${sale.id}')"><i class="fa-solid fa-trash"></i> Delete</button>
           </div>
         </div>
       `).join('');
-    }
-
-    function toggleArchive() {
-      archiveOpen = !archiveOpen;
-      const el = document.getElementById('archiveListContainer');
-      const icon = document.getElementById('archiveToggleIcon');
-      el.classList.toggle('open', archiveOpen);
-      icon.innerText = archiveOpen ? '▾' : '▸';
-    }
-
-    function renderHistory() {
-      const container = document.getElementById('historyListContainer');
-      if (!activeOrders.length) {
-        container.innerHTML = '<div style="text-align:center;padding:15px;color:var(--text-sub);">No previous sales recorded.</div>';
-        return;
-      }
-      container.innerHTML = activeOrders.slice(0, 5).map(s => `
-        <div class="order-card-track">
-          <div class="track-header">
-            <span class="order-id">${s.id} - ${s.date}</span>
-            <span class="status-badge verified">${money(saleTotal(s))}</span>
-          </div>
-          <div style="font-size:0.8rem;color:var(--text-sub);">${getSaleNames(s)}</div>
-        </div>
-      `).join('');
-    }
-
-    function updateLoyaltyUI() {
-      const count = activeOrders.length;
-      document.getElementById('loyaltyCountBadge').innerText = `Total Orders: ${count}`;
-      const dots = document.querySelectorAll('#stampsRow .stamp-dot');
-      const filledCount = count % 5;
-      dots.forEach((dot, idx) => {
-        if (idx < filledCount) dot.classList.add('filled');
-        else dot.classList.remove('filled');
-      });
     }
 
     function setReviewMode(mode) {
@@ -2367,7 +2245,6 @@
       document.getElementById('dailyFilters').style.display = mode === 'daily' ? 'block' : 'none';
       document.getElementById('monthlyFilters').style.display = mode === 'monthly' ? 'block' : 'none';
       document.getElementById('customFilters').style.display = 'none';
-
       renderSalesProgress();
     }
 
@@ -2377,180 +2254,100 @@
       document.getElementById('customFilters').style.display = 'block';
     }
 
-    function filterSalesByPeriod() {
-      if (document.getElementById('customFilters').style.display === 'block') {
-        const from = document.getElementById('rangeFrom').value;
-        const to = document.getElementById('rangeTo').value;
-        return activeOrders.filter(s => (!from || s.date >= from) && (!to || s.date <= to));
-      }
-
-      if (reviewMode === 'daily') {
-        const target = document.getElementById('dailyDate').value || todayISO();
-        return activeOrders.filter(s => s.date === target);
-      }
-
-      if (reviewMode === 'monthly') {
-        const target = document.getElementById('reviewMonth').value || monthISO();
-        return activeOrders.filter(s => s.date.startsWith(target));
-      }
-
-      if (reviewMode === 'weekly') {
-        const now = new Date();
-        const weekAgo = new Date(now.setDate(now.getDate() - 7)).toISOString().slice(0,10);
-        return activeOrders.filter(s => s.date >= weekAgo);
-      }
-
-      return activeOrders;
-    }
-
     function renderSalesProgress() {
-      const filteredSales = filterSalesByPeriod();
-      const totalRev = filteredSales.reduce((sum, s) => sum + saleTotal(s), 0);
-      const totalBottles = filteredSales.reduce((sum, s) => sum + getSalePerfumeCount(s), 0);
-
       const metricsContainer = document.getElementById('progressMetrics');
+      if (!metricsContainer) return;
+      
+      const allSales = [...activeOrders, ...archivedSales];
+      const totalRevenue = allSales.reduce((sum, s) => sum + saleTotal(s), 0);
+      const totalBottles = allSales.reduce((sum, s) => sum + getSalePerfumeCount(s), 0);
+
       metricsContainer.innerHTML = `
         <div class="metric-card">
-          <div class="metric-label">Revenue</div>
-          <div class="metric-value">${money(totalRev)}</div>
+          <div class="metric-label">Total Revenue</div>
+          <div class="metric-value">${money(totalRevenue)}</div>
         </div>
         <div class="metric-card">
           <div class="metric-label">Bottles Sold</div>
           <div class="metric-value">${totalBottles} pcs</div>
         </div>
       `;
+    }
 
-      // Best Sellers
-      const perfumeCounts = {};
-      filteredSales.forEach(s => {
-        getSaleItems(s).forEach(item => {
-          perfumeCounts[item.perfumeName] = (perfumeCounts[item.perfumeName] || 0) + item.quantity;
-        });
-      });
+    function renderExpenses() {
+      const list = document.getElementById('expensesList'), totalEl = document.getElementById('expenseTotalValue');
+      if (!list) return;
+      const sorted = [...expenses].sort((a,b) => String(b.date || '').localeCompare(String(a.date || '')));
+      const total = sorted.reduce((sum,e) => sum + Number(e.amount || 0), 0);
+      if (totalEl) totalEl.textContent = money(total);
+      if (!sorted.length) { list.innerHTML = '<div class="expense-empty">No expenses recorded yet.</div>'; return; }
+      list.innerHTML = sorted.map(e => `
+        <div class="expense-item">
+          <div class="expense-item-head"><div><div class="expense-name">${escapeHtml(e.name)}</div><div class="expense-meta">${escapeHtml(e.date)} • ${escapeHtml(e.category)}</div></div><div class="expense-amount">${money(e.amount)}</div></div>
+          ${e.notes ? `<div class="expense-notes">${escapeHtml(e.notes)}</div>` : ''}
+          <div class="expense-actions"><button class="expense-action" onclick="editExpense('${e.id}')"><i class="fa-solid fa-pen"></i> Edit</button><button class="expense-action delete" onclick="deleteExpense('${e.id}')"><i class="fa-solid fa-trash"></i> Delete</button></div>
+        </div>`).join('');
+    }
 
-      const sortedPerfumes = Object.entries(perfumeCounts).sort((a,b) => b[1] - a[1]);
-      const bestSellersList = document.getElementById('bestSellersList');
-
-      if (!sortedPerfumes.length) {
-        bestSellersList.innerHTML = '<div style="font-size:0.8rem;color:var(--text-sub);">No sales recorded for period.</div>';
-      } else {
-        const maxQty = sortedPerfumes[0][1];
-        bestSellersList.innerHTML = sortedPerfumes.slice(0, 5).map(([name, qty]) => `
-          <div class="rank-row">
-            <div class="rank-head">
-              <span>${escapeHtml(name)}</span>
-              <span>${qty} pcs</span>
-            </div>
-            <div class="progress-track">
-              <div class="progress-fill" style="width: ${(qty/maxQty)*100}%;"></div>
-            </div>
-          </div>
-        `).join('');
+    async function saveExpense() {
+      const name = document.getElementById('expenseName').value.trim();
+      const date = document.getElementById('expenseDate').value;
+      const amount = Number(document.getElementById('expenseAmount').value || 0);
+      const category = document.getElementById('expenseCategory').value;
+      const notes = document.getElementById('expenseNotes').value.trim();
+      if (!name || !date || amount <= 0) { alert('Please enter expense name, date, and amount.'); return; }
+      
+      const expenseId = 'EXP-' + Date.now().toString().slice(-8);
+      if (currentUser) {
+        try {
+          await supabaseClient.from('expenses').upsert([{
+            id: expenseId,
+            user_id: currentUser.id,
+            name, date, amount, category, notes
+          }]);
+        } catch(e) { console.error('Error saving expense:', e); }
       }
-
-      // Stock Alerts
-      renderStockAlerts();
+      await syncExpensesFromSupabase();
+      resetExpenseForm();
+      alert('Expense saved.');
     }
 
-    function renderMonthlyReview() {
-      const month = document.getElementById('reviewMonth').value || monthISO();
-      const filteredSales = activeOrders.filter(s => s.date.startsWith(month));
-      const filteredExp = expenses.filter(e => e.date.startsWith(month));
-
-      const totalRev = filteredSales.reduce((sum, s) => sum + saleTotal(s), 0);
-      const totalExp = filteredExp.reduce((sum, e) => sum + e.amount, 0);
-      const netProfit = totalRev - totalExp;
-
-      const container = document.getElementById('monthlyReviewContent');
-      container.innerHTML = `
-        <div class="review-card">
-          <h3>Summary for ${month}</h3>
-          <div class="review-grid">
-            <div class="metric-card">
-              <div class="metric-label">Total Revenue</div>
-              <div class="metric-value" style="color:var(--accent-gold);">${money(totalRev)}</div>
-            </div>
-            <div class="metric-card">
-              <div class="metric-label">Total Expenses</div>
-              <div class="metric-value" style="color:#e74c3c;">${money(totalExp)}</div>
-            </div>
-          </div>
-          <div class="expense-total-box" style="margin-top:12px;">
-            <span class="expense-total-label">Net Operating Income</span>
-            <span class="expense-total-value" style="color:${netProfit>=0?'#28a745':'#e74c3c'};">${money(netProfit)}</span>
-          </div>
-        </div>
-      `;
+    function resetExpenseForm() {
+      document.getElementById('expenseName').value = '';
+      document.getElementById('expenseDate').value = todayISO();
+      document.getElementById('expenseAmount').value = '';
+      document.getElementById('expenseNotes').value = '';
     }
 
-    function openStockManager() {
-      document.getElementById('stockModal').classList.add('active');
-      renderStockList();
-    }
-
-    async function saveStockItem() {
+    async function syncExpensesFromSupabase() {
       if (!currentUser) return;
-      const name = document.getElementById('stockPerfumeName').value.trim();
-      const qty = parseFloat(document.getElementById('stockQuantity').value) || 0;
-      const threshold = parseFloat(document.getElementById('stockThreshold').value) || 5;
-
-      if (!name) { alert('Please enter a perfume name.'); return; }
-
       try {
-        const { error } = await supabaseClient
-          .from('stock_items')
-          .insert([{ user_id: currentUser.id, perfume_name: name, quantity: qty, threshold }]);
-        if (error) throw error;
-        
-        document.getElementById('stockPerfumeName').value = '';
-        document.getElementById('stockQuantity').value = '';
-        await syncStockFromSupabase();
-      } catch (e) {
-        alert('Error saving stock item: ' + e.message);
-      }
+        const { data } = await supabaseClient
+          .from('expenses')
+          .select('*')
+          .eq('user_id', currentUser.id)
+          .order('date', { ascending: false });
+        expenses = data || [];
+        renderExpenses();
+      } catch(e) { console.error('Error syncing expenses:', e); }
     }
 
-    function renderStockList() {
-      const container = document.getElementById('stockList');
-      if (!stockItems.length) {
-        container.innerHTML = '<div style="font-size:0.8rem;color:var(--text-sub);">No specific inventory added yet.</div>';
-        return;
-      }
-
-      container.innerHTML = stockItems.map(item => `
-        <div class="stock-item">
-          <div>
-            <div class="stock-name">${escapeHtml(item.perfumeName)}</div>
-            <div class="stock-meta">Stock: ${item.quantity} | Threshold: ${item.threshold}</div>
-          </div>
-          <span class="stock-status ${item.quantity <= item.threshold ? 'low' : 'ok'}">
-            ${item.quantity <= item.threshold ? 'Low Stock' : 'In Stock'}
-          </span>
-        </div>
-      `).join('');
+    function updateLoyaltyUI() {
+      const badge = document.getElementById('loyaltyCountBadge');
+      if (badge) badge.textContent = `Total Orders: ${activeOrders.length}`;
     }
 
-    function renderStockAlerts() {
-      const container = document.getElementById('stockAlerts');
-      const lowStock = stockItems.filter(i => i.quantity <= i.threshold);
-
-      if (!lowStock.length) {
-        container.innerHTML = '<div style="font-size:0.78rem;color:var(--text-sub);">All stock levels operating normally.</div>';
-        return;
-      }
-
-      container.innerHTML = lowStock.map(i => `
-        <div class="stock-item">
-          <span class="stock-name">${escapeHtml(i.perfumeName)}</span>
-          <span class="stock-status low">${i.quantity} left</span>
-        </div>
-      `).join('');
+    function openMonthlyReview() {
+      document.getElementById('monthlyReviewModal').classList.add('active');
     }
-
+    function closeSheet(id) {
+      document.getElementById(id)?.classList.remove('active');
+    }
     function igniteTeaserToast() {
       const toast = document.getElementById('soonToast');
+      if (!toast) return;
       toast.classList.add('trigger-fly');
-      setTimeout(() => toast.classList.remove('trigger-fly'), 3000);
+      setTimeout(() => toast.classList.remove('trigger-fly'), 3500);
     }
   </script>
 </body>
