@@ -74,7 +74,6 @@
       overflow-x: hidden;
     }
     
-    /* SPLASH SCREEN - Pure White Background with Clean Transparent Logo */
     #splash-screen {
       position: fixed;
       inset: 0;
@@ -101,16 +100,9 @@
       to { transform: scale(1.05); opacity: 1; }
     }
     
-    /* AUTH SCREEN & ANIMATIONS */
     @keyframes slideInFromLeft {
-      0% {
-        opacity: 0;
-        transform: translateX(-15px);
-      }
-      100% {
-        opacity: 1;
-        transform: translateX(0);
-      }
+      0% { opacity: 0; transform: translateX(-15px); }
+      100% { opacity: 1; transform: translateX(0); }
     }
     .auth-container {
       max-width: 400px;
@@ -143,26 +135,10 @@
       animation-delay: 0.12s;
     }
     
-    .auth-container .form-group:nth-of-type(1) {
-      opacity: 0;
-      animation: slideInFromLeft 0.4s ease forwards;
-      animation-delay: 0.19s;
-    }
-    .auth-container .form-group:nth-of-type(2) {
-      opacity: 0;
-      animation: slideInFromLeft 0.4s ease forwards;
-      animation-delay: 0.26s;
-    }
-    .auth-container .form-group:nth-of-type(3) {
-      opacity: 0;
-      animation: slideInFromLeft 0.4s ease forwards;
-      animation-delay: 0.33s;
-    }
-    .auth-container .form-group:nth-of-type(4) {
-      opacity: 0;
-      animation: slideInFromLeft 0.4s ease forwards;
-      animation-delay: 0.40s;
-    }
+    .auth-container .form-group:nth-of-type(1) { opacity: 0; animation: slideInFromLeft 0.4s ease forwards; animation-delay: 0.19s; }
+    .auth-container .form-group:nth-of-type(2) { opacity: 0; animation: slideInFromLeft 0.4s ease forwards; animation-delay: 0.26s; }
+    .auth-container .form-group:nth-of-type(3) { opacity: 0; animation: slideInFromLeft 0.4s ease forwards; animation-delay: 0.33s; }
+    .auth-container .form-group:nth-of-type(4) { opacity: 0; animation: slideInFromLeft 0.4s ease forwards; animation-delay: 0.40s; }
     .auth-btn {
       width: 100%;
       background: var(--accent-gold);
@@ -189,7 +165,6 @@
     }
     .auth-switch span { color: var(--accent-gold); font-weight: 700; }
     
-    /* Main Application Screens */
     .app-screen {
       display: none;
       width: 100%;
@@ -201,14 +176,12 @@
       animation: fadeIn 0.3s ease-in-out;
     }
     .app-screen.active { display: flex; }
-    #screen-home {
-      padding-top: 0px;
-    }
+    #screen-home { padding-top: 0px; }
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(6px); }
       to { opacity: 1; transform: translateY(0); }
     }
-    /* In-App Header - Updated Pure White Background */
+    
     .app-header {
       position: fixed;
       top: 0;
@@ -333,6 +306,7 @@
       background: linear-gradient(90deg, transparent, var(--accent-gold), transparent);
       margin: 10px 0 24px 0;
     }
+    
     .quick-reorder-section {
       background: var(--card-bg);
       border-radius: 16px;
@@ -386,7 +360,7 @@
       margin-bottom: 20px;
     }
     .logout-main-btn:hover { background: rgba(231, 76, 60, 0.1); }
-
+    
     .modal-overlay {
       display: none;
       position: fixed;
@@ -437,7 +411,7 @@
       margin-bottom: 16px;
     }
     .sheet-title { font-size: 1.4rem; font-weight: 900; color: var(--text-main); text-align: center; }
-
+    
     .form-row { display: flex; gap: 10px; }
     .form-group { margin-bottom: 14px; text-align: left; flex: 1; }
     .form-group label { display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-sub); margin-bottom: 5px; }
@@ -467,7 +441,16 @@
       color: var(--text-main);
     }
     .pay-option-btn.active { border-color: var(--accent-gold); background: var(--accent-gold-light); }
-
+    .conditional-box {
+      display:none;
+      margin-top:10px;
+      padding:12px;
+      border:1px solid var(--accent-gold);
+      border-radius:12px;
+      background:var(--card-bg-sub);
+    }
+    .conditional-box.active { display:block; }
+    
     .loyalty-card {
       background: var(--card-bg);
       border: 1.5px solid var(--accent-gold);
@@ -493,7 +476,8 @@
       color: var(--text-sub);
       font-weight: 800;
     }
-
+    .stamp-dot.filled { background: var(--accent-gold); border-style: solid; border-color: var(--accent-gold); color: #000; }
+    
     .ai-screen-wrap {
       text-align: center;
       display: flex;
@@ -586,7 +570,6 @@
       font-size: 1.1rem;
       flex-shrink: 0;
     }
-
     .profile-header-card {
       background: var(--card-bg);
       border: 1.5px solid var(--card-border);
@@ -667,7 +650,6 @@
       align-items: center;
       gap: 6px;
     }
-    /* GLAMO SCENTS LOGIN HERO */
     #screen-auth {
       position: relative;
       width: 100%;
@@ -698,8 +680,7 @@
       z-index: 2;
       width: min(400px, 90%);
     }
-    /* GLAMO SALES & EXPENSES */
-    .sales-entry-card, .progress-panel, .stock-panel, .expenses-card, .archive-card {
+    .sales-entry-card, .progress-panel, .stock-panel, .review-card {
       background: var(--card-bg);
       border: 1px solid var(--card-border);
       border-radius: 18px;
@@ -723,15 +704,6 @@
       outline: none;
     }
     .payment-main-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
-    .conditional-box {
-      display:none;
-      margin-top:10px;
-      padding:12px;
-      border:1px solid var(--accent-gold);
-      border-radius:12px;
-      background:var(--card-bg-sub);
-    }
-    .conditional-box.active { display:block; }
     .sales-save-btn {
       width:100%;
       background:var(--accent-gold);
@@ -756,17 +728,6 @@
       color:var(--text-main);
     }
     .review-tab.active { border-color:var(--accent-gold); color:var(--accent-gold); }
-    .stock-item {
-      display:flex; align-items:center; justify-content:space-between; gap:10px;
-      padding:11px 0; border-bottom:1px dashed var(--card-border);
-    }
-    .stock-item:last-child { border-bottom:none; }
-    .stock-name { font-size:.82rem; font-weight:900; }
-    .stock-meta { font-size:.7rem; color:var(--text-sub); margin-top:2px; }
-    .stock-status { font-size:.68rem; font-weight:900; padding:4px 8px; border-radius:15px; white-space:nowrap; }
-    .stock-status.low { color:#d97706; background:rgba(217,119,6,.12); }
-    .stock-status.out { color:#e74c3c; background:rgba(231,76,60,.12); }
-    .stock-status.ok { color:#28a745; background:rgba(40,167,69,.12); }
     .sale-actions { display:flex; gap:7px; margin-top:10px; }
     .small-action {
       flex:1; padding:8px; border-radius:9px; border:1px solid var(--card-border);
@@ -777,7 +738,6 @@
       background:var(--accent-gold); color:#111; border:none; padding:8px 12px;
       border-radius:20px; font-size:.72rem; font-weight:900; cursor:pointer;
     }
-    /* Compact multiple-perfume sale rows */
     .sale-items-list { display:flex; flex-direction:column; gap:8px; }
     .sale-item-row {
       display:grid; grid-template-columns:minmax(0,1.25fr) 54px 76px 86px 34px; gap:6px;
@@ -808,7 +768,7 @@
     .archive-list-collapsed { display:none; }
     .archive-list-collapsed.open { display:block; margin-top:10px; }
     
-    /* GLAMO EXPENSES */
+    .expenses-card { background:var(--card-bg); border:1px solid var(--card-border); border-radius:18px; padding:16px; margin-bottom:14px; box-shadow:0 4px 12px var(--shadow-color); }
     .expense-item { background:var(--card-bg); border:1px solid var(--card-border); border-radius:14px; padding:12px; margin-bottom:10px; }
     .expense-item-head { display:flex; justify-content:space-between; align-items:flex-start; gap:10px; }
     .expense-name { font-size:.88rem; font-weight:900; }
@@ -823,53 +783,6 @@
     .expense-total-label { font-size:.75rem; font-weight:800; color:var(--text-sub); }
     .expense-total-value { font-size:1rem; font-weight:900; }
     #receivedAmount[readonly] { opacity:.95; cursor:default; }
-
-    /* EXPANDABLE STOCK ACCORDION STYLES */
-    .stock-accordion-btn {
-      width: 100%;
-      background: var(--card-bg-sub);
-      border: 1.5px solid var(--card-border);
-      border-radius: 14px;
-      padding: 14px 16px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 0.92rem;
-      font-weight: 800;
-      color: var(--text-main);
-      cursor: pointer;
-      margin-bottom: 10px;
-      transition: border-color 0.2s ease, background-color 0.2s ease;
-    }
-    .stock-accordion-btn.active {
-      border-color: var(--accent-gold);
-      background: var(--accent-gold-light);
-    }
-    .stock-accordion-content {
-      display: none;
-      padding: 14px;
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 14px;
-      margin-bottom: 14px;
-    }
-    .stock-accordion-content.open {
-      display: block;
-    }
-    .stock-box-card {
-      background: var(--card-bg-sub);
-      border: 1px solid var(--card-border);
-      border-radius: 12px;
-      padding: 12px;
-      margin-bottom: 12px;
-    }
-    .stock-box-title {
-      font-size: 0.88rem;
-      font-weight: 900;
-      color: var(--accent-gold);
-      margin-bottom: 8px;
-    }
-
     @media (max-width:420px) {
       .sale-item-row { grid-template-columns:minmax(0,1fr) 50px 70px 80px 32px; gap:5px; }
       .sale-item-row input, .sale-item-row select { padding:8px 5px; font-size:.7rem; }
@@ -877,15 +790,75 @@
   
     .auth-forgot { font-size: 0.82rem; color: var(--accent-gold); margin-top: 10px; cursor: pointer; font-weight: 700; text-align: center; }
     .auth-reset-message { font-size: 0.82rem; color: var(--accent-gold); margin-top: 10px; min-height: 18px; text-align: center; }
+
+    /* STOCKS & ACCORDION STYLES */
+    .accordion-item {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      margin-bottom: 12px;
+      overflow: hidden;
+    }
+    .accordion-header {
+      padding: 14px 16px;
+      font-weight: 800;
+      font-size: 0.95rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      background: var(--card-bg-sub);
+    }
+    .accordion-content {
+      display: none;
+      padding: 16px;
+      border-top: 1px solid var(--card-border);
+    }
+    .accordion-content.active {
+      display: block;
+    }
+    .stock-rec-card {
+      background: var(--card-bg-sub);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 10px;
+    }
+    .stock-rec-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+      font-weight: 800;
+    }
+    .stock-grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      text-align: center;
+      margin-top: 8px;
+    }
+    .stock-stat-lbl { font-size: 0.7rem; color: var(--text-sub); }
+    .stock-stat-val { font-size: 0.9rem; font-weight: 800; margin-top: 2px; }
+    .history-category-card {
+      background: var(--card-bg-sub);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      font-weight: 800;
+    }
   </style>
 </head>
 <body>
-  <!-- PURE BLACK SPLASH SCREEN -->
   <div id="splash-screen">
     <img src="/images/splash-logo.png" alt="Glamo Scents Splash Logo" class="splash-logo">
   </div>
-  
-  <!-- AUTH SCREEN -->
+
   <div id="screen-auth" class="app-screen" style="display:none; justify-content:center; align-items:center;">
     <video class="auth-hero-video" autoplay muted loop playsinline preload="auto">
       <source src="login-hero.mp4" type="video/mp4">
@@ -939,10 +912,9 @@
     </div>
   </div>
 
-  <!-- FIXED WHITE HEADER -->
   <header class="app-header" id="mainHeader" style="display:none;">
     <div class="header-left">
-      <button id="globalBackBtn" class="back-btn" onclick="goBack()" title="Back to Home">
+      <button id="globalBackBtn" class="back-btn" onclick="goBack()" title="Back">
         <i class="fa-solid fa-arrow-left"></i>
       </button>
       <div class="brand-logo-wrap">
@@ -1060,16 +1032,28 @@
       </div>
       <div class="form-group">
         <label>Method of Payment *</label>
-        <select id="salePaymentMethod" class="select-control" required>
-          <option value="">-- Select Payment Method --</option>
-          <option value="Cash">Cash</option>
-          <option value="M-Pesa">M-Pesa</option>
-          <option value="Airtel Money">Airtel Money</option>
-          <option value="Tigo Pesa">Tigo Pesa</option>
-          <option value="HaloPesa">HaloPesa</option>
-          <option value="Bank">Bank</option>
-          <option value="Other">Other</option>
-        </select>
+        <div class="payment-main-grid">
+          <button id="saleCashBtn" type="button" class="pay-option-btn" onclick="selectSalePayment('Cash')">
+            <i class="fa-solid fa-money-bill-wave" style="color:var(--accent-gold);"></i>
+            <span>Cash</span>
+          </button>
+          <button id="saleMobileBtn" type="button" class="pay-option-btn" onclick="selectSalePayment('Mobile Money')">
+            <i class="fa-solid fa-mobile-screen-button" style="color:var(--accent-gold);"></i>
+            <span>Mobile Money</span>
+          </button>
+        </div>
+        <div id="saleCashBox" class="conditional-box">
+          <div style="font-size:.74rem;color:var(--text-sub);">Cash payment selected.</div>
+        </div>
+        <div id="saleMobileBox" class="conditional-box">
+          <label style="font-size:.8rem;font-weight:800;">Mobile Money Network</label>
+          <div class="payment-main-grid" style="margin-top:8px;">
+            <button type="button" class="pay-option-btn" onclick="selectMobileProvider(this,'CRDB')">CRDB</button>
+            <button type="button" class="pay-option-btn" onclick="selectMobileProvider(this,'M-PESA')">M-PESA</button>
+            <button type="button" class="pay-option-btn" onclick="selectMobileProvider(this,'Mixx by Yas')">Mixx by Yas</button>
+            <button type="button" class="pay-option-btn" onclick="selectMobileProvider(this,'HaloPesa')">HaloPesa</button>
+          </div>
+        </div>
         <div class="form-group" style="margin-top:10px;margin-bottom:0;">
           <label for="receivedAmount">Amount Received (TZS)</label>
           <input id="receivedAmount" class="number-control" type="number" min="0" step="100" placeholder="Automatically calculated" readonly>
@@ -1093,11 +1077,6 @@
         <i class="fa-solid fa-floppy-disk"></i> Save Sale
       </button>
       <button id="saleCancelBtn" class="reorder-btn" style="width:100%;margin-top:8px;display:none;" onclick="cancelSaleEdit()">Cancel Edit</button>
-    </div>
-    <div class="stock-panel">
-      <h3><i class="fa-solid fa-boxes-stacked" style="color:var(--accent-gold);"></i> Stock</h3>
-      <p style="font-size:.76rem;color:var(--text-sub);margin-bottom:10px;">Manage categorized stock inventory (Oil, Bottles, & Specific Items).</p>
-      <button class="reorder-btn" style="width:100%;" onclick="openStockManager()">Manage Stock</button>
     </div>
   </div>
 
@@ -1175,19 +1154,12 @@
       <h3>Overall Sales Growth</h3>
       <div id="growthSummary"></div>
     </div>
-    <div class="stock-panel">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-        <h3 style="margin-bottom:0;">Stock Alerts</h3>
-        <button class="reorder-btn" onclick="openStockManager()">Manage</button>
-      </div>
-      <div id="stockAlerts"></div>
-    </div>
   </div>
 
-  <!-- SCREEN 4: SALES HISTORY -->
+  <!-- SCREEN 4: SALES -->
   <div id="screen-bookings" class="app-screen">
     <div class="section-title">
-      <i class="fa-solid fa-receipt" style="color:var(--accent-gold);"></i> Sales History
+      <i class="fa-solid fa-receipt" style="color:var(--accent-gold);"></i> Sales
     </div>
     <div id="bookingsListContainer"></div>
     <div style="margin-top:12px;margin-bottom:10px;">
@@ -1206,7 +1178,7 @@
       <div class="profile-name" id="profName">Logged-in User</div>
       <div class="profile-phone" id="profPhone">+255 764 519 027</div>
     </div>
-    <a href="https://wa.me/255764519027?text=Hello%20Glamo%20Scents%20Help%20Center!%20I%20need%20assistance." target="_blank" class="whatsapp-support-btn">
+    <a href="https://wa.me/255764519027?text=Hello%20Glamo Scents%20Help%20Center!%20I%20need%20assistance." target="_blank" class="whatsapp-support-btn">
       <i class="fa-brands fa-whatsapp" style="font-size:1.3rem;"></i> WhatsApp Help Center
     </a>
     <div class="loyalty-card">
@@ -1226,137 +1198,132 @@
     <button class="logout-main-btn" onclick="handleLogout()">
       <i class="fa-solid fa-right-from-bracket"></i> Log Out
     </button>
+    <div class="section-title" style="margin-top:10px;">
+      <i class="fa-solid fa-history" style="color:var(--accent-gold);"></i> Order History
+    </div>
+    <div id="historyListContainer"></div>
   </div>
 
-  <!-- ADVANCED COLLAPSIBLE STOCK MANAGEMENT MODAL -->
-  <div id="stockModal" class="modal-overlay">
-    <div class="sheet-content full-screen">
-      <span class="sheet-close" onclick="closeSheet('stockModal')">&times;</span>
-      <div class="modal-sticky-header"><div class="sheet-title">Stock Management</div></div>
+  <!-- SINGLE STOCKS SCREEN -->
+  <div id="screen-stocks" class="app-screen">
+    <div class="section-title">
+      <i class="fa-solid fa-boxes-stacked" style="color:var(--accent-gold);"></i> Stocks
+    </div>
+
+    <!-- MAIN ACTIVITIES / REVIEWS CONTAINER -->
+    <div id="stocksMainArea">
+      <div style="font-weight: 800; font-size: 0.95rem; margin-bottom: 12px; color: var(--text-sub);">STOCK ACTIVITIES</div>
+
+      <!-- A — Oil Bottles -->
+      <div class="accordion-item">
+        <div class="accordion-header" onclick="toggleAccordion('oilBottlesAcc')">
+          <span>A — Oil Bottles</span>
+          <i class="fa-solid fa-chevron-down" id="oilBottlesAccIcon"></i>
+        </div>
+        <div id="oilBottlesAcc" class="accordion-content">
+          <div class="sales-entry-card" style="box-shadow:none; padding:12px; border:1px solid var(--card-border);">
+            <h4 id="oilFormTitle" style="font-size:0.85rem; margin-bottom:8px;">Add Oil Bottle</h4>
+            <div class="form-group"><label>Name / Size</label><input id="oilName" type="text" placeholder="e.g. Lavender 500ml"></div>
+            <div class="form-row">
+              <div class="form-group"><label>Current</label><input id="oilCurrent" class="number-control" type="number" min="0" oninput="calcOilRem()"></div>
+              <div class="form-group"><label>Used</label><input id="oilUsed" class="number-control" type="number" min="0" oninput="calcOilRem()"></div>
+            </div>
+            <div class="form-group"><label>Remaining (Auto Calculated)</label><input id="oilRemaining" class="number-control" type="number" readonly disabled></div>
+            <button id="oilSaveBtn" class="sales-save-btn" onclick="saveOilBottle()"><i class="fa-solid fa-plus"></i> Save Record</button>
+            <button id="oilCancelBtn" class="reorder-btn" style="width:100%;margin-top:6px;display:none;" onclick="resetOilForm()">Cancel Edit</button>
+          </div>
+          <div id="oilBottlesList" style="margin-top:12px;"></div>
+        </div>
+      </div>
+
+      <!-- B — Perfume Bottles -->
+      <div class="accordion-item">
+        <div class="accordion-header" onclick="toggleAccordion('perfumeBottlesAcc')">
+          <span>B — Perfume Bottles</span>
+          <i class="fa-solid fa-chevron-down" id="perfumeBottlesAccIcon"></i>
+        </div>
+        <div id="perfumeBottlesAcc" class="accordion-content">
+          <div class="sales-entry-card" style="box-shadow:none; padding:12px; border:1px solid var(--card-border);">
+            <h4 id="pBottleFormTitle" style="font-size:0.85rem; margin-bottom:8px;">Add Perfume Bottle Boxes</h4>
+            <div class="form-group">
+              <label>Bottle Size</label>
+              <select id="pBottleSize" class="select-control" onchange="calcPBottlePCS()">
+                <option value="10 ml">10 ml (273 PCS/Box)</option>
+                <option value="30 ml">30 ml (140 PCS/Box)</option>
+                <option value="50 ml">50 ml (70 PCS/Box)</option>
+              </select>
+            </div>
+            <div class="form-row">
+              <div class="form-group"><label>Boxes Brought</label><input id="pBoxesBrought" class="number-control" type="number" min="0" oninput="calcPBottlePCS()"></div>
+              <div class="form-group"><label>Boxes Used</label><input id="pBoxesUsed" class="number-control" type="number" min="0" oninput="calcPBottlePCS()"></div>
+            </div>
+            <div class="stock-grid-3" style="margin-bottom:12px;">
+              <div><div class="stock-stat-lbl">Total PCS</div><div id="pTotalPcsLbl" class="stock-stat-val">0</div></div>
+              <div><div class="stock-stat-lbl">Used PCS</div><div id="pUsedPcsLbl" class="stock-stat-val">0</div></div>
+              <div><div class="stock-stat-lbl">Available PCS</div><div id="pAvailPcsLbl" class="stock-stat-val">0</div></div>
+            </div>
+            <button id="pBottleSaveBtn" class="sales-save-btn" onclick="savePerfumeBottleBox()"><i class="fa-solid fa-plus"></i> Save Box Record</button>
+            <button id="pBottleCancelBtn" class="reorder-btn" style="width:100%;margin-top:6px;display:none;" onclick="resetPBottleForm()">Cancel Edit</button>
+          </div>
+          <div id="perfumeBottlesList" style="margin-top:12px;"></div>
+        </div>
+      </div>
+
+      <!-- C — Specific Perfume Items -->
+      <div class="accordion-item">
+        <div class="accordion-header" onclick="toggleAccordion('specificPerfumesAcc')">
+          <span>C — Specific Perfume Items</span>
+          <i class="fa-solid fa-chevron-down" id="specificPerfumesAccIcon"></i>
+        </div>
+        <div id="specificPerfumesAcc" class="accordion-content">
+          <div class="sales-entry-card" style="box-shadow:none; padding:12px; border:1px solid var(--card-border);">
+            <h4 id="specFormTitle" style="font-size:0.85rem; margin-bottom:8px;">Add Perfume Item</h4>
+            <div class="form-row">
+              <div class="form-group"><label>Perfume Name *</label><input id="specName" type="text" placeholder="e.g. Oud Royal"></div>
+              <div class="form-group"><label>Niche *</label><input id="specNiche" type="text" placeholder="e.g. Woody / Amber"></div>
+            </div>
+            <div class="form-row">
+              <div class="form-group"><label>Current</label><input id="specCurrent" class="number-control" type="number" min="0" oninput="calcSpecRem()"></div>
+              <div class="form-group"><label>Used</label><input id="specUsed" class="number-control" type="number" min="0" oninput="calcSpecRem()"></div>
+            </div>
+            <div class="form-group"><label>Remaining (Auto Calculated)</label><input id="specRemaining" class="number-control" type="number" readonly disabled></div>
+            <button id="specSaveBtn" class="sales-save-btn" onclick="saveSpecificPerfume()"><i class="fa-solid fa-plus"></i> Add Perfume</button>
+            <button id="specCancelBtn" class="reorder-btn" style="width:100%;margin-top:6px;display:none;" onclick="resetSpecForm()">Cancel Edit</button>
+          </div>
+          <div id="specificPerfumesList" style="margin-top:12px;"></div>
+        </div>
+      </div>
+
+      <!-- REVIEWS HISTORY SECTION ENTRY -->
+      <div style="margin-top:24px; margin-bottom:12px; font-weight:800; font-size:0.95rem; color:var(--text-sub);">REVIEWS HISTORY</div>
       
-      <!-- COLLAPSIBLE SECTION A: OIL BOTTLES -->
-      <button type="button" class="stock-accordion-btn" onclick="toggleStockAccordion('sec-oil', this)">
-        <span>A — Oil Bottles</span> <span class="acc-icon">▶</span>
-      </button>
-      <div id="sec-oil" class="stock-accordion-content">
-        <div class="form-row">
-          <div class="form-group">
-            <label>Current Quantity</label>
-            <input id="oilCurrent" class="number-control" type="number" min="0" step="1" placeholder="0" oninput="calcOilStock()">
-          </div>
-          <div class="form-group">
-            <label>Used Quantity</label>
-            <input id="oilUsed" class="number-control" type="number" min="0" step="1" placeholder="0" oninput="calcOilStock()">
-          </div>
-        </div>
-        <div class="form-group">
-          <label>Remaining Quantity (Auto)</label>
-          <input id="oilRemaining" class="number-control" type="number" readonly placeholder="0" style="opacity:0.8;">
-        </div>
-        <button class="sales-save-btn" onclick="saveOilStock()"><i class="fa-solid fa-floppy-disk"></i> Save Oil Stock</button>
+      <div class="history-category-card" onclick="openStockHistoryView('oil')">
+        <span>A — Oil Bottle History</span>
+        <i class="fa-solid fa-arrow-right" style="color:var(--accent-gold);"></i>
+      </div>
+      <div class="history-category-card" onclick="openStockHistoryView('bottle')">
+        <span>B — Perfume Bottle History</span>
+        <i class="fa-solid fa-arrow-right" style="color:var(--accent-gold);"></i>
+      </div>
+      <div class="history-category-card" onclick="openStockHistoryView('specific')">
+        <span>C — Specific Perfume History</span>
+        <i class="fa-solid fa-arrow-right" style="color:var(--accent-gold);"></i>
+      </div>
+    </div>
+
+    <!-- SUB-VIEW: CATEGORY HISTORY REVIEW -->
+    <div id="stockHistoryViewArea" style="display:none;">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
+        <h3 id="historyViewTitle" style="font-size:1.05rem; font-weight:900;">Category History</h3>
+        <button class="reorder-btn" onclick="closeStockHistoryView()"><i class="fa-solid fa-arrow-left"></i> Back</button>
       </div>
 
-      <!-- COLLAPSIBLE SECTION B: PERFUME BOTTLES / EMPTY BOTTLE STOCK -->
-      <button type="button" class="stock-accordion-btn" onclick="toggleStockAccordion('sec-bottles', this)">
-        <span>B — Perfume Bottles</span> <span class="acc-icon">▶</span>
-      </button>
-      <div id="sec-bottles" class="stock-accordion-content">
-        <!-- 10 ml -->
-        <div class="stock-box-card">
-          <div class="stock-box-title">10 ml (Fixed: 273 pcs / box)</div>
-          <div class="form-row">
-            <div class="form-group">
-              <label>Boxes Brought</label>
-              <input id="b10_brought" class="number-control" type="number" min="0" placeholder="0" oninput="calcBottleStock(10)">
-            </div>
-            <div class="form-group">
-              <label>Boxes Used</label>
-              <input id="b10_used" class="number-control" type="number" min="0" placeholder="0" oninput="calcBottleStock(10)">
-            </div>
-          </div>
-          <div style="font-size:0.75rem; color:var(--text-sub); margin-top:4px;">
-            Total PCS: <strong id="b10_total">0</strong> | Used PCS: <strong id="b10_used_pcs">0</strong> | Available PCS: <strong id="b10_avail" style="color:var(--accent-gold);">0</strong>
-          </div>
-        </div>
-
-        <!-- 30 ml -->
-        <div class="stock-box-card">
-          <div class="stock-box-title">30 ml (Fixed: 140 pcs / box)</div>
-          <div class="form-row">
-            <div class="form-group">
-              <label>Boxes Brought</label>
-              <input id="b30_brought" class="number-control" type="number" min="0" placeholder="0" oninput="calcBottleStock(30)">
-            </div>
-            <div class="form-group">
-              <label>Boxes Used</label>
-              <input id="b30_used" class="number-control" type="number" min="0" placeholder="0" oninput="calcBottleStock(30)">
-            </div>
-          </div>
-          <div style="font-size:0.75rem; color:var(--text-sub); margin-top:4px;">
-            Total PCS: <strong id="b30_total">0</strong> | Used PCS: <strong id="b30_used_pcs">0</strong> | Available PCS: <strong id="b30_avail" style="color:var(--accent-gold);">0</strong>
-          </div>
-        </div>
-
-        <!-- 50 ml -->
-        <div class="stock-box-card">
-          <div class="stock-box-title">50 ml (Fixed: 70 pcs / box)</div>
-          <div class="form-row">
-            <div class="form-group">
-              <label>Boxes Brought</label>
-              <input id="b50_brought" class="number-control" type="number" min="0" placeholder="0" oninput="calcBottleStock(50)">
-            </div>
-            <div class="form-group">
-              <label>Boxes Used</label>
-              <input id="b50_used" class="number-control" type="number" min="0" placeholder="0" oninput="calcBottleStock(50)">
-            </div>
-          </div>
-          <div style="font-size:0.75rem; color:var(--text-sub); margin-top:4px;">
-            Total PCS: <strong id="b50_total">0</strong> | Used PCS: <strong id="b50_used_pcs">0</strong> | Available PCS: <strong id="b50_avail" style="color:var(--accent-gold);">0</strong>
-          </div>
-        </div>
-        
-        <button class="sales-save-btn" onclick="saveBottleStock()"><i class="fa-solid fa-floppy-disk"></i> Save Bottle Stock</button>
+      <div class="form-group" style="margin-bottom:16px;">
+        <label>Select Month</label>
+        <input id="stockHistoryMonth" class="date-control" type="month" onchange="renderSelectedStockHistory()">
       </div>
 
-      <!-- COLLAPSIBLE SECTION C: SPECIFIC PERFUME ITEMS -->
-      <button type="button" class="stock-accordion-btn" onclick="toggleStockAccordion('sec-specific', this)">
-        <span>C — Specific Perfume Items</span> <span class="acc-icon">▶</span>
-      </button>
-      <div id="sec-specific" class="stock-accordion-content">
-        <div class="sales-entry-card" style="margin-bottom:12px;">
-          <h4 style="font-size:0.88rem; font-weight:800; margin-bottom:8px;" id="specificFormTitle">Add / Edit Perfume Item</h4>
-          <div class="form-group">
-            <label>Perfume Name</label>
-            <input id="specPerfumeName" type="text" placeholder="e.g. Vanilla">
-          </div>
-          <div class="form-group">
-            <label>Niche</label>
-            <input id="specPerfumeNiche" type="text" placeholder="e.g. Sweet / Woody / Floral">
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label>Current</label>
-              <input id="specCurrent" class="number-control" type="number" min="0" placeholder="0" oninput="calcSpecRemaining()">
-            </div>
-            <div class="form-group">
-              <label>Used</label>
-              <input id="specUsed" class="number-control" type="number" min="0" placeholder="0" oninput="calcSpecRemaining()">
-            </div>
-          </div>
-          <div class="form-group">
-            <label>Remaining (Auto)</label>
-            <input id="specRemaining" class="number-control" type="number" readonly placeholder="0" style="opacity:0.8;">
-          </div>
-          <button class="sales-save-btn" onclick="saveSpecificPerfume()"><i class="fa-solid fa-floppy-disk"></i> Save Perfume Item</button>
-          <button id="specCancelBtn" class="reorder-btn" style="width:100%;margin-top:8px;display:none;" onclick="cancelSpecEdit()">Cancel Edit</button>
-        </div>
-
-        <div class="stock-panel">
-          <h3>Specific Perfumes Inventory</h3>
-          <div id="specificPerfumeList"></div>
-        </div>
-      </div>
-
+      <div id="stockHistoryContentList"></div>
     </div>
   </div>
 
@@ -1387,9 +1354,12 @@
       <i class="fa-solid fa-user"></i>
       <span>Profile</span>
     </button>
+    <button id="nav-stocks-btn" class="nav-item" onclick="switchTab('screen-stocks', this)">
+      <i class="fa-solid fa-boxes-stacked"></i>
+      <span>Stocks</span>
+    </button>
   </nav>
 
-  <!-- LOGIC SCRIPT -->
   <script>
     const SUPABASE_URL = 'https://zudqubbglwphfxaviqsg.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp1ZHF1YmJnbHdwaGZ4YXZpcXNnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI0NjcyNTUsImV4cCI6MjA5ODA0MzI1NX0.7pRbRqz9-5gN8SG_ALn5ecHOWQofykPvhbrE2HQROCE';
@@ -1409,19 +1379,27 @@
     let completedHistory = [];
     let completedOrdersCount = 0;
     
+    let selectedSalePayment = '';
+    let selectedMobileProvider = '';
     let selectedDelivery = false;
     let reviewMode = 'daily';
     let editingSaleId = null;
 
-    // Categorized Stock Data state
-    let oilStockData = { id: null, current_quantity: 0, used_quantity: 0, remaining_quantity: 0 };
-    let bottleStockData = {
-      10: { id: null, bottle_size: '10 ml', boxes_brought: 0, bottles_per_box: 273, boxes_used: 0, total_bottle_pcs: 0, used_bottle_pcs: 0, available_bottle_pcs: 0 },
-      30: { id: null, bottle_size: '30 ml', boxes_brought: 0, bottles_per_box: 140, boxes_used: 0, total_bottle_pcs: 0, used_bottle_pcs: 0, available_bottle_pcs: 0 },
-      50: { id: null, bottle_size: '50 ml', boxes_brought: 0, bottles_per_box: 70,  boxes_used: 0, total_bottle_pcs: 0, used_bottle_pcs: 0, available_bottle_pcs: 0 }
-    };
-    let specificPerfumesData = [];
+    // Stock state
+    let oilBottleStocks = [];
+    let perfumeBottleStocks = [];
+    let specificPerfumeStocks = [];
+    
+    let editingOilId = null;
+    let editingPBottleId = null;
     let editingSpecId = null;
+    let activeHistoryCategory = null;
+
+    const BOTTLE_FIXED_PCS = {
+      '10 ml': 273,
+      '30 ml': 140,
+      '50 ml': 70
+    };
 
     const todayISO = () => new Date().toISOString().slice(0,10);
     const monthISO = () => new Date().toISOString().slice(0,7);
@@ -1431,22 +1409,25 @@
         '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'
       }[c]));
     }
+    
     function money(v) { return Number(v || 0).toLocaleString() + ' TZS'; }
     
     function getSaleItems(s) {
       if (Array.isArray(s?.items) && s.items.length) {
         return s.items.map(item => ({
           perfumeName: String(item.perfumeName ?? item.name ?? 'Unknown'),
+          niche: String(item.niche ?? item.niche_category ?? ''),
           quantity: Math.max(1, Number(item.quantity ?? item.qty ?? 1)),
           size: String(item.size ?? '30 ML'),
           price: Math.max(0, Number(item.price ?? 0))
         }));
       }
-      if (s?.perfumeName) return [{ perfumeName:s.perfumeName, quantity:Math.max(1, Number(s.quantity ?? 1)), size:s.size || '30 ML', price:Math.max(0, Number(s.price ?? 0)) }];
+      if (s?.perfumeName) return [{ perfumeName:s.perfumeName, niche:s.niche || '', quantity:Math.max(1, Number(s.quantity ?? 1)), size:s.size || '30 ML', price:Math.max(0, Number(s.price ?? 0)) }];
       return [];
     }
+    
     function getSalePerfumeCount(s) { return getSaleItems(s).reduce((sum,item) => sum + Number(item.quantity || 0), 0); }
-    function getSaleNames(s) { return getSaleItems(s).map(item => item.perfumeName).join(', '); }
+    function getSaleNames(s) { return getSaleItems(s).map(item => item.perfumeName + (item.niche ? ` (${item.niche})` : '')).join(', '); }
     function saleReceived(s) { return Number(s.receivedAmount ?? s.saleAmount ?? s.cashReceived ?? 0); }
     function saleTotal(s) { return saleReceived(s) + Number(s.deliveryAmount || 0); }
     function saleDate(s) {
@@ -1465,12 +1446,14 @@
           .catch(err => console.log('ServiceWorker failed:', err));
       });
     }
+
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
       deferredPrompt = e;
       const btn = document.getElementById('pwaInstallBtn');
       if (btn) btn.style.display = 'flex';
     });
+
     function installPWA() {
       if (!deferredPrompt) return;
       deferredPrompt.prompt();
@@ -1488,11 +1471,13 @@
       document.getElementById('saleDate').value = todayISO();
       document.getElementById('dailyDate').value = todayISO();
       document.getElementById('reviewMonth').value = monthISO();
+      document.getElementById('stockHistoryMonth').value = monthISO();
       initializeSaleItems();
       document.getElementById('expenseDate').value = todayISO();
-
+      
       const { data: { session } } = await supabaseClient.auth.getSession();
       const isRecoveryFlow = /type=recovery/i.test(window.location.hash);
+      
       setTimeout(async () => {
         document.getElementById('splash-screen').style.opacity = '0';
         setTimeout(() => document.getElementById('splash-screen').style.display = 'none', 500);
@@ -1501,9 +1486,10 @@
         } else if (session && session.user) {
           currentUser = session.user;
           await fetchAndSetupUserData(currentUser.id);
+          setupRealtimeSubscriptions();
           await syncSalesFromSupabase();
           await syncExpensesFromSupabase();
-          await syncStockFromSupabase();
+          await syncAllStocksFromSupabase();
         } else {
           showAuthScreen();
         }
@@ -1525,6 +1511,19 @@
       setupUserInterface();
     }
 
+    function setupRealtimeSubscriptions() {
+      if (!currentUser) return;
+      
+      supabaseClient
+        .channel('realtime_changes')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'orders', filter: `user_id=eq.${currentUser.id}` }, () => syncSalesFromSupabase())
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'expenses', filter: `user_id=eq.${currentUser.id}` }, () => syncExpensesFromSupabase())
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'oil_bottles', filter: `user_id=eq.${currentUser.id}` }, () => syncAllStocksFromSupabase())
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'perfume_bottles', filter: `user_id=eq.${currentUser.id}` }, () => syncAllStocksFromSupabase())
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'specific_perfumes', filter: `user_id=eq.${currentUser.id}` }, () => syncAllStocksFromSupabase())
+        .subscribe();
+    }
+
     async function syncSalesFromSupabase() {
       if (!currentUser) return;
       try {
@@ -1534,311 +1533,61 @@
           .eq('user_id', currentUser.id)
           .order('created_at', { ascending: false });
         if (error) throw error;
+        
         const cloudSales = (data || []).map(row => {
           let meta = {};
           try { meta = JSON.parse(row.instructions || '{}'); } catch {}
-          if (meta.type !== 'glamo_sale') return null;
+          
           const cloudItems = Array.isArray(meta.items) && meta.items.length
             ? meta.items
             : (Array.isArray(row.items) && row.items.length ? row.items : [{
-                name: meta.perfumeName || 'Unknown', qty:1, size:meta.size || '30 ML'
+                name: row.perfume_name || meta.perfumeName || 'Unknown',
+                niche: row.niche || meta.niche || '',
+                qty: row.quantity || 1,
+                size: meta.size || '30 ML',
+                price: row.price || 0
               }]);
+              
           const items = cloudItems.map(item => ({
             perfumeName: String(item.perfumeName ?? item.name ?? 'Unknown'),
+            niche: String(item.niche ?? item.niche_category ?? ''),
             quantity: Math.max(1, Number(item.quantity ?? item.qty ?? 1)),
             size: String(item.size ?? '30 ML'),
             price: Math.max(0, Number(item.price ?? 0))
           }));
-          const receivedAmount = Number(meta.receivedAmount ?? meta.saleAmount ?? row.total ?? 0);
+          
+          const receivedAmount = Number(row.total ?? meta.receivedAmount ?? meta.saleAmount ?? 0);
           return {
-            id: row.order_id,
-            dbId: row.id,
+            id: row.id,
+            user_id: row.user_id,
             items,
-            perfumeName: items[0]?.perfumeName || 'Unknown',
+            perfumeName: items[0]?.perfumeName || row.perfume_name || 'Unknown',
+            niche: items[0]?.niche || row.niche || '',
             size: items[0]?.size || '30 ML',
             quantity: getSalePerfumeCount({items}),
-            date: meta.date || new Date(row.created_at).toISOString().slice(0,10),
-            paymentMethod: meta.paymentMethod || row.payment_method || 'Cash',
+            date: row.sale_date || meta.date || new Date(row.created_at).toISOString().slice(0,10),
+            paymentMethod: row.payment_method || meta.paymentMethod || 'Cash',
             paymentProvider: meta.paymentProvider || '',
             receivedAmount,
             saleAmount: receivedAmount,
             deliveryAmount: Number(meta.deliveryAmount ?? 0),
-            cashReceived: Number(meta.cashReceived ?? (meta.paymentMethod === 'Cash' ? receivedAmount : 0)),
             dateTime: new Date(row.created_at).toLocaleString(),
             status: row.status || 'confirmed'
           };
-        }).filter(Boolean);
-
+        });
+        
         activeOrders = cloudSales.filter(s => s.status !== 'archived');
         archivedSales = cloudSales.filter(s => s.status === 'archived');
         completedHistory = [...activeOrders];
         completedOrdersCount = activeOrders.length;
       } catch (e) {
-        console.log('Error syncing sales from Supabase:', e);
+        console.error('Error fetching sales from Supabase:', e);
       }
       renderBookings();
+      renderHistory();
       renderArchive();
       renderSalesProgress();
       updateLoyaltyUI();
-    }
-
-    /* COLLAPSIBLE ACCORDION HANDLER */
-    function toggleStockAccordion(contentId, btn) {
-      const content = document.getElementById(contentId);
-      const isOpened = content.classList.contains('open');
-      if (isOpened) {
-        content.classList.remove('open');
-        btn.classList.remove('active');
-        btn.querySelector('.acc-icon').textContent = '▶';
-      } else {
-        content.classList.add('open');
-        btn.classList.add('active');
-        btn.querySelector('.acc-icon').textContent = '▲';
-      }
-    }
-
-    /* SECTION A - OIL STOCK LOGIC */
-    function calcOilStock() {
-      const cur = Number(document.getElementById('oilCurrent').value || 0);
-      const used = Number(document.getElementById('oilUsed').value || 0);
-      document.getElementById('oilRemaining').value = cur - used;
-    }
-
-    async function saveOilStock() {
-      if (!currentUser) return;
-      const current_quantity = Number(document.getElementById('oilCurrent').value || 0);
-      const used_quantity = Number(document.getElementById('oilUsed').value || 0);
-      const remaining_quantity = current_quantity - used_quantity;
-
-      const record = {
-        user_id: currentUser.id,
-        current_quantity,
-        used_quantity,
-        remaining_quantity
-      };
-      if (oilStockData.id) record.id = oilStockData.id;
-
-      try {
-        const { data, error } = await supabaseClient
-          .from('oil_stock')
-          .upsert([record])
-          .select();
-        if (error) throw error;
-        if (data && data.length) oilStockData = data[0];
-        alert('Oil bottle stock saved successfully.');
-      } catch (e) {
-        console.error('Error saving oil stock:', e);
-        alert('Could not save oil stock to database.');
-      }
-    }
-
-    /* SECTION B - BOTTLE STOCK LOGIC */
-    function calcBottleStock(size) {
-      const perBox = size === 10 ? 273 : (size === 30 ? 140 : 70);
-      const brought = Number(document.getElementById(`b${size}_brought`).value || 0);
-      const used = Number(document.getElementById(`b${size}_used`).value || 0);
-      
-      const totalPcs = brought * perBox;
-      const usedPcs = used * perBox;
-      const availPcs = totalPcs - usedPcs;
-
-      document.getElementById(`b${size}_total`).textContent = totalPcs.toLocaleString();
-      document.getElementById(`b${size}_used_pcs`).textContent = usedPcs.toLocaleString();
-      document.getElementById(`b${size}_avail`).textContent = availPcs.toLocaleString();
-    }
-
-    async function saveBottleStock() {
-      if (!currentUser) return;
-      const sizes = [10, 30, 50];
-      for (let size of sizes) {
-        const perBox = size === 10 ? 273 : (size === 30 ? 140 : 70);
-        const boxes_brought = Number(document.getElementById(`b${size}_brought`).value || 0);
-        const boxes_used = Number(document.getElementById(`b${size}_used`).value || 0);
-        const total_bottle_pcs = boxes_brought * perBox;
-        const used_bottle_pcs = boxes_used * perBox;
-        const available_bottle_pcs = total_bottle_pcs - used_bottle_pcs;
-
-        const record = {
-          user_id: currentUser.id,
-          bottle_size: `${size} ml`,
-          boxes_brought,
-          bottles_per_box: perBox,
-          boxes_used,
-          total_bottle_pcs,
-          used_bottle_pcs,
-          available_bottle_pcs
-        };
-        if (bottleStockData[size].id) record.id = bottleStockData[size].id;
-
-        try {
-          const { data, error } = await supabaseClient
-            .from('perfume_bottle_box_stock')
-            .upsert([record])
-            .select();
-          if (error) throw error;
-          if (data && data.length) bottleStockData[size] = data[0];
-        } catch (e) {
-          console.error(`Error saving bottle stock for ${size}ml:`, e);
-        }
-      }
-      alert('Perfume bottle stock saved successfully.');
-    }
-
-    /* SECTION C - SPECIFIC PERFUME STOCK LOGIC */
-    function calcSpecRemaining() {
-      const cur = Number(document.getElementById('specCurrent').value || 0);
-      const used = Number(document.getElementById('specUsed').value || 0);
-      document.getElementById('specRemaining').value = cur - used;
-    }
-
-    function cancelSpecEdit() {
-      editingSpecId = null;
-      document.getElementById('specPerfumeName').value = '';
-      document.getElementById('specPerfumeNiche').value = '';
-      document.getElementById('specCurrent').value = '';
-      document.getElementById('specUsed').value = '';
-      document.getElementById('specRemaining').value = '';
-      document.getElementById('specificFormTitle').textContent = 'Add Perfume Item';
-      document.getElementById('specCancelBtn').style.display = 'none';
-    }
-
-    async function saveSpecificPerfume() {
-      if (!currentUser) return;
-      const perfume_name = document.getElementById('specPerfumeName').value.trim();
-      const niche = document.getElementById('specPerfumeNiche').value.trim();
-      const current_quantity = Number(document.getElementById('specCurrent').value || 0);
-      const used_quantity = Number(document.getElementById('specUsed').value || 0);
-      const remaining_quantity = current_quantity - used_quantity;
-
-      if (!perfume_name) {
-        alert('Please enter a perfume name.');
-        return;
-      }
-
-      const record = {
-        user_id: currentUser.id,
-        perfume_name,
-        niche,
-        current_quantity,
-        used_quantity,
-        remaining_quantity
-      };
-      if (editingSpecId) record.id = editingSpecId;
-
-      try {
-        const { error } = await supabaseClient
-          .from('specific_perfume_stock')
-          .upsert([record]);
-        if (error) throw error;
-        cancelSpecEdit();
-        await syncStockFromSupabase();
-        alert('Specific perfume stock saved.');
-      } catch (e) {
-        console.error('Error saving specific perfume stock:', e);
-        alert('Failed to save perfume stock item.');
-      }
-    }
-
-    function editSpecItem(id) {
-      const item = specificPerfumesData.find(x => x.id === id);
-      if (!item) return;
-      editingSpecId = item.id;
-      document.getElementById('specPerfumeName').value = item.perfume_name || '';
-      document.getElementById('specPerfumeNiche').value = item.niche || '';
-      document.getElementById('specCurrent').value = item.current_quantity || 0;
-      document.getElementById('specUsed').value = item.used_quantity || 0;
-      calcSpecRemaining();
-      document.getElementById('specificFormTitle').textContent = 'Edit Perfume Item';
-      document.getElementById('specCancelBtn').style.display = 'block';
-    }
-
-    async function deleteSpecItem(id) {
-      if (!confirm('Are you sure you want to delete this perfume item stock record?')) return;
-      try {
-        const { error } = await supabaseClient
-          .from('specific_perfume_stock')
-          .delete()
-          .eq('id', id);
-        if (error) throw error;
-        await syncStockFromSupabase();
-      } catch (e) {
-        console.error('Error deleting specific perfume:', e);
-        alert('Could not delete perfume stock item.');
-      }
-    }
-
-    async function syncStockFromSupabase() {
-      if (!currentUser) return;
-      try {
-        // Sync Oil Stock
-        const { data: oilData } = await supabaseClient
-          .from('oil_stock')
-          .select('*')
-          .eq('user_id', currentUser.id)
-          .limit(1);
-        if (oilData && oilData.length) {
-          oilStockData = oilData[0];
-          document.getElementById('oilCurrent').value = oilStockData.current_quantity;
-          document.getElementById('oilUsed').value = oilStockData.used_quantity;
-          calcOilStock();
-        }
-
-        // Sync Perfume Bottle Stock
-        const { data: bottleData } = await supabaseClient
-          .from('perfume_bottle_box_stock')
-          .select('*')
-          .eq('user_id', currentUser.id);
-        if (bottleData) {
-          bottleData.forEach(row => {
-            const sizeNum = row.bottle_size.includes('10') ? 10 : (row.bottle_size.includes('30') ? 30 : 50);
-            bottleStockData[sizeNum] = row;
-            document.getElementById(`b${sizeNum}_brought`).value = row.boxes_brought;
-            document.getElementById(`b${sizeNum}_used`).value = row.boxes_used;
-            calcBottleStock(sizeNum);
-          });
-        }
-
-        // Sync Specific Perfume Stock
-        const { data: specData } = await supabaseClient
-          .from('specific_perfume_stock')
-          .select('*')
-          .eq('user_id', currentUser.id)
-          .order('perfume_name', { ascending: true });
-        if (specData) {
-          specificPerfumesData = specData;
-          renderSpecificPerfumesList();
-        }
-      } catch (e) {
-        console.error('Error fetching stock data:', e);
-      }
-    }
-
-    function renderSpecificPerfumesList() {
-      const container = document.getElementById('specificPerfumeList');
-      if (!container) return;
-      if (!specificPerfumesData.length) {
-        container.innerHTML = '<div class="expense-empty">No specific perfume items recorded.</div>';
-        return;
-      }
-      container.innerHTML = specificPerfumesData.map(item => `
-        <div class="stock-item" style="flex-direction:column; align-items:flex-start; gap:4px;">
-          <div style="display:flex; justify-content:space-between; width:100%;">
-            <span class="stock-name">${escapeHtml(item.perfume_name)}</span>
-            <span style="font-size:0.75rem; color:var(--accent-gold); font-weight:800;">Niche: ${escapeHtml(item.niche || 'N/A')}</span>
-          </div>
-          <div class="stock-meta">
-            Current: ${item.current_quantity} | Used: ${item.used_quantity} | <strong>Remaining: ${item.remaining_quantity}</strong>
-          </div>
-          <div class="sale-actions" style="width:100%; margin-top:6px;">
-            <button class="small-action" onclick="editSpecItem('${item.id}')"><i class="fa-solid fa-pen"></i> Edit</button>
-            <button class="small-action delete" onclick="deleteSpecItem('${item.id}')"><i class="fa-solid fa-trash"></i> Delete</button>
-          </div>
-        </div>
-      `).join('');
-    }
-
-    function openStockManager() {
-      document.getElementById('stockModal').classList.add('active');
     }
 
     function showAuthScreen() {
@@ -1848,6 +1597,7 @@
       document.getElementById('mainNavBar').style.display = 'none';
       document.querySelectorAll('.app-screen').forEach(s => s.classList.remove('active'));
     }
+
     function setupUserInterface() {
       document.getElementById('screen-auth').style.display = 'none';
       document.getElementById('mainHeader').style.display = 'flex';
@@ -1873,6 +1623,7 @@
       document.getElementById('confirmPasswordGroup').style.display = 'none';
       document.getElementById('forgotPasswordLink').style.display = 'block';
     }
+
     function toggleAuthMode() {
       document.getElementById('resetPasswordContainer').style.display = 'none';
       document.querySelector('#screen-auth .auth-container:not(#resetPasswordContainer)').style.display = 'block';
@@ -1886,30 +1637,36 @@
       document.getElementById('confirmPasswordGroup').style.display = isRegisterMode ? 'block' : 'none';
       document.getElementById('forgotPasswordLink').style.display = isRegisterMode ? 'none' : 'block';
     }
+
     function showResetPasswordScreen() {
       document.getElementById('screen-auth').style.display = 'flex';
       document.getElementById('mainHeader').style.display = 'none';
       document.getElementById('mainNavBar').style.display = 'none';
       document.getElementById('resetPasswordContainer').style.display = 'block';
       document.querySelector('#screen-auth .auth-container:not(#resetPasswordContainer)').style.display = 'none';
+      document.getElementById('resetPassword').value = '';
+      document.getElementById('resetConfirmPassword').value = '';
+      document.getElementById('resetPasswordMessage').innerText = '';
     }
 
     async function handleForgotPassword() {
       const email = document.getElementById('authEmail').value.trim();
-      if (!email) { alert('Please enter your registered email.'); return; }
+      if (!email) { alert('Please enter your registered email.'); document.getElementById('authEmail').focus(); return; }
       const { error } = await supabaseClient.auth.resetPasswordForEmail(email, { redirectTo: PRODUCTION_URL });
       if (error) { alert('Password Reset Error: ' + error.message); return; }
       alert('Password reset email sent. Please check your email.');
     }
+
     async function handleResetPassword() {
       const password = document.getElementById('resetPassword').value;
       const confirmPassword = document.getElementById('resetConfirmPassword').value;
       const message = document.getElementById('resetPasswordMessage');
-      if (!password || !confirmPassword) { message.innerText = 'Please enter and confirm your password.'; return; }
+      if (!password || !confirmPassword) { message.innerText = 'Please enter and confirm your new password.'; return; }
       if (password !== confirmPassword) { message.innerText = 'Passwords do not match.'; return; }
       const { error } = await supabaseClient.auth.updateUser({ password });
-      if (error) { message.innerText = 'Reset failed: ' + error.message; return; }
+      if (error) { message.innerText = 'Password reset failed: ' + error.message; return; }
       message.innerText = 'Password reset successful. Return to Login.';
+      try { await supabaseClient.auth.signOut(); } catch {}
     }
 
     async function handleAuthSubmit() {
@@ -1918,9 +1675,10 @@
       const confirmPassword = document.getElementById('authConfirmPassword').value;
       const username = document.getElementById('authUsername').value.trim();
       const phone = document.getElementById('authPhone').value.trim();
-      if (!email || !password) { alert('Please enter email and password.'); return; }
+      if (!email || !password) { alert('Please enter both email and password.'); return; }
+      
       if (isRegisterMode) {
-        if (!username || !phone) { alert('Please enter username and phone number.'); return; }
+        if (!username || !phone) { alert('Please provide both a username and a phone number.'); return; }
         if (password !== confirmPassword) { alert('Passwords do not match.'); return; }
         const { data, error } = await supabaseClient.auth.signUp({ email, password });
         if (error) { alert('Registration Error: ' + error.message); return; }
@@ -1928,18 +1686,21 @@
         currentUsername = username;
         currentUserPhone = phone;
         if (currentUser) await supabaseClient.from('profiles').upsert([{ id: currentUser.id, username, email, phone }]);
-        alert('Welcome, ' + username);
-        await syncStockFromSupabase();
+        alert('Registration successful!');
+        setupRealtimeSubscriptions();
+        await syncSalesFromSupabase();
         await syncExpensesFromSupabase();
+        await syncAllStocksFromSupabase();
         setupUserInterface();
       } else {
         const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
         if (error) { alert('Login Error: ' + error.message); return; }
         currentUser = data.user;
         await fetchAndSetupUserData(currentUser.id);
+        setupRealtimeSubscriptions();
         await syncSalesFromSupabase();
         await syncExpensesFromSupabase();
-        await syncStockFromSupabase();
+        await syncAllStocksFromSupabase();
       }
     }
 
@@ -1951,8 +1712,9 @@
       activeOrders = [];
       archivedSales = [];
       expenses = [];
-      oilStockData = { id: null, current_quantity: 0, used_quantity: 0, remaining_quantity: 0 };
-      specificPerfumesData = [];
+      oilBottleStocks = [];
+      perfumeBottleStocks = [];
+      specificPerfumeStocks = [];
       showAuthScreen();
     }
 
@@ -1976,23 +1738,67 @@
       if (element) element.classList.add('active');
       if (screenId === 'screen-sales-progress') renderSalesProgress();
       if (screenId === 'screen-bookings') renderBookings();
+      if (screenId === 'screen-stocks') renderStocksArea();
     }
 
-    function goBack() { switchTab('screen-home', document.getElementById('nav-home-btn')); }
+    function goBack() {
+      if (document.getElementById('screen-stocks').classList.contains('active') && document.getElementById('stockHistoryViewArea').style.display !== 'none') {
+        closeStockHistoryView();
+        return;
+      }
+      switchTab('screen-home', document.getElementById('nav-home-btn'));
+    }
+
+    function openMonthlyReview() {
+      document.getElementById('reviewMonth').value = monthISO();
+      setReviewMode('monthly');
+      document.getElementById('monthlyReviewModal').classList.add('active');
+      renderMonthlyReview();
+    }
+
+    function closeSheet(id) {
+      const el = document.getElementById(id);
+      if (el) el.classList.remove('active');
+    }
+
+    function selectSalePayment(type) {
+      selectedSalePayment = type;
+      document.getElementById('saleCashBtn').classList.toggle('active', type === 'Cash');
+      document.getElementById('saleMobileBtn').classList.toggle('active', type === 'Mobile Money');
+      document.getElementById('saleCashBox').classList.toggle('active', type === 'Cash');
+      document.getElementById('saleMobileBox').classList.toggle('active', type === 'Mobile Money');
+    }
+
+    function selectMobileProvider(el, provider) {
+      document.querySelectorAll('#saleMobileBox .pay-option-btn').forEach(x => x.classList.remove('active'));
+      el.classList.add('active');
+      selectedMobileProvider = provider;
+    }
+
+    function selectDelivery(value) {
+      selectedDelivery = value;
+      document.getElementById('deliveryYesBtn').classList.toggle('active', value);
+      document.getElementById('deliveryNoBtn').classList.toggle('active', !value);
+      document.getElementById('deliveryBox').classList.toggle('active', value);
+    }
 
     function createPerfumeRow(item = {}) {
       const row = document.createElement('div');
       row.className = 'sale-item-row';
       const name = escapeHtml(item.perfumeName || '');
+      const niche = escapeHtml(item.niche || '');
       const qty = Math.max(1, Number(item.quantity || 1));
       const size = item.size || '30 ML';
       const price = Math.max(0, Number(item.price || 0));
       row.innerHTML = `
-        <input class="sale-item-name" type="text" placeholder="Perfume name" value="${name}">
-        <input class="sale-item-qty" type="number" min="1" step="1" value="${qty}" aria-label="Quantity">
-        <select class="sale-item-size" aria-label="ML / Size">${['10 ML','20 ML','30 ML','50 ML','100 ML'].map(v => `<option value="${v}" ${v === size ? 'selected' : ''}>${v}</option>`).join('')}</select>
+        <div style="display:flex; flex-direction:column; gap:4px;">
+          <input class="sale-item-name" type="text" placeholder="Perfume name" value="${name}">
+          <input class="sale-item-niche" type="text" placeholder="Niche (Required)" value="${niche}">
+        </div>
+        <input class="sale-item-qty" type="number" min="1" step="1" value="${qty}">
+        <select class="sale-item-size">${['10 ML','20 ML','30 ML','50 ML','100 ML'].map(v => `<option value="${v}" ${v === size ? 'selected' : ''}>${v}</option>`).join('')}</select>
         <input class="sale-item-price" type="number" min="0" step="100" value="${price || ''}" placeholder="Price">
-        <button type="button" class="sale-item-remove" onclick="removePerfumeRow(this)" title="Remove perfume"><i class="fa-solid fa-xmark"></i></button>
+        <button type="button" class="sale-item-remove" onclick="removePerfumeRow(this)"><i class="fa-solid fa-xmark"></i></button>
         <div class="sale-item-amount">Amount: <strong>0 TZS</strong></div>`;
       row.querySelectorAll('input,select').forEach(el => { el.addEventListener('input', updateSaleItemsSummary); el.addEventListener('change', updateSaleItemsSummary); });
       return row;
@@ -2002,7 +1808,7 @@
       const list = document.getElementById('saleItemsList');
       if (!list) return;
       list.innerHTML = '';
-      const normalized = Array.isArray(items) && items.length ? items : [{perfumeName:'', quantity:1, size:'30 ML'}];
+      const normalized = Array.isArray(items) && items.length ? items : [{perfumeName:'', niche:'', quantity:1, size:'30 ML'}];
       normalized.forEach(item => list.appendChild(createPerfumeRow(item)));
       updateSaleItemsSummary();
     }
@@ -2010,7 +1816,7 @@
     function addPerfumeRow() {
       const list = document.getElementById('saleItemsList');
       if (!list) return;
-      list.appendChild(createPerfumeRow({perfumeName:'', quantity:1, size:'30 ML'}));
+      list.appendChild(createPerfumeRow({perfumeName:'', niche:'', quantity:1, size:'30 ML'}));
       updateSaleItemsSummary();
     }
 
@@ -2019,7 +1825,7 @@
       if (!list) return;
       if (list.children.length <= 1) {
         const row = list.firstElementChild;
-        if (row) { row.querySelector('.sale-item-name').value=''; row.querySelector('.sale-item-qty').value='1'; row.querySelector('.sale-item-size').value='30 ML'; }
+        if (row) { row.querySelector('.sale-item-name').value=''; row.querySelector('.sale-item-niche').value=''; row.querySelector('.sale-item-qty').value='1'; }
       } else {
         button.closest('.sale-item-row')?.remove();
       }
@@ -2029,6 +1835,7 @@
     function collectSaleItems() {
       return [...document.querySelectorAll('#saleItemsList .sale-item-row')].map(row => ({
         perfumeName: row.querySelector('.sale-item-name')?.value.trim() || '',
+        niche: row.querySelector('.sale-item-niche')?.value.trim() || '',
         quantity: Math.max(1, Number(row.querySelector('.sale-item-qty')?.value || 1)),
         size: row.querySelector('.sale-item-size')?.value || '30 ML',
         price: Math.max(0, Number(row.querySelector('.sale-item-price')?.value || 0))
@@ -2057,223 +1864,125 @@
       if (totalInput) totalInput.value = total || '';
     }
 
-    function selectDelivery(value) {
-      selectedDelivery = value;
-      document.getElementById('deliveryYesBtn').classList.toggle('active', value);
-      document.getElementById('deliveryNoBtn').classList.toggle('active', !value);
-      document.getElementById('deliveryBox').classList.toggle('active', value);
-    }
-
-    /* SAVE / EDIT SALE WITH INDIVIDUAL PAYMENT METHOD REQUIREMENT */
     async function saveSale() {
-      const saleDateVal = document.getElementById('saleDate').value || todayISO();
-      const paymentMethod = document.getElementById('salePaymentMethod').value;
+      const saleDateVal = document.getElementById('saleDate').value;
       const items = collectSaleItems().filter(x => x.perfumeName);
+      const deliveryAmt = selectedDelivery ? Number(document.getElementById('deliveryAmount').value || 0) : 0;
       
       if (!items.length) {
-        alert('Please enter at least one perfume name.');
+        alert('Please add at least one perfume name to the sale.');
         return;
       }
-      if (!paymentMethod) {
-        alert('Please select a payment method for this specific sale.');
-        document.getElementById('salePaymentMethod').focus();
+      
+      if (!selectedSalePayment) {
+        alert('Please select a payment method before adding this sale.');
         return;
       }
 
-      const receivedAmount = calculateSaleTotals(items);
-      const deliveryAmount = selectedDelivery ? Number(document.getElementById('deliveryAmount').value || 0) : 0;
-      const wasEditing = !!editingSaleId;
-      const orderId = wasEditing ? editingSaleId : ('SALE-' + Date.now().toString().slice(-8));
+      let finalPaymentMethod = selectedSalePayment;
+      if (selectedSalePayment === 'Mobile Money' && selectedMobileProvider) {
+        finalPaymentMethod = `Mobile Money (${selectedMobileProvider})`;
+      }
 
-      const instructionsPayload = JSON.stringify({
-        type: 'glamo_sale',
-        date: saleDateVal,
-        items,
-        receivedAmount,
-        deliveryAmount,
-        paymentMethod
-      });
+      const totalCalculated = calculateSaleTotals(items);
+      const firstItem = items[0];
 
-      if (currentUser) {
-        try {
-          const { data, error } = await supabaseClient
+      const recordData = {
+        user_id: currentUser.id,
+        perfume_name: firstItem.perfumeName,
+        niche: firstItem.niche,
+        quantity: getSalePerfumeCount({ items }),
+        price: firstItem.price,
+        total: totalCalculated,
+        payment_method: finalPaymentMethod,
+        sale_date: saleDateVal,
+        instructions: JSON.stringify({
+          items,
+          deliveryAmount: deliveryAmt,
+          paymentMethod: finalPaymentMethod,
+          paymentProvider: selectedMobileProvider,
+          receivedAmount: totalCalculated
+        })
+      };
+
+      try {
+        if (editingSaleId) {
+          const { error } = await supabaseClient
             .from('orders')
-            .upsert([{
-              order_id: orderId,
-              user_id: currentUser.id,
-              total: receivedAmount + deliveryAmount,
-              payment_method: paymentMethod,
-              instructions: instructionsPayload,
-              status: 'confirmed'
-            }])
-            .select();
+            .update(recordData)
+            .eq('id', editingSaleId);
           if (error) throw error;
-        } catch (e) {
-          console.error('Error saving sale to database:', e);
-          alert('Failed to save sale record to database.');
-          return;
+          alert('Sale updated successfully!');
+        } else {
+          const { error } = await supabaseClient
+            .from('orders')
+            .insert([recordData]);
+          if (error) throw error;
+          alert('Sale added successfully!');
         }
+        
+        cancelSaleEdit();
+        await syncSalesFromSupabase();
+        switchTab('screen-bookings', document.querySelectorAll('.nav-item')[2]);
+      } catch(err) {
+        alert('Error saving sale: ' + err.message);
       }
-
-      await syncSalesFromSupabase();
-      resetSaleForm();
-      alert(wasEditing ? 'Sale updated successfully!' : 'Sale saved successfully!');
-      switchTab('screen-bookings');
     }
 
     function editSale(id) {
       const sale = [...activeOrders, ...archivedSales].find(s => s.id === id);
       if (!sale) return;
       editingSaleId = id;
-      document.getElementById('saleDate').value = saleDate(sale);
-      document.getElementById('salePaymentMethod').value = sale.paymentMethod || 'Cash';
-      initializeSaleItems(sale.items);
-      selectDelivery(Number(sale.deliveryAmount || 0) > 0);
-      if (sale.deliveryAmount) document.getElementById('deliveryAmount').value = sale.deliveryAmount;
       
       document.getElementById('saleFormTitle').textContent = 'Edit Sale';
-      document.getElementById('saleSaveBtn').innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Save Changes';
+      document.getElementById('saleSaveBtn').innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Update Sale';
       document.getElementById('saleCancelBtn').style.display = 'block';
+      
+      document.getElementById('saleDate').value = sale.date;
+      initializeSaleItems(sale.items);
+      
+      if (sale.paymentMethod.includes('Mobile')) {
+        selectSalePayment('Mobile Money');
+      } else {
+        selectSalePayment('Cash');
+      }
+
+      if (sale.deliveryAmount > 0) {
+        selectDelivery(true);
+        document.getElementById('deliveryAmount').value = sale.deliveryAmount;
+      } else {
+        selectDelivery(false);
+      }
+
       switchTab('screen-perfumes');
     }
 
-    function cancelSaleEdit() { resetSaleForm(); }
-
-    function resetSaleForm() {
+    function cancelSaleEdit() {
       editingSaleId = null;
-      document.getElementById('saleDate').value = todayISO();
-      document.getElementById('salePaymentMethod').value = '';
-      initializeSaleItems([]);
-      selectDelivery(false);
-      document.getElementById('deliveryAmount').value = '';
       document.getElementById('saleFormTitle').textContent = 'Record Sale';
       document.getElementById('saleSaveBtn').innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Save Sale';
       document.getElementById('saleCancelBtn').style.display = 'none';
+      document.getElementById('saleDate').value = todayISO();
+      selectedSalePayment = '';
+      selectSalePayment('');
+      selectDelivery(false);
+      initializeSaleItems();
     }
 
     async function deleteSale(id) {
       if (!confirm('Are you sure you want to delete this sale record?')) return;
-      if (currentUser) {
-        try {
-          await supabaseClient.from('orders').delete().eq('order_id', id);
-        } catch (e) {
-          console.error('Error deleting sale:', e);
-        }
+      try {
+        const { error } = await supabaseClient.from('orders').delete().eq('id', id);
+        if (error) throw error;
+        await syncSalesFromSupabase();
+      } catch(e) {
+        alert('Failed to delete sale: ' + e.message);
       }
-      await syncSalesFromSupabase();
     }
 
-    async function archiveSale(id) {
-      if (currentUser) {
-        try {
-          const sale = activeOrders.find(s => s.id === id);
-          if (!sale) return;
-          await supabaseClient
-            .from('orders')
-            .update({ status: 'archived' })
-            .eq('order_id', id);
-        } catch (e) {
-          console.error('Error archiving sale:', e);
-        }
-      }
-      await syncSalesFromSupabase();
-    }
-
-    function toggleArchive() {
-      archiveOpen = !archiveOpen;
-      const container = document.getElementById('archiveListContainer');
-      const icon = document.getElementById('archiveToggleIcon');
-      if (container) container.classList.toggle('open', archiveOpen);
-      if (icon) icon.textContent = archiveOpen ? '▾' : '▸';
-    }
-
-    function renderBookings() {
-      const container = document.getElementById('bookingsListContainer');
-      if (!container) return;
-      if (!activeOrders.length) {
-        container.innerHTML = '<div class="expense-empty">No active sales recorded.</div>';
-        return;
-      }
-      container.innerHTML = activeOrders.map(sale => `
-        <div class="sales-entry-card">
-          <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-            <div>
-              <div style="font-size:0.95rem; font-weight:900;">${escapeHtml(getSaleNames(sale))}</div>
-              <div style="font-size:0.72rem; color:var(--text-sub); margin-top:2px;">${saleDate(sale)} • Payment: <strong style="color:var(--accent-gold);">${escapeHtml(sale.paymentMethod || 'Cash')}</strong></div>
-            </div>
-            <div style="font-size:0.95rem; font-weight:900; color:var(--accent-gold);">${money(saleTotal(sale))}</div>
-          </div>
-          <div class="sale-actions">
-            <button class="small-action" onclick="editSale('${sale.id}')"><i class="fa-solid fa-pen"></i> Edit</button>
-            <button class="small-action" onclick="archiveSale('${sale.id}')"><i class="fa-solid fa-box-archive"></i> Archive</button>
-            <button class="small-action delete" onclick="deleteSale('${sale.id}')"><i class="fa-solid fa-trash"></i> Delete</button>
-          </div>
-        </div>
-      `).join('');
-    }
-
-    function renderArchive() {
-      const container = document.getElementById('archiveListContainer');
-      if (!container) return;
-      if (!archivedSales.length) {
-        container.innerHTML = '<div class="expense-empty">No archived sales.</div>';
-        return;
-      }
-      container.innerHTML = archivedSales.map(sale => `
-        <div class="archive-card">
-          <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-            <div>
-              <div style="font-size:0.9rem; font-weight:900;">${escapeHtml(getSaleNames(sale))}</div>
-              <div style="font-size:0.7rem; color:var(--text-sub);">${saleDate(sale)} • ${escapeHtml(sale.paymentMethod || 'Cash')}</div>
-            </div>
-            <div style="font-size:0.9rem; font-weight:900; color:var(--accent-gold);">${money(saleTotal(sale))}</div>
-          </div>
-          <div class="sale-actions">
-            <button class="small-action delete" onclick="deleteSale('${sale.id}')"><i class="fa-solid fa-trash"></i> Delete</button>
-          </div>
-        </div>
-      `).join('');
-    }
-
-    function setReviewMode(mode) {
-      reviewMode = mode;
-      document.querySelectorAll('.review-tab').forEach(t => t.classList.remove('active'));
-      if (mode === 'daily') document.getElementById('tabDaily').classList.add('active');
-      if (mode === 'weekly') document.getElementById('tabWeekly').classList.add('active');
-      if (mode === 'monthly') document.getElementById('tabMonthly').classList.add('active');
-
-      document.getElementById('dailyFilters').style.display = mode === 'daily' ? 'block' : 'none';
-      document.getElementById('monthlyFilters').style.display = mode === 'monthly' ? 'block' : 'none';
-      document.getElementById('customFilters').style.display = 'none';
-      renderSalesProgress();
-    }
-
-    function showCustomRange() {
-      document.getElementById('dailyFilters').style.display = 'none';
-      document.getElementById('monthlyFilters').style.display = 'none';
-      document.getElementById('customFilters').style.display = 'block';
-    }
-
-    function renderSalesProgress() {
-      const metricsContainer = document.getElementById('progressMetrics');
-      if (!metricsContainer) return;
-      
-      const allSales = [...activeOrders, ...archivedSales];
-      const totalRevenue = allSales.reduce((sum, s) => sum + saleTotal(s), 0);
-      const totalBottles = allSales.reduce((sum, s) => sum + getSalePerfumeCount(s), 0);
-
-      metricsContainer.innerHTML = `
-        <div class="metric-card">
-          <div class="metric-label">Total Revenue</div>
-          <div class="metric-value">${money(totalRevenue)}</div>
-        </div>
-        <div class="metric-card">
-          <div class="metric-label">Bottles Sold</div>
-          <div class="metric-value">${totalBottles} pcs</div>
-        </div>
-      `;
-    }
-
+    // --- EXPENSES LOGIC ---
+    let editingExpenseId = null;
+    
     function renderExpenses() {
       const list = document.getElementById('expensesList'), totalEl = document.getElementById('expenseTotalValue');
       if (!list) return;
@@ -2289,60 +1998,576 @@
         </div>`).join('');
     }
 
+    async function syncExpensesFromSupabase() {
+      if (!currentUser) return;
+      try {
+        const { data, error } = await supabaseClient
+          .from('expenses')
+          .select('*')
+          .eq('user_id', currentUser.id)
+          .order('date', { ascending: false });
+        if (error) throw error;
+        expenses = (data || []).map(row => ({
+          id: row.id,
+          name: row.name,
+          date: row.date,
+          amount: Number(row.amount || 0),
+          category: row.category || 'General',
+          notes: row.notes || ''
+        }));
+      } catch(e) {
+        console.error('Expense sync error:', e);
+      }
+      renderExpenses();
+    }
+
     async function saveExpense() {
       const name = document.getElementById('expenseName').value.trim();
       const date = document.getElementById('expenseDate').value;
       const amount = Number(document.getElementById('expenseAmount').value || 0);
       const category = document.getElementById('expenseCategory').value;
       const notes = document.getElementById('expenseNotes').value.trim();
-      if (!name || !date || amount <= 0) { alert('Please enter expense name, date, and amount.'); return; }
+      if (!name || !date || amount <= 0) { alert('Please enter an expense name, date and valid amount.'); return; }
       
-      const expenseId = 'EXP-' + Date.now().toString().slice(-8);
-      if (currentUser) {
-        try {
-          await supabaseClient.from('expenses').upsert([{
-            id: expenseId,
-            user_id: currentUser.id,
-            name, date, amount, category, notes
-          }]);
-        } catch(e) { console.error('Error saving expense:', e); }
+      const payload = { user_id: currentUser.id, name, date, amount, category, notes };
+      
+      try {
+        if (editingExpenseId) {
+          await supabaseClient.from('expenses').update(payload).eq('id', editingExpenseId);
+        } else {
+          await supabaseClient.from('expenses').insert([payload]);
+        }
+        resetExpenseForm();
+        await syncExpensesFromSupabase();
+      } catch(e) {
+        alert('Error saving expense: ' + e.message);
       }
-      await syncExpensesFromSupabase();
-      resetExpenseForm();
-      alert('Expense saved.');
+    }
+
+    function editExpense(id) {
+      const e = expenses.find(x => x.id === id); if (!e) return;
+      editingExpenseId = id;
+      document.getElementById('expenseName').value = e.name;
+      document.getElementById('expenseDate').value = e.date;
+      document.getElementById('expenseAmount').value = e.amount;
+      document.getElementById('expenseCategory').value = e.category;
+      document.getElementById('expenseNotes').value = e.notes;
+      document.getElementById('expenseFormTitle').textContent = 'Edit Expense';
+      document.getElementById('expenseSaveBtn').innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Update Expense';
+      document.getElementById('expenseCancelBtn').style.display = 'block';
     }
 
     function resetExpenseForm() {
+      editingExpenseId = null;
       document.getElementById('expenseName').value = '';
       document.getElementById('expenseDate').value = todayISO();
       document.getElementById('expenseAmount').value = '';
+      document.getElementById('expenseCategory').value = 'General';
       document.getElementById('expenseNotes').value = '';
+      document.getElementById('expenseFormTitle').textContent = 'Record Expense';
+      document.getElementById('expenseSaveBtn').innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Save Expense';
+      document.getElementById('expenseCancelBtn').style.display = 'none';
     }
 
-    async function syncExpensesFromSupabase() {
+    function cancelExpenseEdit() { resetExpenseForm(); }
+
+    async function deleteExpense(id) {
+      if (!confirm('Delete this expense?')) return;
+      try {
+        await supabaseClient.from('expenses').delete().eq('id', id);
+        await syncExpensesFromSupabase();
+      } catch(e) {
+        alert('Failed to delete expense: ' + e.message);
+      }
+    }
+
+    // --- STOCKS AUTHORITATIVE LOGIC (SUPABASE SOURCE OF TRUTH) ---
+
+    async function syncAllStocksFromSupabase() {
       if (!currentUser) return;
       try {
-        const { data } = await supabaseClient
-          .from('expenses')
-          .select('*')
-          .eq('user_id', currentUser.id)
-          .order('date', { ascending: false });
-        expenses = data || [];
-        renderExpenses();
-      } catch(e) { console.error('Error syncing expenses:', e); }
+        const [oilRes, pBottleRes, specRes] = await Promise.all([
+          supabaseClient.from('oil_bottles').select('*').eq('user_id', currentUser.id).order('created_at', {ascending: false}),
+          supabaseClient.from('perfume_bottles').select('*').eq('user_id', currentUser.id).order('created_at', {ascending: false}),
+          supabaseClient.from('specific_perfumes').select('*').eq('user_id', currentUser.id).order('created_at', {ascending: false})
+        ]);
+
+        if (oilRes.data) oilBottleStocks = oilRes.data;
+        if (pBottleRes.data) perfumeBottleStocks = pBottleRes.data;
+        if (specRes.data) specificPerfumeStocks = specRes.data;
+
+      } catch(e) {
+        console.error('Error fetching stock data:', e);
+      }
+      renderStocksArea();
+    }
+
+    function toggleAccordion(id) {
+      const content = document.getElementById(id);
+      if (content) content.classList.toggle('active');
+    }
+
+    function renderStocksArea() {
+      renderOilBottlesList();
+      renderPerfumeBottlesList();
+      renderSpecificPerfumesList();
+      if (activeHistoryCategory) renderSelectedStockHistory();
+    }
+
+    // A — Oil Bottles
+    function calcOilRem() {
+      const cur = Number(document.getElementById('oilCurrent').value || 0);
+      const used = Number(document.getElementById('oilUsed').value || 0);
+      document.getElementById('oilRemaining').value = cur - used;
+    }
+
+    async function saveOilBottle() {
+      const name = document.getElementById('oilName').value.trim();
+      const current = Number(document.getElementById('oilCurrent').value || 0);
+      const used = Number(document.getElementById('oilUsed').value || 0);
+      const remaining = current - used;
+
+      if (!name) { alert('Please enter name / size.'); return; }
+
+      const payload = {
+        user_id: currentUser.id,
+        name,
+        current_stock: current,
+        used_stock: used,
+        remaining_stock: remaining,
+        date: todayISO()
+      };
+
+      try {
+        if (editingOilId) {
+          await supabaseClient.from('oil_bottles').update(payload).eq('id', editingOilId);
+        } else {
+          await supabaseClient.from('oil_bottles').insert([payload]);
+        }
+        resetOilForm();
+        await syncAllStocksFromSupabase();
+      } catch(e) { alert('Failed to save Oil Bottle: ' + e.message); }
+    }
+
+    function editOilBottle(id) {
+      const rec = oilBottleStocks.find(x => x.id === id); if (!rec) return;
+      editingOilId = id;
+      document.getElementById('oilName').value = rec.name;
+      document.getElementById('oilCurrent').value = rec.current_stock;
+      document.getElementById('oilUsed').value = rec.used_stock;
+      calcOilRem();
+      document.getElementById('oilFormTitle').textContent = 'Edit Oil Bottle';
+      document.getElementById('oilSaveBtn').innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Update Record';
+      document.getElementById('oilCancelBtn').style.display = 'block';
+    }
+
+    function resetOilForm() {
+      editingOilId = null;
+      document.getElementById('oilName').value = '';
+      document.getElementById('oilCurrent').value = '';
+      document.getElementById('oilUsed').value = '';
+      document.getElementById('oilRemaining').value = '';
+      document.getElementById('oilFormTitle').textContent = 'Add Oil Bottle';
+      document.getElementById('oilSaveBtn').innerHTML = '<i class="fa-solid fa-plus"></i> Save Record';
+      document.getElementById('oilCancelBtn').style.display = 'none';
+    }
+
+    async function deleteOilBottle(id) {
+      if (!confirm('Delete this record?')) return;
+      await supabaseClient.from('oil_bottles').delete().eq('id', id);
+      await syncAllStocksFromSupabase();
+    }
+
+    function renderOilBottlesList() {
+      const el = document.getElementById('oilBottlesList');
+      if (!el) return;
+      if (!oilBottleStocks.length) { el.innerHTML = '<div style="font-size:0.75rem; color:var(--text-sub);">No Oil Bottles recorded.</div>'; return; }
+      el.innerHTML = oilBottleStocks.map(r => `
+        <div class="stock-rec-card">
+          <div class="stock-rec-head">
+            <span>${escapeHtml(r.name)}</span>
+            <div style="display:flex; gap:6px;">
+              <button class="small-action" onclick="editOilBottle('${r.id}')">Edit</button>
+              <button class="small-action delete" onclick="deleteOilBottle('${r.id}')">Delete</button>
+            </div>
+          </div>
+          <div class="stock-grid-3">
+            <div><div class="stock-stat-lbl">Current</div><div class="stock-stat-val">${r.current_stock}</div></div>
+            <div><div class="stock-stat-lbl">Used</div><div class="stock-stat-val">${r.used_stock}</div></div>
+            <div><div class="stock-stat-lbl">Remaining</div><div class="stock-stat-val" style="color:var(--accent-gold);">${r.remaining_stock}</div></div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // B — Perfume Bottles
+    function calcPBottlePCS() {
+      const size = document.getElementById('pBottleSize').value;
+      const fixedPcs = BOTTLE_FIXED_PCS[size] || 0;
+      const brought = Number(document.getElementById('pBoxesBrought').value || 0);
+      const used = Number(document.getElementById('pBoxesUsed').value || 0);
+
+      const totalPcs = brought * fixedPcs;
+      const usedPcs = used * fixedPcs;
+      const availPcs = totalPcs - usedPcs;
+
+      document.getElementById('pTotalPcsLbl').textContent = totalPcs;
+      document.getElementById('pUsedPcsLbl').textContent = usedPcs;
+      document.getElementById('pAvailPcsLbl').textContent = availPcs;
+    }
+
+    async function savePerfumeBottleBox() {
+      const size = document.getElementById('pBottleSize').value;
+      const fixedPcs = BOTTLE_FIXED_PCS[size];
+      const brought = Number(document.getElementById('pBoxesBrought').value || 0);
+      const used = Number(document.getElementById('pBoxesUsed').value || 0);
+
+      const totalPcs = brought * fixedPcs;
+      const usedPcs = used * fixedPcs;
+      const availPcs = totalPcs - usedPcs;
+
+      const payload = {
+        user_id: currentUser.id,
+        size,
+        fixed_pcs_per_box: fixedPcs,
+        boxes_brought: brought,
+        boxes_used: used,
+        total_pcs: totalPcs,
+        used_pcs: usedPcs,
+        available_pcs: availPcs,
+        date: todayISO()
+      };
+
+      try {
+        if (editingPBottleId) {
+          await supabaseClient.from('perfume_bottles').update(payload).eq('id', editingPBottleId);
+        } else {
+          await supabaseClient.from('perfume_bottles').insert([payload]);
+        }
+        resetPBottleForm();
+        await syncAllStocksFromSupabase();
+      } catch(e) { alert('Failed to save Perfume Bottle record: ' + e.message); }
+    }
+
+    function editPerfumeBottleBox(id) {
+      const rec = perfumeBottleStocks.find(x => x.id === id); if (!rec) return;
+      editingPBottleId = id;
+      document.getElementById('pBottleSize').value = rec.size;
+      document.getElementById('pBoxesBrought').value = rec.boxes_brought;
+      document.getElementById('pBoxesUsed').value = rec.boxes_used;
+      calcPBottlePCS();
+      document.getElementById('pBottleFormTitle').textContent = 'Edit Box Record';
+      document.getElementById('pBottleSaveBtn').innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Update Box Record';
+      document.getElementById('pBottleCancelBtn').style.display = 'block';
+    }
+
+    function resetPBottleForm() {
+      editingPBottleId = null;
+      document.getElementById('pBoxesBrought').value = '';
+      document.getElementById('pBoxesUsed').value = '';
+      calcPBottlePCS();
+      document.getElementById('pBottleFormTitle').textContent = 'Add Perfume Bottle Boxes';
+      document.getElementById('pBottleSaveBtn').innerHTML = '<i class="fa-solid fa-plus"></i> Save Box Record';
+      document.getElementById('pBottleCancelBtn').style.display = 'none';
+    }
+
+    async function deletePerfumeBottleBox(id) {
+      if (!confirm('Delete box record?')) return;
+      await supabaseClient.from('perfume_bottles').delete().eq('id', id);
+      await syncAllStocksFromSupabase();
+    }
+
+    function renderPerfumeBottlesList() {
+      const el = document.getElementById('perfumeBottlesList'); if (!el) return;
+      if (!perfumeBottleStocks.length) { el.innerHTML = '<div style="font-size:0.75rem; color:var(--text-sub);">No Bottle Boxes recorded.</div>'; return; }
+      el.innerHTML = perfumeBottleStocks.map(r => `
+        <div class="stock-rec-card">
+          <div class="stock-rec-head">
+            <span>Size: ${r.size} (${r.fixed_pcs_per_box} PCS/Box)</span>
+            <div style="display:flex; gap:6px;">
+              <button class="small-action" onclick="editPerfumeBottleBox('${r.id}')">Edit</button>
+              <button class="small-action delete" onclick="deletePerfumeBottleBox('${r.id}')">Delete</button>
+            </div>
+          </div>
+          <div class="stock-grid-3">
+            <div><div class="stock-stat-lbl">Brought (Pcs)</div><div class="stock-stat-val">${r.boxes_brought} (${r.total_pcs})</div></div>
+            <div><div class="stock-stat-lbl">Used (Pcs)</div><div class="stock-stat-val">${r.boxes_used} (${r.used_pcs})</div></div>
+            <div><div class="stock-stat-lbl">Available PCS</div><div class="stock-stat-val" style="color:var(--accent-gold);">${r.available_pcs}</div></div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // C — Specific Perfume Items
+    function calcSpecRem() {
+      const cur = Number(document.getElementById('specCurrent').value || 0);
+      const used = Number(document.getElementById('specUsed').value || 0);
+      document.getElementById('specRemaining').value = cur - used;
+    }
+
+    async function saveSpecificPerfume() {
+      const name = document.getElementById('specName').value.trim();
+      const niche = document.getElementById('specNiche').value.trim();
+      const current = Number(document.getElementById('specCurrent').value || 0);
+      const used = Number(document.getElementById('specUsed').value || 0);
+      const remaining = current - used;
+
+      if (!name || !niche) { alert('Perfume Name and Niche field are required!'); return; }
+
+      const payload = {
+        user_id: currentUser.id,
+        perfume_name: name,
+        niche: niche,
+        current_stock: current,
+        used_stock: used,
+        remaining_stock: remaining,
+        date: todayISO()
+      };
+
+      try {
+        if (editingSpecId) {
+          await supabaseClient.from('specific_perfumes').update(payload).eq('id', editingSpecId);
+        } else {
+          await supabaseClient.from('specific_perfumes').insert([payload]);
+        }
+        resetSpecForm();
+        await syncAllStocksFromSupabase();
+      } catch(e) { alert('Failed to save Specific Perfume: ' + e.message); }
+    }
+
+    function editSpecificPerfume(id) {
+      const rec = specificPerfumeStocks.find(x => x.id === id); if (!rec) return;
+      editingSpecId = id;
+      document.getElementById('specName').value = rec.perfume_name;
+      document.getElementById('specNiche').value = rec.niche || '';
+      document.getElementById('specCurrent').value = rec.current_stock;
+      document.getElementById('specUsed').value = rec.used_stock;
+      calcSpecRem();
+      document.getElementById('specFormTitle').textContent = 'Edit Perfume Item';
+      document.getElementById('specSaveBtn').innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Update Perfume';
+      document.getElementById('specCancelBtn').style.display = 'block';
+    }
+
+    function resetSpecForm() {
+      editingSpecId = null;
+      document.getElementById('specName').value = '';
+      document.getElementById('specNiche').value = '';
+      document.getElementById('specCurrent').value = '';
+      document.getElementById('specUsed').value = '';
+      document.getElementById('specRemaining').value = '';
+      document.getElementById('specFormTitle').textContent = 'Add Perfume Item';
+      document.getElementById('specSaveBtn').innerHTML = '<i class="fa-solid fa-plus"></i> Add Perfume';
+      document.getElementById('specCancelBtn').style.display = 'none';
+    }
+
+    async function deleteSpecificPerfume(id) {
+      if (!confirm('Delete item?')) return;
+      await supabaseClient.from('specific_perfumes').delete().eq('id', id);
+      await syncAllStocksFromSupabase();
+    }
+
+    function renderSpecificPerfumesList() {
+      const el = document.getElementById('specificPerfumesList'); if (!el) return;
+      if (!specificPerfumeStocks.length) { el.innerHTML = '<div style="font-size:0.75rem; color:var(--text-sub);">No Specific Perfumes recorded.</div>'; return; }
+      el.innerHTML = specificPerfumeStocks.map(r => `
+        <div class="stock-rec-card">
+          <div class="stock-rec-head">
+            <div>
+              <div style="font-weight:800;">${escapeHtml(r.perfume_name)}</div>
+              <div style="font-size:0.72rem; color:var(--accent-gold);">Niche: ${escapeHtml(r.niche || 'N/A')}</div>
+            </div>
+            <div style="display:flex; gap:6px;">
+              <button class="small-action" onclick="editSpecificPerfume('${r.id}')">Edit</button>
+              <button class="small-action delete" onclick="deleteSpecificPerfume('${r.id}')">Delete</button>
+            </div>
+          </div>
+          <div class="stock-grid-3">
+            <div><div class="stock-stat-lbl">Current</div><div class="stock-stat-val">${r.current_stock}</div></div>
+            <div><div class="stock-stat-lbl">Used</div><div class="stock-stat-val">${r.used_stock}</div></div>
+            <div><div class="stock-stat-lbl">Remaining</div><div class="stock-stat-val" style="color:var(--accent-gold);">${r.remaining_stock}</div></div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // CATEGORY HISTORIES
+    function openStockHistoryView(type) {
+      activeHistoryCategory = type;
+      document.getElementById('stocksMainArea').style.display = 'none';
+      document.getElementById('stockHistoryViewArea').style.display = 'block';
+
+      const titleEl = document.getElementById('historyViewTitle');
+      if (type === 'oil') titleEl.textContent = 'A — Oil Bottle History';
+      else if (type === 'bottle') titleEl.textContent = 'B — Perfume Bottle History';
+      else if (type === 'specific') titleEl.textContent = 'C — Specific Perfume History';
+
+      renderSelectedStockHistory();
+    }
+
+    function closeStockHistoryView() {
+      activeHistoryCategory = null;
+      document.getElementById('stocksMainArea').style.display = 'block';
+      document.getElementById('stockHistoryViewArea').style.display = 'none';
+    }
+
+    function renderSelectedStockHistory() {
+      const listEl = document.getElementById('stockHistoryContentList');
+      const selectedMonth = document.getElementById('stockHistoryMonth').value || monthISO();
+      if (!listEl) return;
+
+      if (activeHistoryCategory === 'oil') {
+        const filtered = oilBottleStocks.filter(x => (x.date || x.created_at || '').startsWith(selectedMonth));
+        if (!filtered.length) { listEl.innerHTML = '<div style="font-size:0.8rem; color:var(--text-sub);">No records for this month.</div>'; return; }
+        listEl.innerHTML = filtered.map(r => `
+          <div class="stock-rec-card">
+            <div style="font-size:0.75rem; color:var(--text-sub); margin-bottom:4px;">Date: ${r.date || 'N/A'}</div>
+            <div style="font-weight:800; margin-bottom:6px;">${escapeHtml(r.name)}</div>
+            <div class="stock-grid-3">
+              <div><div class="stock-stat-lbl">Current</div><div class="stock-stat-val">${r.current_stock}</div></div>
+              <div><div class="stock-stat-lbl">Used</div><div class="stock-stat-val">${r.used_stock}</div></div>
+              <div><div class="stock-stat-lbl">Remaining</div><div class="stock-stat-val">${r.remaining_stock}</div></div>
+            </div>
+          </div>
+        `).join('');
+      } else if (activeHistoryCategory === 'bottle') {
+        const filtered = perfumeBottleStocks.filter(x => (x.date || x.created_at || '').startsWith(selectedMonth));
+        if (!filtered.length) { listEl.innerHTML = '<div style="font-size:0.8rem; color:var(--text-sub);">No box records for this month.</div>'; return; }
+        listEl.innerHTML = filtered.map(r => `
+          <div class="stock-rec-card">
+            <div style="font-size:0.75rem; color:var(--text-sub); margin-bottom:4px;">Size: ${r.size} (${r.fixed_pcs_per_box} PCS/Box)</div>
+            <div class="stock-grid-3">
+              <div><div class="stock-stat-lbl">Boxes Brought</div><div class="stock-stat-val">${r.boxes_brought} (${r.total_pcs} PCS)</div></div>
+              <div><div class="stock-stat-lbl">Boxes Used</div><div class="stock-stat-val">${r.boxes_used} (${r.used_pcs} PCS)</div></div>
+              <div><div class="stock-stat-lbl">Available PCS</div><div class="stock-stat-val" style="color:var(--accent-gold);">${r.available_pcs}</div></div>
+            </div>
+          </div>
+        `).join('');
+      } else if (activeHistoryCategory === 'specific') {
+        const filtered = specificPerfumeStocks.filter(x => (x.date || x.created_at || '').startsWith(selectedMonth));
+        if (!filtered.length) { listEl.innerHTML = '<div style="font-size:0.8rem; color:var(--text-sub);">No perfume history records for this month.</div>'; return; }
+        listEl.innerHTML = filtered.map(r => `
+          <div class="stock-rec-card">
+            <div style="font-size:0.75rem; color:var(--text-sub); margin-bottom:2px;">Date: ${r.date || 'N/A'}</div>
+            <div style="font-weight:800;">${escapeHtml(r.perfume_name)}</div>
+            <div style="font-size:0.72rem; color:var(--accent-gold); margin-bottom:6px;">Niche: ${escapeHtml(r.niche || 'N/A')}</div>
+            <div class="stock-grid-3">
+              <div><div class="stock-stat-lbl">Current</div><div class="stock-stat-val">${r.current_stock}</div></div>
+              <div><div class="stock-stat-lbl">Used</div><div class="stock-stat-val">${r.used_stock}</div></div>
+              <div><div class="stock-stat-lbl">Remaining</div><div class="stock-stat-val">${r.remaining_stock}</div></div>
+            </div>
+          </div>
+        `).join('');
+      }
+    }
+
+    // RENDER SALES LIST & PROGRESS
+    function renderBookings() {
+      const container = document.getElementById('bookingsListContainer'); if (!container) return;
+      if (!activeOrders.length) { container.innerHTML = '<div class="review-card" style="text-align:center;color:var(--text-sub);">No sales recorded yet.</div>'; return; }
+      
+      container.innerHTML = activeOrders.map(s => `
+        <div class="review-card">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
+            <div>
+              <div style="font-weight:900;font-size:0.95rem;">${escapeHtml(getSaleNames(s))}</div>
+              <div style="font-size:0.72rem;color:var(--text-sub);">${s.date} • ${escapeHtml(s.paymentMethod)}</div>
+            </div>
+            <div style="font-weight:900;color:var(--accent-gold);">${money(saleTotal(s))}</div>
+          </div>
+          <div class="sale-actions">
+            <button class="small-action" onclick="editSale('${s.id}')"><i class="fa-solid fa-pen"></i> Edit</button>
+            <button class="small-action delete" onclick="deleteSale('${s.id}')"><i class="fa-solid fa-trash"></i> Delete</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderHistory() {
+      const container = document.getElementById('historyListContainer'); if (!container) return;
+      container.innerHTML = completedHistory.map(s => `
+        <div class="review-card">
+          <div style="font-weight:800;font-size:0.85rem;">${escapeHtml(getSaleNames(s))}</div>
+          <div style="font-size:0.72rem;color:var(--text-sub);">${s.date} • ${money(saleTotal(s))}</div>
+        </div>
+      `).join('');
+    }
+
+    function renderArchive() {
+      const container = document.getElementById('archiveListContainer'); if (!container) return;
+      container.innerHTML = archivedSales.map(s => `
+        <div class="archive-card">
+          <div style="font-weight:800;">${escapeHtml(getSaleNames(s))}</div>
+          <div style="font-size:0.72rem;color:var(--text-sub);">${s.date} • ${money(saleTotal(s))}</div>
+        </div>
+      `).join('');
+    }
+
+    function toggleArchive() {
+      archiveOpen = !archiveOpen;
+      document.getElementById('archiveListContainer').classList.toggle('open', archiveOpen);
+      document.getElementById('archiveToggleIcon').textContent = archiveOpen ? '▾' : '▸';
     }
 
     function updateLoyaltyUI() {
-      const badge = document.getElementById('loyaltyCountBadge');
-      if (badge) badge.textContent = `Total Orders: ${activeOrders.length}`;
+      const count = activeOrders.length;
+      document.getElementById('loyaltyCountBadge').textContent = `Total Orders: ${count}`;
+      const dots = document.querySelectorAll('#stampsRow .stamp-dot');
+      dots.forEach((dot, index) => {
+        if (index < (count % 5)) dot.classList.add('filled');
+        else dot.classList.remove('filled');
+      });
     }
 
-    function openMonthlyReview() {
-      document.getElementById('monthlyReviewModal').classList.add('active');
+    function setReviewMode(mode) {
+      reviewMode = mode;
+      document.querySelectorAll('.review-tab').forEach(b => b.classList.remove('active'));
+      if (mode === 'daily') document.getElementById('tabDaily')?.classList.add('active');
+      if (mode === 'weekly') document.getElementById('tabWeekly')?.classList.add('active');
+      if (mode === 'monthly') document.getElementById('tabMonthly')?.classList.add('active');
+
+      document.getElementById('dailyFilters').style.display = mode === 'daily' ? 'block' : 'none';
+      document.getElementById('monthlyFilters').style.display = mode === 'monthly' ? 'block' : 'none';
+      document.getElementById('customFilters').style.display = mode === 'custom' ? 'block' : 'none';
+      renderSalesProgress();
     }
-    function closeSheet(id) {
-      document.getElementById(id)?.classList.remove('active');
+
+    function showCustomRange() { setReviewMode('custom'); }
+
+    function renderSalesProgress() {
+      const container = document.getElementById('progressMetrics'); if (!container) return;
+      let filtered = [...activeOrders];
+      if (reviewMode === 'daily') {
+        const d = document.getElementById('dailyDate').value;
+        filtered = filtered.filter(s => s.date === d);
+      } else if (reviewMode === 'monthly') {
+        const m = document.getElementById('reviewMonth').value;
+        filtered = filtered.filter(s => (s.date || '').startsWith(m));
+      }
+
+      const totalRevenue = filtered.reduce((sum, s) => sum + saleTotal(s), 0);
+      const totalBottles = filtered.reduce((sum, s) => sum + getSalePerfumeCount(s), 0);
+
+      container.innerHTML = `
+        <div class="metric-card"><div class="metric-label">Total Revenue</div><div class="metric-value">${money(totalRevenue)}</div></div>
+        <div class="metric-card"><div class="metric-label">Bottles Sold</div><div class="metric-value">${totalBottles}</div></div>
+      `;
     }
+
+    function renderMonthlyReview() {
+      const content = document.getElementById('monthlyReviewContent'); if (!content) return;
+      const m = document.getElementById('reviewMonth').value;
+      const filtered = activeOrders.filter(s => (s.date || '').startsWith(m));
+      const totalRevenue = filtered.reduce((sum, s) => sum + saleTotal(s), 0);
+
+      content.innerHTML = `
+        <div class="sales-entry-card">
+          <h3>Summary for ${m}</h3>
+          <div style="font-size:1.1rem; font-weight:900; color:var(--accent-gold);">${money(totalRevenue)}</div>
+          <div style="font-size:0.8rem; margin-top:4px;">Total Sales Count: ${filtered.length}</div>
+        </div>
+      `;
+    }
+
     function igniteTeaserToast() {
       const toast = document.getElementById('soonToast');
       if (!toast) return;
