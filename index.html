@@ -1612,10 +1612,13 @@
           showResetPasswordScreen();
         } else if (session && session.user) {
           currentUser = session.user;
+          clearAccountMemoryState();
           await fetchAndSetupUserData(currentUser.id);
           await syncSalesFromSupabase();
           await syncExpensesFromSupabase();
           await syncStockFromSupabase();
+          startAccountRealtimeSync();
+          renderAllAccountData();
         } else {
           showAuthScreen();
         }
@@ -1635,72 +1638,139 @@
       if (!currentUsername && currentUser) currentUsername = currentUser.email.split('@')[0];
       setupUserInterface();
     }
-    function getSalesStorageKey() {
-      return 'glamo_sales_' + (currentUser?.id || 'guest');
+    /*
+     * ACCOUNT DATA ARCHITECTURE
+     * Supabase is the only persistent source of truth for account data.
+     * There is intentionally NO localStorage persistence for sales, stock,
+     * expenses, deleted records, or other account-owned application data.
+     */
+    function clearAccountMemoryState() {
+      activeOrders = [];
+      archivedSales = [];
+      deletedSaleIds = [];
+      expenses = [];
+      stockItems = [];
+      completedHistory = [];
+      completedOrdersCount = 0;
     }
-    function getStockStorageKey() {
-      return 'glamo_stock_' + (currentUser?.id || 'guest');
-    }
-    function getArchiveStorageKey() {
-      return 'glamo_sales_archive_' + (currentUser?.id || 'guest');
-    }
-    function getDeletedStorageKey() {
-      return 'glamo_sales_deleted_' + (currentUser?.id || 'guest');
-    }
-    function getExpensesStorageKey() { 
-      return 'glamo_expenses_' + (currentUser?.id || 'guest'); 
-    }
+
+    // Kept as a compatibility helper for existing call sites.
+    // It never writes account data to browser storage.
     function saveLocalSales() {
-      localStorage.setItem(getSalesStorageKey(), JSON.stringify(activeOrders));
-      localStorage.setItem(getArchiveStorageKey(), JSON.stringify(archivedSales));
-      localStorage.setItem(getDeletedStorageKey(), JSON.stringify(deletedSaleIds));
+      completedHistory = [...activeOrders];
+      completedOrdersCount = activeOrders.length;
     }
+
+    // Kept as a compatibility helper for existing call sites.
+    // It never reads stale account data from browser storage.
     function loadLocalSales() {
-      try {
-        const savedActive = JSON.parse(localStorage.getItem(getSalesStorageKey()) || '[]');
-        const savedArchive = JSON.parse(localStorage.getItem(getArchiveStorageKey()) || '[]');
-        const savedDeleted = JSON.parse(localStorage.getItem(getDeletedStorageKey()) || '[]');
-        activeOrders = Array.isArray(savedActive) ? savedActive : [];
-        archivedSales = Array.isArray(savedArchive) ? savedArchive : [];
-        deletedSaleIds = Array.isArray(savedDeleted) ? savedDeleted : [];
-        activeOrders = activeOrders.filter(s => s && !deletedSaleIds.includes(s.id));
-        archivedSales = archivedSales.filter(s => s && !deletedSaleIds.includes(s.id));
-        completedHistory = [...activeOrders];
-        completedOrdersCount = activeOrders.length;
-      } catch {
-        activeOrders = [];
-        archivedSales = [];
-        deletedSaleIds = [];
-        completedHistory = [];
-        completedOrdersCount = 0;
+      activeOrders = [];
+      archivedSales = [];
+      deletedSaleIds = [];
+      completedHistory = [];
+      completedOrdersCount = 0;
+    }
+
+    function renderAllAccountData() {
+      renderBookings();
+      renderHistory();
+      renderArchive();
+      renderExpenses();
+      renderStockList();
+      renderStockAlerts();
+      renderSalesProgress();
+      updateLoyaltyUI();
+    }
+
+    let accountRealtimeChannel = null;
+    let realtimeRefreshTimer = null;
+
+    function scheduleRealtimeRefresh(type) {
+      clearTimeout(realtimeRefreshTimer);
+      realtimeRefreshTimer = setTimeout(async () => {
+        if (!currentUser) return;
+        try {
+          if (type === 'orders') await syncSalesFromSupabase();
+          else if (type === 'expenses') await syncExpensesFromSupabase();
+          else if (type === 'stock') await syncStockFromSupabase();
+          else {
+            await syncSalesFromSupabase();
+            await syncExpensesFromSupabase();
+            await syncStockFromSupabase();
+          }
+        } catch (e) {
+          console.log('Realtime refresh failed:', e);
+        }
+      }, 120);
+    }
+
+    function stopAccountRealtimeSync() {
+      clearTimeout(realtimeRefreshTimer);
+      realtimeRefreshTimer = null;
+      if (accountRealtimeChannel) {
+        try { supabaseClient.removeChannel(accountRealtimeChannel); } catch {}
+        accountRealtimeChannel = null;
       }
     }
-    async function syncSalesFromSupabase() {
+
+    function startAccountRealtimeSync() {
+      stopAccountRealtimeSync();
       if (!currentUser) return;
-      loadLocalSales();
+
+      const uid = currentUser.id;
+      accountRealtimeChannel = supabaseClient
+        .channel('glamo-account-' + uid)
+        .on('postgres_changes',
+          { event: '*', schema: 'public', table: 'orders', filter: 'user_id=eq.' + uid },
+          () => scheduleRealtimeRefresh('orders'))
+        .on('postgres_changes',
+          { event: '*', schema: 'public', table: 'expenses', filter: 'user_id=eq.' + uid },
+          () => scheduleRealtimeRefresh('expenses'))
+        .on('postgres_changes',
+          { event: '*', schema: 'public', table: 'stock', filter: 'user_id=eq.' + uid },
+          () => scheduleRealtimeRefresh('stock'))
+        .subscribe((status) => {
+          console.log('Glamo account realtime:', status);
+        });
+    }
+
+    async function syncSalesFromSupabase() {
+      if (!currentUser) return false;
+
+      // Never load local account data before the cloud query.
+      // A successful database response completely replaces in-memory state.
       try {
         const { data, error } = await supabaseClient
           .from('orders')
           .select('*')
           .eq('user_id', currentUser.id)
           .order('created_at', { ascending: false });
+
         if (error) throw error;
+
         const cloudSales = (data || []).map(row => {
           let meta = {};
           try { meta = JSON.parse(row.instructions || '{}'); } catch {}
+
           if (meta.type !== 'glamo_sale') return null;
+
           const cloudItems = Array.isArray(meta.items) && meta.items.length
             ? meta.items
             : (Array.isArray(row.items) && row.items.length ? row.items : [{
-                name: meta.perfumeName || 'Unknown', qty:1, size:meta.size || '30 ML'
+                name: meta.perfumeName || 'Unknown',
+                qty: 1,
+                size: meta.size || '30 ML'
               }]);
+
           const items = cloudItems.map(item => ({
             perfumeName: String(item.perfumeName ?? item.name ?? 'Unknown'),
             quantity: Math.max(1, Number(item.quantity ?? item.qty ?? 1)),
             size: String(item.size ?? '30 ML'),
             price: Math.max(0, Number(item.price ?? 0))
           }));
+
           const receivedAmount = Number(meta.receivedAmount ?? meta.saleAmount ?? row.total ?? 0);
+
           return {
             id: row.order_id,
             dbId: row.id,
@@ -1714,26 +1784,43 @@
             receivedAmount,
             saleAmount: receivedAmount,
             deliveryAmount: Number(meta.deliveryAmount ?? 0),
-            cashReceived: Number(meta.cashReceived ?? (meta.paymentMethod === 'Cash' ? receivedAmount : 0)),
+            cashReceived: Number(
+              meta.cashReceived ??
+              (meta.paymentMethod === 'Cash' ? receivedAmount : 0)
+            ),
             dateTime: new Date(row.created_at).toLocaleString(),
             status: row.status || 'confirmed'
           };
         }).filter(Boolean);
 
-        // Active orders: sync from cloud authority
-        activeOrders = cloudSales.filter(s => s.status !== 'archived' && !deletedSaleIds.includes(s.id));
-        archivedSales = cloudSales.filter(s => s.status === 'archived' && !deletedSaleIds.includes(s.id));
+        // Database is authoritative. A deleted row simply does not exist here.
+        activeOrders = cloudSales.filter(s => s.status !== 'archived');
+        archivedSales = cloudSales.filter(s => s.status === 'archived');
+        deletedSaleIds = [];
         completedHistory = [...activeOrders];
         completedOrdersCount = activeOrders.length;
-        saveLocalSales();
+
+        renderBookings();
+        renderHistory();
+        renderArchive();
+        renderSalesProgress();
+        updateLoyaltyUI();
+        return true;
       } catch (e) {
-        console.log('Using local sales cache:', e);
+        console.error('Unable to load sales from Supabase:', e);
+        // Do NOT fall back to localStorage or stale device data.
+        activeOrders = [];
+        archivedSales = [];
+        deletedSaleIds = [];
+        completedHistory = [];
+        completedOrdersCount = 0;
+        renderBookings();
+        renderHistory();
+        renderArchive();
+        renderSalesProgress();
+        updateLoyaltyUI();
+        return false;
       }
-      renderBookings();
-      renderHistory();
-      renderArchive();
-      renderSalesProgress();
-      updateLoyaltyUI();
     }
 
     function showAuthScreen() {
@@ -1811,59 +1898,105 @@
       document.getElementById('resetConfirmPassword').value = '';
       try { await supabaseClient.auth.signOut(); } catch {}
     }
-    async function handleAuthSubmit() {
+        async function handleAuthSubmit() {
       const email = document.getElementById('authEmail').value.trim();
       const password = document.getElementById('authPassword').value;
       const confirmPassword = document.getElementById('authConfirmPassword').value;
       const username = document.getElementById('authUsername').value.trim();
       const phone = document.getElementById('authPhone').value.trim();
-      if (!email || !password) { alert('Please enter both email and password.'); return; }
+
+      if (!email || !password) {
+        alert('Please enter both email and password.');
+        return;
+      }
+
       if (isRegisterMode) {
-        if (!username || !phone) { alert('Please provide both a username and a phone number.'); return; }
-        if (password !== confirmPassword) { alert('Passwords do not match.'); return; }
+        if (!username || !phone) {
+          alert('Please provide both a username and a phone number.');
+          return;
+        }
+        if (password !== confirmPassword) {
+          alert('Passwords do not match.');
+          return;
+        }
+
         const { data, error } = await supabaseClient.auth.signUp({ email, password });
-        if (error) { alert('Registration Error: ' + error.message); return; }
+        if (error) {
+          alert('Registration Error: ' + error.message);
+          return;
+        }
+
         currentUser = data.user;
         currentUsername = username;
         currentUserPhone = phone;
-        if (currentUser) await supabaseClient.from('profiles').upsert([{ id: currentUser.id, username, email, phone }]);
-        alert('Registration successful! Welcome, ' + username);
-        loadLocalSales();
-        syncStockFromSupabase();
-        syncExpensesFromSupabase();
-        renderSalesProgress();
-        setupUserInterface();
-      } else {
-        const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-        if (error) { alert('Login Error: ' + error.message); return; }
-        currentUser = data.user;
-        await fetchAndSetupUserData(currentUser.id);
+
+        if (currentUser) {
+          const { error: profileError } = await supabaseClient
+            .from('profiles')
+            .upsert([{ id: currentUser.id, username, email, phone }]);
+
+          if (profileError) {
+            console.error('Profile save failed:', profileError);
+          }
+        }
+
+        clearAccountMemoryState();
+        startAccountRealtimeSync();
         await syncSalesFromSupabase();
         await syncExpensesFromSupabase();
         await syncStockFromSupabase();
+        renderAllAccountData();
+        setupUserInterface();
+        alert('Registration successful! Welcome, ' + username);
+      } else {
+        const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+        if (error) {
+          alert('Login Error: ' + error.message);
+          return;
+        }
+
+        currentUser = data.user;
+
+        // Every login starts from empty in-memory account state, then loads
+        // the latest authoritative state belonging to auth.uid().
+        clearAccountMemoryState();
+        await fetchAndSetupUserData(currentUser.id);
+
+        const salesOk = await syncSalesFromSupabase();
+        const expensesOk = await syncExpensesFromSupabase();
+        const stockOk = await syncStockFromSupabase();
+
+        if (!salesOk || !expensesOk || !stockOk) {
+          console.warn('One or more account datasets could not be loaded from Supabase.');
+        }
+
+        renderAllAccountData();
+        startAccountRealtimeSync();
       }
     }
-    async function handleLogout() {
-      await supabaseClient.auth.signOut();
+        async function handleLogout() {
+      stopAccountRealtimeSync();
+      try { await supabaseClient.auth.signOut(); } catch (e) {
+        console.error('Logout failed:', e);
+      }
+
       currentUser = null;
       currentUsername = "";
       currentUserPhone = "";
-      activeOrders = [];
-      archivedSales = [];
-      deletedSaleIds = [];
-      expenses = [];
-      completedHistory = [];
-      completedOrdersCount = 0;
-      stockItems = [];
+      clearAccountMemoryState();
+
       document.getElementById('authEmail').value = '';
       document.getElementById('authPassword').value = '';
       document.getElementById('authConfirmPassword').value = '';
       document.getElementById('authUsername').value = '';
       document.getElementById('authPhone').value = '';
+
       renderBookings();
       renderHistory();
       renderExpenses();
       renderSalesProgress();
+      renderStockList();
+      renderStockAlerts();
       showAuthScreen();
     }
     function toggleTheme() {
@@ -1997,26 +2130,31 @@
     let editingExpenseId = null;
     
     function loadExpenses() {
-      try { 
-        const saved = JSON.parse(localStorage.getItem(getExpensesStorageKey()) || '[]'); 
-        expenses = Array.isArray(saved) ? saved : []; 
-      }
-      catch(e) { expenses = []; }
+      expenses = [];
       renderExpenses();
     }
-    function saveExpenses() { 
-      localStorage.setItem(getExpensesStorageKey(), JSON.stringify(expenses)); 
-      renderExpenses(); 
+
+    function saveExpenses() {
+      // Account data is persisted only in Supabase.
+      renderExpenses();
     }
+
     async function syncExpensesFromSupabase() {
-      if (!currentUser) { loadExpenses(); return; }
+      if (!currentUser) {
+        expenses = [];
+        renderExpenses();
+        return false;
+      }
+
       try {
         const { data, error } = await supabaseClient
           .from('expenses')
           .select('*')
           .eq('user_id', currentUser.id)
           .order('date', { ascending: false });
+
         if (error) throw error;
+
         expenses = (data || []).map(row => ({
           id: row.id,
           name: row.name,
@@ -2025,12 +2163,17 @@
           category: row.category || 'General',
           notes: row.notes || ''
         }));
-        saveExpenses();
+
+        renderExpenses();
+        return true;
       } catch(e) {
-        console.log('Expense cloud sync unavailable, using local cache:', e);
-        loadExpenses();
+        console.error('Unable to load expenses from Supabase:', e);
+        expenses = [];
+        renderExpenses();
+        return false;
       }
     }
+
     function renderExpenses() {
       const list = document.getElementById('expensesList'), totalEl = document.getElementById('expenseTotalValue');
       if (!list) return;
@@ -2056,39 +2199,51 @@
       document.getElementById('expenseSaveBtn').innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Save Expense';
       document.getElementById('expenseCancelBtn').style.display = 'none';
     }
-    async function saveExpense() {
+        async function saveExpense() {
       const name = document.getElementById('expenseName').value.trim();
       const date = document.getElementById('expenseDate').value;
       const amount = Number(document.getElementById('expenseAmount').value || 0);
       const category = document.getElementById('expenseCategory').value;
       const notes = document.getElementById('expenseNotes').value.trim();
-      if (!name || !date || amount <= 0) { alert('Please enter an expense name, date and valid amount.'); return; }
+
+      if (!name || !date || amount <= 0) {
+        alert('Please enter an expense name, date and valid amount.');
+        return;
+      }
+      if (!currentUser) {
+        alert('Please log in before saving an expense.');
+        return;
+      }
+
       const wasEditing = !!editingExpenseId;
-      const expenseId = wasEditing ? editingExpenseId : ('EXP-' + Date.now().toString().slice(-8));
-      const payload = { id: expenseId, name, date, amount, category, notes };
-      
-      if (wasEditing) {
-        const index = expenses.findIndex(e => e.id === editingExpenseId);
-        if (index >= 0) expenses[index] = payload;
-      } else {
-        expenses.unshift(payload);
+      const expenseId = wasEditing
+        ? editingExpenseId
+        : ('EXP-' + Date.now().toString().slice(-8));
+
+      const payload = {
+        id: expenseId,
+        user_id: currentUser.id,
+        name,
+        date,
+        amount,
+        category,
+        notes
+      };
+
+      try {
+        const { error } = await supabaseClient
+          .from('expenses')
+          .upsert([payload], { onConflict: 'id' });
+
+        if (error) throw error;
+
+        await syncExpensesFromSupabase();
+        resetExpenseForm();
+        alert(wasEditing ? 'Expense updated successfully.' : 'Expense saved successfully.');
+      } catch(e) {
+        console.error('Expense save failed:', e);
+        alert('Expense could not be saved. Please try again.');
       }
-      saveExpenses();
-      if (currentUser) {
-        try {
-          await supabaseClient.from('expenses').upsert([{
-            id: expenseId,
-            user_id: currentUser.id,
-            name,
-            date,
-            amount,
-            category,
-            notes
-          }]);
-        } catch(e) { console.log('Expense sync failed:', e); }
-      }
-      resetExpenseForm();
-      alert(wasEditing ? 'Expense updated successfully.' : 'Expense saved successfully.');
     }
     function editExpense(id) {
       const e = expenses.find(x => x.id === id); if (!e) return;
@@ -2104,22 +2259,33 @@
       document.getElementById('expenseName').focus();
     }
     function cancelExpenseEdit() { resetExpenseForm(); }
-    async function deleteExpense(id) {
+        async function deleteExpense(id) {
       const e = expenses.find(x => x.id === id);
       if (!e || !confirm('Delete this expense?')) return;
-      expenses = expenses.filter(x => x.id !== id);
-      saveExpenses();
-      if (currentUser) {
-        try {
-          await supabaseClient.from('expenses').delete().eq('id', id).eq('user_id', currentUser.id);
-        } catch(err) { console.log('Delete expense sync failed:', err); }
+      if (!currentUser) return;
+
+      try {
+        const { error } = await supabaseClient
+          .from('expenses')
+          .delete()
+          .eq('id', id)
+          .eq('user_id', currentUser.id);
+
+        if (error) throw error;
+        await syncExpensesFromSupabase();
+      } catch(err) {
+        console.error('Delete expense failed:', err);
+        alert('Expense could not be deleted. Please try again.');
       }
     }
-    async function saveSale() {
+        async function saveSale() {
       const date = document.getElementById('saleDate').value;
       const items = collectSaleItems();
       const receivedAmount = Number(document.getElementById('receivedAmount').value || 0);
-      const deliveryAmount = selectedDelivery ? Number(document.getElementById('deliveryAmount').value || 0) : 0;
+      const deliveryAmount = selectedDelivery
+        ? Number(document.getElementById('deliveryAmount').value || 0)
+        : 0;
+
       if (!date || !items.length || items.some(item => !item.perfumeName)) {
         alert('Please enter a date and complete every perfume row.');
         return;
@@ -2136,13 +2302,20 @@
         alert('Please enter a valid delivery amount.');
         return;
       }
+      if (!currentUser) {
+        alert('Please log in before saving a sale.');
+        return;
+      }
+
       if (editingSaleId) {
         await updateSale(editingSaleId);
         return;
       }
+
       const id = 'GLM-' + Date.now().toString().slice(-8);
       const sale = {
-        id, items,
+        id,
+        items,
         perfumeName:items[0].perfumeName,
         size:items[0].size,
         quantity:getSalePerfumeCount({items}),
@@ -2156,47 +2329,85 @@
         dateTime:new Date().toLocaleString(),
         status:'confirmed'
       };
-      activeOrders.unshift(sale);
-      completedHistory = [...activeOrders];
-      completedOrdersCount = activeOrders.length;
-      saveLocalSales();
-      adjustStockForSale(sale, 1);
-      await persistSaleToSupabase(sale);
+
+      const saleSaved = await persistSaleToSupabase(sale);
+      if (!saleSaved) {
+        alert('Sale could not be saved. Please try again.');
+        return;
+      }
+
+      const stockSaved = await adjustStockForSale(sale, 1);
+      if (!stockSaved) {
+        // The sale exists in the database; refresh from the database so the
+        // UI cannot invent a device-local stock state.
+        await syncSalesFromSupabase();
+        await syncStockFromSupabase();
+        alert('Sale was saved, but stock could not be updated. Please try again.');
+        return;
+      }
+
+      await syncSalesFromSupabase();
+      await syncStockFromSupabase();
       renderBookings();
       renderHistory();
       renderSalesProgress();
       updateLoyaltyUI();
+
       alert('Sale saved successfully.');
       resetSaleForm();
       switchTab('screen-bookings', document.querySelector('#mainNavBar .nav-item:nth-child(3)'));
     }
-    async function persistSaleToSupabase(sale) {
-      if (!currentUser) return;
+        async function persistSaleToSupabase(sale) {
+      if (!currentUser) return false;
+
       const meta = {
-        type:'glamo_sale', date:sale.date, items:sale.items,
-        perfumeName:sale.perfumeName, size:sale.size,
-        paymentMethod:sale.paymentMethod, paymentProvider:sale.paymentProvider,
-        receivedAmount:sale.receivedAmount, saleAmount:sale.receivedAmount,
-        deliveryAmount:sale.deliveryAmount, cashReceived:sale.cashReceived
+        type:'glamo_sale',
+        date:sale.date,
+        items:sale.items,
+        perfumeName:sale.perfumeName,
+        size:sale.size,
+        paymentMethod:sale.paymentMethod,
+        paymentProvider:sale.paymentProvider,
+        receivedAmount:sale.receivedAmount,
+        saleAmount:sale.receivedAmount,
+        deliveryAmount:sale.deliveryAmount,
+        cashReceived:sale.cashReceived
       };
+
       try {
         const payload = {
           order_id: sale.id,
           user_id: currentUser.id,
-          items: sale.items.map(item => ({name:item.perfumeName, size:item.size, qty:item.quantity, price:item.price})),
+          items: sale.items.map(item => ({
+            name:item.perfumeName,
+            size:item.size,
+            qty:item.quantity,
+            price:item.price
+          })),
           total: saleTotal(sale),
           location: '',
           instructions: JSON.stringify(meta),
           payment_method: sale.paymentMethod + (sale.paymentProvider ? ' - ' + sale.paymentProvider : ''),
           status: sale.status || 'confirmed'
         };
+
+        // Stable sale ID is order_id. This upsert updates the existing row
+        // instead of inserting a second transaction.
         if (sale.dbId) payload.id = sale.dbId;
-        const { data, error } = await supabaseClient.from('orders').upsert(
-          [payload], 
-          { onConflict: 'order_id' }
-        ).select('id').single();
-        if (!error && data) { sale.dbId = data.id; saveLocalSales(); }
-      } catch(e) { console.log('Sale cloud sync unavailable; kept locally.', e); }
+
+        const { data, error } = await supabaseClient
+          .from('orders')
+          .upsert([payload], { onConflict: 'order_id' })
+          .select('id')
+          .single();
+
+        if (error) throw error;
+        if (data) sale.dbId = data.id;
+        return true;
+      } catch(e) {
+        console.error('Sale cloud save failed:', e);
+        return false;
+      }
     }
     function resetSaleForm() {
       editingSaleId = null;
@@ -2274,14 +2485,15 @@
     function cancelSaleEdit() {
       resetSaleForm();
     }
-    async function updateSale(id) {
+        async function updateSale(id) {
       let index = activeOrders.findIndex(x => x.id === id);
       let isArchived = false;
+
       if (index < 0) {
         index = archivedSales.findIndex(x => x.id === id);
         isArchived = true;
       }
-      if (index < 0) return;
+      if (index < 0 || !currentUser) return;
 
       const targetList = isArchived ? archivedSales : activeOrders;
       const oldSale = targetList[index];
@@ -2289,7 +2501,9 @@
       const date = document.getElementById('saleDate').value;
       const items = collectSaleItems();
       const receivedAmount = Number(document.getElementById('receivedAmount').value || 0);
-      const deliveryAmount = selectedDelivery ? Number(document.getElementById('deliveryAmount').value || 0) : 0;
+      const deliveryAmount = selectedDelivery
+        ? Number(document.getElementById('deliveryAmount').value || 0)
+        : 0;
 
       if (!date || !items.length || items.some(item => !item.perfumeName)) {
         alert('Please enter a date and complete every perfume row.');
@@ -2299,12 +2513,15 @@
         alert('Please enter the actual amount received.');
         return;
       }
+      if (selectedSalePayment === 'mobile' && !selectedMobileProvider) {
+        alert('Please select CRDB, M-PESA, Mixx by Yas or HaloPesa.');
+        return;
+      }
 
-      // Revert stock from old sale, apply stock for new sale details
-      adjustStockForSale(oldSale, -1);
-
+      // Do not create a new sale ID. The original stable sale ID is retained.
       const updatedSale = {
         ...oldSale,
+        id: oldSale.id,
         items,
         perfumeName: items[0].perfumeName,
         size: items[0].size,
@@ -2318,14 +2535,36 @@
         cashReceived: selectedSalePayment === 'cash' ? receivedAmount : 0
       };
 
-      targetList[index] = updatedSale;
-      adjustStockForSale(updatedSale, 1);
+      // First update the database record. Upsert uses the stable order_id.
+      const saleSaved = await persistSaleToSupabase(updatedSale);
+      if (!saleSaved) {
+        alert('Sale could not be updated. Please try again.');
+        return;
+      }
 
+      // Rebuild stock from the old sale to the new sale.
+      const oldStockRestored = await adjustStockForSale(oldSale, -1);
+      if (!oldStockRestored) {
+        await syncSalesFromSupabase();
+        await syncStockFromSupabase();
+        alert('Sale was updated, but stock could not be adjusted. Please refresh and try again.');
+        return;
+      }
+
+      const newStockApplied = await adjustStockForSale(updatedSale, 1);
+      if (!newStockApplied) {
+        await syncSalesFromSupabase();
+        await syncStockFromSupabase();
+        alert('Sale was updated, but stock could not be adjusted. Please refresh and try again.');
+        return;
+      }
+
+      targetList[index] = updatedSale;
       completedHistory = [...activeOrders];
       completedOrdersCount = activeOrders.length;
-      saveLocalSales();
-      await persistSaleToSupabase(updatedSale);
 
+      await syncSalesFromSupabase();
+      await syncStockFromSupabase();
       renderBookings();
       renderHistory();
       renderArchive();
@@ -2337,43 +2576,52 @@
       switchTab('screen-bookings', document.querySelector('#mainNavBar .nav-item:nth-child(3)'));
     }
 
-    async function deleteSale(id) {
+        async function deleteSale(id) {
       let sale = activeOrders.find(x => x.id === id);
       let isArchived = false;
+
       if (!sale) {
         sale = archivedSales.find(x => x.id === id);
         isArchived = true;
       }
+
       if (!sale || !confirm('Are you sure you want to delete this sale record?')) return;
+      if (!currentUser) return;
 
-      if (isArchived) {
-        archivedSales = archivedSales.filter(x => x.id !== id);
-      } else {
-        activeOrders = activeOrders.filter(x => x.id !== id);
-      }
+      try {
+        const { error } = await supabaseClient
+          .from('orders')
+          .delete()
+          .eq('order_id', id)
+          .eq('user_id', currentUser.id);
 
-      if (!deletedSaleIds.includes(id)) {
-        deletedSaleIds.push(id);
-      }
+        if (error) throw error;
 
-      adjustStockForSale(sale, -1);
-      completedHistory = [...activeOrders];
-      completedOrdersCount = activeOrders.length;
-      saveLocalSales();
-
-      if (currentUser) {
-        try {
-          await supabaseClient.from('orders').delete().eq('order_id', id).eq('user_id', currentUser.id);
-        } catch(e) {
-          console.log('Error deleting sale from Supabase:', e);
+        // Only update in-memory state after the database deletion succeeds.
+        if (isArchived) {
+          archivedSales = archivedSales.filter(x => x.id !== id);
+        } else {
+          activeOrders = activeOrders.filter(x => x.id !== id);
         }
-      }
 
-      renderBookings();
-      renderHistory();
-      renderArchive();
-      renderSalesProgress();
-      updateLoyaltyUI();
+        deletedSaleIds = [];
+        completedHistory = [...activeOrders];
+        completedOrdersCount = activeOrders.length;
+
+        await adjustStockForSale(sale, -1);
+        await syncSalesFromSupabase();
+        await syncStockFromSupabase();
+
+        renderBookings();
+        renderHistory();
+        renderArchive();
+        renderSalesProgress();
+        updateLoyaltyUI();
+      } catch(e) {
+        console.error('Error deleting sale from Supabase:', e);
+        await syncSalesFromSupabase();
+        alert('Sale could not be deleted. Please try again.');
+      }
     }
 
     function toggleArchive() {
@@ -2412,19 +2660,19 @@
       }).join('');
     }
 
-    async function unarchiveSale(id) {
-      const index = archivedSales.findIndex(x => x.id === id);
-      if (index < 0) return;
-      const sale = archivedSales[index];
-      sale.status = 'confirmed';
-      archivedSales.splice(index, 1);
-      activeOrders.unshift(sale);
+        async function unarchiveSale(id) {
+      const sale = archivedSales.find(x => x.id === id);
+      if (!sale || !currentUser) return;
 
-      completedHistory = [...activeOrders];
-      completedOrdersCount = activeOrders.length;
-      saveLocalSales();
-      await persistSaleToSupabase(sale);
+      const updatedSale = { ...sale, status: 'confirmed' };
 
+      const saved = await persistSaleToSupabase(updatedSale);
+      if (!saved) {
+        alert('Sale could not be restored. Please try again.');
+        return;
+      }
+
+      await syncSalesFromSupabase();
       renderBookings();
       renderHistory();
       renderArchive();
@@ -2620,74 +2868,102 @@
       renderStockList();
     }
 
-    function saveStockItem() {
+    async function saveStockItem() {
       const name = document.getElementById('stockPerfumeName').value.trim();
       const qty = Number(document.getElementById('stockQuantity').value || 0);
       const threshold = Number(document.getElementById('stockThreshold').value || 5);
 
       if (!name) { alert('Please enter perfume name.'); return; }
+      if (!currentUser) { alert('Please log in before saving stock.'); return; }
 
-      const existingIndex = stockItems.findIndex(i => i.name.toLowerCase() === name.toLowerCase());
-      if (existingIndex >= 0) {
-        stockItems[existingIndex].quantity = qty;
-        stockItems[existingIndex].threshold = threshold;
-      } else {
-        stockItems.push({ id: 'STK-' + Date.now(), name, quantity: qty, threshold });
+      const existingIndex = stockItems.findIndex(
+        i => i.name.toLowerCase() === name.toLowerCase()
+      );
+
+      const item = existingIndex >= 0
+        ? { ...stockItems[existingIndex], quantity: qty, threshold }
+        : { id: 'STK-' + Date.now(), name, quantity: qty, threshold };
+
+      try {
+        const payload = {
+          stock_id: item.id,
+          user_id: currentUser.id,
+          perfume_name: item.name,
+          quantity: item.quantity,
+          threshold: item.threshold
+        };
+
+        const { error } = await supabaseClient
+          .from('stock')
+          .upsert([payload], { onConflict: 'stock_id' });
+
+        if (error) throw error;
+
+        await syncStockFromSupabase();
+        renderStockList();
+        renderStockAlerts();
+
+        document.getElementById('stockPerfumeName').value = '';
+        document.getElementById('stockQuantity').value = '';
+        document.getElementById('stockThreshold').value = '';
+        alert('Stock saved successfully.');
+      } catch (e) {
+        console.error('Stock save failed:', e);
+        alert('Stock could not be saved. Please try again.');
       }
-
-      saveLocalStock();
-      persistStockToSupabase();
-      renderStockList();
-      renderStockAlerts();
-
-      document.getElementById('stockPerfumeName').value = '';
-      document.getElementById('stockQuantity').value = '';
-      document.getElementById('stockThreshold').value = '';
-      alert('Stock saved successfully.');
     }
 
     function saveLocalStock() {
-      localStorage.setItem(getStockStorageKey(), JSON.stringify(stockItems));
+      // Compatibility helper only. No browser persistence is performed.
+      renderStockList();
+      renderStockAlerts();
     }
 
     function loadLocalStock() {
-      try {
-        const saved = JSON.parse(localStorage.getItem(getStockStorageKey()) || '[]');
-        stockItems = Array.isArray(saved) ? saved : [];
-      } catch {
-        stockItems = [];
-      }
+      stockItems = [];
+      renderStockList();
+      renderStockAlerts();
     }
 
     async function syncStockFromSupabase() {
-      if (!currentUser) { loadLocalStock(); return; }
+      if (!currentUser) {
+        stockItems = [];
+        renderStockList();
+        renderStockAlerts();
+        return false;
+      }
+
       try {
         const { data, error } = await supabaseClient
           .from('stock')
           .select('*')
           .eq('user_id', currentUser.id);
+
         if (error) throw error;
-        if (data && data.length) {
-          stockItems = data.map(row => ({
-            id: row.stock_id || row.id,
-            dbId: row.id,
-            name: row.perfume_name,
-            quantity: Number(row.quantity || 0),
-            threshold: Number(row.threshold || 5)
-          }));
-          saveLocalStock();
-        } else {
-          loadLocalStock();
-        }
+
+        // A successful cloud query is authoritative, including an empty result.
+        stockItems = (data || []).map(row => ({
+          id: row.stock_id || row.id,
+          dbId: row.id,
+          name: row.perfume_name,
+          quantity: Number(row.quantity || 0),
+          threshold: Number(row.threshold || 5)
+        }));
+
+        renderStockList();
+        renderStockAlerts();
+        return true;
       } catch(e) {
-        console.log('Stock sync unavailable, using local cache:', e);
-        loadLocalStock();
+        console.error('Unable to load stock from Supabase:', e);
+        stockItems = [];
+        renderStockList();
+        renderStockAlerts();
+        return false;
       }
-      renderStockAlerts();
     }
 
     async function persistStockToSupabase() {
-      if (!currentUser) return;
+      if (!currentUser) return false;
       try {
         const payloads = stockItems.map(item => ({
           stock_id: item.id,
@@ -2696,27 +2972,45 @@
           quantity: item.quantity,
           threshold: item.threshold
         }));
-        await supabaseClient.from('stock').upsert(payloads, { onConflict: 'stock_id' });
+
+        if (!payloads.length) return true;
+
+        const { error } = await supabaseClient
+          .from('stock')
+          .upsert(payloads, { onConflict: 'stock_id' });
+
+        if (error) throw error;
+        return true;
       } catch(e) {
-        console.log('Stock cloud save error:', e);
+        console.error('Stock cloud save error:', e);
+        return false;
       }
     }
 
-    function adjustStockForSale(sale, multiplier = 1) {
+        async function adjustStockForSale(sale, multiplier = 1) {
       const items = getSaleItems(sale);
       let changed = false;
+
       items.forEach(item => {
-        const match = stockItems.find(s => s.name.toLowerCase() === item.perfumeName.toLowerCase());
+        const match = stockItems.find(
+          s => s.name.toLowerCase() === item.perfumeName.toLowerCase()
+        );
         if (match) {
-          match.quantity = Math.max(0, match.quantity - (item.quantity * multiplier));
+          match.quantity = Math.max(
+            0,
+            match.quantity - (item.quantity * multiplier)
+          );
           changed = true;
         }
       });
-      if (changed) {
-        saveLocalStock();
-        persistStockToSupabase();
-        renderStockAlerts();
-      }
+
+      if (!changed) return true;
+
+      const ok = await persistStockToSupabase();
+      if (!ok) return false;
+
+      renderStockAlerts();
+      return true;
     }
 
     function renderStockList() {
