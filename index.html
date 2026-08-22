@@ -746,44 +746,54 @@
     .archive-list-collapsed { display:none; }
     .archive-list-collapsed.open { display:block; margin-top:10px; }
     
-  .expenses-card { background:var(--card-bg); border:1px solid var(--card-border); border-radius:18px; padding:16px; margin-bottom:14px; box-shadow:0 4px 12px var(--shadow-color); }
-  .expense-category-card { background:var(--card-bg); border:1px solid var(--card-border); border-radius:14px; margin-bottom:9px; overflow:hidden; }
-  .expense-category-header { width:100%; background:var(--card-bg-sub); border:none; color:var(--text-main); padding:12px 13px; display:flex; align-items:center; justify-content:space-between; gap:10px; cursor:pointer; text-align:left; }
-  .expense-category-title-wrap { display:flex; align-items:center; gap:9px; min-width:0; }
-  .expense-category-icon { width:30px; height:30px; border-radius:9px; background:var(--accent-gold-light); color:var(--accent-gold); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
-  .expense-category-name { font-size:.82rem; font-weight:900; }
-  .expense-category-summary { font-size:.67rem; color:var(--text-sub); margin-top:2px; }
-  .expense-category-arrow { color:var(--text-sub); font-size:.75rem; transition:transform .2s ease; }
-  .expense-category-header.active .expense-category-arrow { transform:rotate(180deg); color:var(--accent-gold); }
-  .expense-category-content { display:none; padding:12px; border-top:1px solid var(--card-border); }
-  .expense-category-content.active { display:block; animation:fadeIn .2s ease-in-out; }
-  .expense-mini-form { background:var(--card-bg-sub); border:1px solid var(--card-border); border-radius:12px; padding:11px; }
-  .expense-mini-form .form-group { margin-bottom:9px; }
-  .expense-mini-form .form-group:last-child { margin-bottom:0; }
-  .expense-mini-label { display:block; font-size:.72rem; font-weight:800; color:var(--text-sub); margin-bottom:5px; }
-  .expense-mini-form input, .expense-mini-form textarea { width:100%; background:var(--input-bg); border:1.5px solid var(--input-border); border-radius:9px; padding:9px 10px; color:var(--text-main); font-size:.82rem; outline:none; }
-  .expense-add-btn { width:100%; background:var(--accent-gold); color:#111; border:none; border-radius:10px; padding:10px; font-size:.8rem; font-weight:900; cursor:pointer; margin-top:2px; }
-  .expense-another-btn { width:100%; background:transparent; border:1px dashed var(--accent-gold); color:var(--accent-gold); border-radius:10px; padding:8px; font-size:.75rem; font-weight:900; cursor:pointer; margin-top:8px; }
-  .expense-category-items { margin-bottom:9px; }
-  .expense-category-record { display:flex; align-items:center; justify-content:space-between; gap:8px; padding:8px 9px; background:var(--card-bg); border:1px solid var(--card-border); border-radius:9px; margin-bottom:6px; }
-  .expense-category-record-name { font-size:.76rem; font-weight:800; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-  .expense-category-record-amount { font-size:.75rem; font-weight:900; color:var(--accent-gold); white-space:nowrap; }
-  .expense-category-record-actions { display:flex; gap:5px; flex-shrink:0; }
-  .expense-category-record-action { border:1px solid var(--card-border); background:var(--card-bg-sub); color:var(--text-main); border-radius:7px; padding:5px 7px; font-size:.65rem; font-weight:800; cursor:pointer; }
-  .expense-category-record-action.delete { color:#e74c3c; border-color:#e74c3c; }
-  .expense-item { background:var(--card-bg); border:1px solid var(--card-border); border-radius:12px; padding:11px; margin-bottom:8px; }
-  .expense-item-head { display:flex; justify-content:space-between; align-items:flex-start; gap:10px; }
-  .expense-name { font-size:.82rem; font-weight:900; }
-  .expense-meta { font-size:.68rem; color:var(--text-sub); margin-top:3px; }
-  .expense-amount { font-size:.82rem; font-weight:900; color:var(--accent-gold); white-space:nowrap; }
-  .expense-notes { font-size:.72rem; color:var(--text-sub); margin-top:6px; line-height:1.4; }
-  .expense-actions { display:flex; gap:6px; margin-top:8px; }
-  .expense-action { flex:1; padding:6px; border-radius:8px; border:1px solid var(--card-border); background:var(--card-bg-sub); color:var(--text-main); font-size:.68rem; font-weight:800; cursor:pointer; }
-  .expense-action.delete { color:#e74c3c; border-color:#e74c3c; }
-  .expense-empty { font-size:.78rem; color:var(--text-sub); text-align:center; padding:14px 4px; }
-  .expense-total-box { background:var(--card-bg-sub); border:1.5px solid var(--accent-gold); border-radius:12px; padding:11px 13px; display:flex; justify-content:space-between; align-items:center; }
-  .expense-total-label { font-size:.75rem; font-weight:800; color:var(--text-sub); }
-  .expense-total-value { font-size:1rem; font-weight:900; }
+    .expenses-card { background:var(--card-bg); border:1px solid var(--card-border); border-radius:18px; padding:16px; margin-bottom:14px; box-shadow:0 4px 12px var(--shadow-color); }
+    .expense-item { background:var(--card-bg); border:1px solid var(--card-border); border-radius:14px; padding:12px; margin-bottom:10px; }
+    .expense-item-head { display:flex; justify-content:space-between; align-items:flex-start; gap:10px; }
+    .expense-name { font-size:.88rem; font-weight:900; }
+    .expense-meta { font-size:.7rem; color:var(--text-sub); margin-top:3px; }
+    .expense-amount { font-size:.9rem; font-weight:900; color:var(--accent-gold); white-space:nowrap; }
+    .expense-notes { font-size:.74rem; color:var(--text-sub); margin-top:7px; line-height:1.4; }
+    .expense-actions { display:flex; gap:7px; margin-top:9px; }
+    .expense-action { flex:1; padding:7px; border-radius:9px; border:1px solid var(--card-border); background:var(--card-bg-sub); color:var(--text-main); font-size:.72rem; font-weight:800; cursor:pointer; }
+    .expense-action.delete { color:#e74c3c; border-color:#e74c3c; }
+    .expense-empty { font-size:.78rem; color:var(--text-sub); text-align:center; padding:14px 4px; }
+    .expense-total-box { background:var(--card-bg-sub); border:1.5px solid var(--accent-gold); border-radius:12px; padding:11px 13px; margin-bottom:12px; display:flex; justify-content:space-between; align-items:center; }
+    .expense-total-label { font-size:.75rem; font-weight:800; color:var(--text-sub); }
+    .expense-total-value { font-size:1rem; font-weight:900; }
+  .expense-category-list { display:flex; flex-direction:column; gap:10px; }
+  .expense-category-card { background:var(--card-bg); border:1px solid var(--card-border); border-radius:16px; overflow:hidden; box-shadow:0 4px 12px var(--shadow-color); }
+  .expense-category-header { width:100%; border:0; background:var(--card-bg); color:var(--text-main); padding:13px 14px; display:flex; align-items:center; justify-content:space-between; gap:12px; text-align:left; cursor:pointer; }
+  .expense-category-header:active { transform:scale(.995); }
+  .expense-category-main { min-width:0; flex:1; }
+  .expense-category-title { font-size:.88rem; font-weight:900; }
+  .expense-category-summary { margin-top:3px; font-size:.7rem; color:var(--text-sub); }
+  .expense-category-chevron { flex-shrink:0; color:var(--accent-gold); transition:transform .25s ease; }
+  .expense-category-card.open .expense-category-chevron { transform:rotate(180deg); }
+  .expense-category-content { display:none; padding:0 14px 14px; border-top:1px solid var(--card-border); }
+  .expense-category-card.open .expense-category-content { display:block; }
+  .expense-entry-compact { padding-top:13px; }
+  .expense-entry-compact .form-group { margin-bottom:10px; }
+  .expense-entry-compact .sales-save-btn { margin-top:0; }
+  .expense-feedback { min-height:18px; margin:7px 0 2px; font-size:.72rem; color:var(--accent-gold); font-weight:800; text-align:center; }
+  .expense-records-title { font-size:.9rem; font-weight:900; margin:18px 0 10px; }
+  .expense-record-category { font-size:.68rem; color:var(--accent-gold); font-weight:900; margin-top:2px; }
+  .expense-record-date { font-size:.68rem; color:var(--text-sub); margin-top:2px; }
+  .expense-record-desc { font-size:.84rem; font-weight:900; margin-top:2px; overflow-wrap:anywhere; }
+  .expense-records-empty { font-size:.78rem; color:var(--text-sub); text-align:center; padding:12px 4px; }
+  .expense-category-records { margin-top:12px; }
+  .expense-category-record { padding:9px 0; border-top:1px solid var(--card-border); }
+  .expense-category-record:first-child { border-top:none; }
+  .expense-category-record-head { display:flex; align-items:flex-start; justify-content:space-between; gap:10px; }
+  .expense-category-record-name { font-size:.8rem; font-weight:900; overflow-wrap:anywhere; }
+  .expense-category-record-amount { font-size:.8rem; font-weight:900; color:var(--accent-gold); white-space:nowrap; }
+  .expense-category-record-meta { font-size:.68rem; color:var(--text-sub); margin-top:2px; }
+  .expense-category-record-actions { display:flex; gap:6px; margin-top:7px; }
+  .expense-category-record-actions .expense-action { padding:6px; }
+  .expense-add-another { width:100%; margin-top:8px; }
+  
+    .auth-forgot { font-size: 0.82rem; color: var(--accent-gold); margin-top: 10px; cursor: pointer; font-weight: 700; text-align: center; }
+    .auth-reset-message { font-size: 0.82rem; color: var(--accent-gold); margin-top: 10px; min-height: 18px; text-align: center; }
+    
     /* STOCKS & ACCORDION STYLES */
     .stock-header-wrapper {
       display: flex;
@@ -1041,21 +1051,33 @@
 
     <div class="expenses-card">
       <h3 style="font-size:1rem;font-weight:900;margin-bottom:12px;">Expense Categories</h3>
-      <div id="expenseCategories"></div>
+      <div id="expenseCategoryList" class="expense-category-list"></div>
     </div>
 
     <div class="expenses-card">
-      <div class="section-title" style="font-size:.95rem;margin-bottom:10px;">
-        <i class="fa-solid fa-list-check" style="color:var(--accent-gold);"></i> Expense Records
-      </div>
+      <div class="expense-records-title">EXPENSE RECORDS</div>
       <div id="expensesList"></div>
-      <div class="expense-total-box" style="margin-top:12px;margin-bottom:0;">
+    </div>
+
+    <div class="expenses-card">
+      <div class="expense-total-box">
         <span class="expense-total-label">TOTAL EXPENSES</span>
         <span id="expenseTotalValue" class="expense-total-value">0 TZS</span>
       </div>
     </div>
+
+    <!-- Preserved edit form state; the visible entry form is rendered inside the open category. -->
+    <div id="expenseEditState" style="display:none;">
+      <input id="expenseName" type="text">
+      <input id="expenseDate" class="date-control" type="date">
+      <input id="expenseAmount" class="number-control" type="number">
+      <textarea id="expenseNotes"></textarea>
+      <select id="expenseCategory" class="select-control"></select>
+      <span id="expenseFormTitle"></span>
+      <button id="expenseSaveBtn"></button>
+      <button id="expenseCancelBtn"></button>
+    </div>
   </div>
-  <!-- SCREEN 2: PERFUME SALE ENTRY -->
   <!-- SCREEN 2: PERFUME SALE ENTRY -->
   <div id="screen-perfumes" class="app-screen">
     <div class="section-title">
@@ -1579,7 +1601,7 @@
         user_id: row.user_id,
         perfumeName: row.perfume_name || 'Unknown Perfume',
         
-      mls: row.mls || '10 ml',quantity: Number(row.quantity || 1),
+      mls: row.mls || '',quantity: Number(row.quantity || 1),
         price: Number(row.price || 0),
         total: Number(row.total || 0),
         paymentMethod: row.payment_method || '',
@@ -1805,7 +1827,7 @@ quantity: quantity,
       
       document.getElementById('salePerfumeName').value = sale.perfumeName;
       
-  document.getElementById('saleMls').value = sale.mls || '10 ml';document.getElementById('saleQuantity').value = sale.quantity;
+  document.getElementById('saleMls').value = sale.mls || '';document.getElementById('saleQuantity').value = sale.quantity;
       document.getElementById('salePrice').value = sale.price;
       document.getElementById('saleDate').value = sale.date;
       calculateCurrentTotal();
@@ -1855,7 +1877,7 @@ quantity: quantity,
             <span style="color:var(--accent-gold);">${money(sale.total)}</span>
           </div>
           <div style="font-size:0.78rem; color:var(--text-sub); margin-top:4px;">
-            MLS: ${escapeHtml(sale.mls || '10 ml')} | Quantity: ${sale.quantity} | Price: ${money(sale.price)}
+            MLS: ${escapeHtml(sale.mls || '—')} | Quantity: ${sale.quantity} | Price: ${money(sale.price)}
           </div>
           <div style="font-size:0.78rem; color:var(--text-sub); margin-top:2px;">
             Payment: <strong>${escapeHtml(sale.paymentMethod)}</strong> | Date: ${sale.date}
@@ -1881,7 +1903,7 @@ quantity: quantity,
             <span style="color:var(--accent-gold);">${money(sale.total)}</span>
           </div>
           <div style="font-size:0.8rem; color:var(--text-sub); margin-top:6px;">
-            MLS: ${escapeHtml(sale.mls || '10 ml')} | Qty: ${sale.quantity} × ${money(sale.price)}
+            MLS: ${escapeHtml(sale.mls || '—')} | Qty: ${sale.quantity} × ${money(sale.price)}
           </div>
           <div style="font-size:0.8rem; color:var(--text-sub); margin-top:2px;">
             Payment Method: <strong>${escapeHtml(sale.paymentMethod)}</strong>
@@ -2038,292 +2060,325 @@ function updateLoyaltyUI() {
       });
     }
     /* EXPENSES LOGIC */
-    let editingExpenseId = null;
-    let activeExpenseCategory = null;
+  let editingExpenseId = null;
+  let activeExpenseCategory = null;
 
-    const EXPENSE_CATEGORIES = [
-      'Stock Purchase',
-      'Packaging & Supplies',
-      'Transport & Delivery',
-      'Staff Expenses',
-      'Utilities & Rent',
-      'Business Operations',
-      'Owner Drawings',
-      'Loans & Debts',
-      'Cash Transfer'
-    ];
+  const EXPENSE_CATEGORIES = [
+    'Stock Purchase',
+    'Packaging & Supplies',
+    'Transport & Delivery',
+    'Staff Expenses',
+    'Utilities & Rent',
+    'Business Operations',
+    'Owner Drawings',
+    'Loans & Debts',
+    'Cash Transfer'
+  ];
 
-    function expenseCategoryIcon(category) {
-      const icons = {
-        'Stock Purchase':'fa-boxes-stacked',
-        'Packaging & Supplies':'fa-box-open',
-        'Transport & Delivery':'fa-truck',
-        'Staff Expenses':'fa-users',
-        'Utilities & Rent':'fa-building',
-        'Business Operations':'fa-briefcase',
-        'Owner Drawings':'fa-user',
-        'Loans & Debts':'fa-hand-holding-dollar',
-        'Cash Transfer':'fa-money-bill-transfer'
-      };
-      return icons[category] || 'fa-receipt';
-    }
+  // Legacy values are only interpreted for display so historical records remain usable.
+  // New and edited records always use one of the nine exact categories above.
+  const LEGACY_EXPENSE_CATEGORY_MAP = {
+    'General': 'Business Operations',
+    'Stock': 'Stock Purchase',
+    'Packaging': 'Packaging & Supplies',
+    'Delivery': 'Transport & Delivery',
+    'Transport': 'Transport & Delivery',
+    'Marketing': 'Business Operations',
+    'Utilities': 'Utilities & Rent',
+    'Other': 'Business Operations'
+  };
 
-    function expenseCategoryItems(category) {
-      return expenses.filter(e => String(e.category || '') === category);
-    }
+  function expenseCategoryForRecord(expense) {
+    const raw = String(expense?.category || '').trim();
+    return EXPENSE_CATEGORIES.includes(raw)
+      ? raw
+      : (LEGACY_EXPENSE_CATEGORY_MAP[raw] || 'Business Operations');
+  }
 
-    function toggleExpenseCategory(category) {
-      activeExpenseCategory = activeExpenseCategory === category ? null : category;
-      if (editingExpenseId) editingExpenseId = null;
-      renderExpenseCategories();
-    }
+  function expensesForCategory(category) {
+    return expenses.filter(e => expenseCategoryForRecord(e) === category);
+  }
 
-    function renderExpenseCategories() {
-      const container = document.getElementById('expenseCategories');
-      if (!container) return;
+  function resetExpenseEntryFields() {
+    const name = document.getElementById('expenseName');
+    const date = document.getElementById('expenseDate');
+    const amount = document.getElementById('expenseAmount');
+    const notes = document.getElementById('expenseNotes');
+    if (name) name.value = '';
+    if (date) date.value = todayISO();
+    if (amount) amount.value = '';
+    if (notes) notes.value = '';
+  }
 
-      container.innerHTML = EXPENSE_CATEGORIES.map(category => {
-        const items = expenseCategoryItems(category);
-        const categoryTotal = items.reduce((sum,e) => sum + Number(e.amount || 0), 0);
-        const isActive = activeExpenseCategory === category;
+  function expenseEntryMarkup(category) {
+    const isEditing = Boolean(editingExpenseId);
+    const e = isEditing ? expenses.find(x => x.id === editingExpenseId) : null;
+    const name = e ? escapeHtml(e.name || '') : '';
+    const date = e ? escapeHtml(e.date || todayISO()) : todayISO();
+    const amount = e ? Number(e.amount || 0) : '';
+    const notes = e ? escapeHtml(e.notes || '') : '';
+    const title = isEditing ? 'Edit Expense' : 'Add Expense';
+    const button = isEditing
+      ? '<i class="fa-solid fa-floppy-disk"></i> Update Expense'
+      : '<i class="fa-solid fa-plus"></i> Add Expense';
 
-        const savedItems = items.length ? `
-          <div class="expense-category-items">
-            ${items.map(e => `
+    return `
+      <div class="expense-entry-compact">
+        <div class="form-group">
+          <label for="expenseName">What was purchased / Description</label>
+          <input id="expenseName" type="text" value="${name}" placeholder="e.g. Fragrance Oil">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="expenseAmount">Amount (TZS)</label>
+            <input id="expenseAmount" class="number-control" type="number" min="0" step="100" value="${amount}" placeholder="0">
+          </div>
+          <div class="form-group">
+            <label for="expenseDate">Date</label>
+            <input id="expenseDate" class="date-control" type="date" value="${date}">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="expenseNotes">Description / Notes (optional)</label>
+          <textarea id="expenseNotes" rows="2" placeholder="Optional notes">${notes}</textarea>
+        </div>
+        <button id="expenseSaveBtn" class="sales-save-btn" onclick="saveExpense()">${button}</button>
+        ${isEditing
+          ? '<button id="expenseCancelBtn" class="reorder-btn expense-add-another" onclick="cancelExpenseEdit()">Cancel Edit</button>'
+          : '<button type="button" class="reorder-btn expense-add-another" onclick="focusExpenseEntry()">+ Add Another</button>'}
+        <div id="expenseFeedback" class="expense-feedback"></div>
+      </div>
+    `;
+  }
+
+  function renderExpenseCategoryCards() {
+    const container = document.getElementById('expenseCategoryList');
+    if (!container) return;
+
+    container.innerHTML = EXPENSE_CATEGORIES.map(category => {
+      const records = expensesForCategory(category);
+      const total = records.reduce((sum, e) => sum + Number(e.amount || 0), 0);
+      const isOpen = activeExpenseCategory === category;
+      const recordMarkup = records.length
+        ? `<div class="expense-category-records">
+            ${records.slice(0, 8).map(e => `
               <div class="expense-category-record">
-                <div style="min-width:0;flex:1;">
+                <div class="expense-category-record-head">
                   <div class="expense-category-record-name">${escapeHtml(e.name)}</div>
-                  <div class="expense-meta">${escapeHtml(e.date)}</div>
+                  <div class="expense-category-record-amount">${money(e.amount)}</div>
                 </div>
-                <div class="expense-category-record-amount">${money(e.amount)}</div>
+                <div class="expense-category-record-meta">${escapeHtml(e.date || '')}</div>
+                ${e.notes ? `<div class="expense-notes">${escapeHtml(e.notes)}</div>` : ''}
                 <div class="expense-category-record-actions">
-                  <button class="expense-category-record-action" onclick="editExpense('${e.id}')"><i class="fa-solid fa-pen"></i></button>
-                  <button class="expense-category-record-action delete" onclick="deleteExpense('${e.id}')"><i class="fa-solid fa-trash"></i></button>
+                  <button class="expense-action" onclick="editExpense('${e.id}')"><i class="fa-solid fa-pen"></i> Edit</button>
+                  <button class="expense-action delete" onclick="deleteExpense('${e.id}')"><i class="fa-solid fa-trash"></i> Delete</button>
                 </div>
               </div>
             `).join('')}
+            ${records.length > 8 ? `<div class="expense-meta" style="padding-top:7px;">Showing the 8 most recent records. See EXPENSE RECORDS below for all records.</div>` : ''}
+          </div>`
+        : '<div class="expense-category-records"><div class="expense-records-empty">No expenses yet</div></div>';
+
+      return `
+        <div class="expense-category-card ${isOpen ? 'open' : ''}" id="expenseCategoryCard-${escapeHtml(category.replace(/[^a-zA-Z0-9]/g, '-'))}">
+          <button type="button" class="expense-category-header" onclick="toggleExpenseCategory('${escapeHtml(category)}')">
+            <span class="expense-category-main">
+              <span class="expense-category-title">${escapeHtml(category)}</span>
+              <span class="expense-category-summary">${records.length} item${records.length === 1 ? '' : 's'} • ${money(total)}</span>
+            </span>
+            <i class="fa-solid fa-chevron-down expense-category-chevron"></i>
+          </button>
+          ${isOpen ? `<div class="expense-category-content">
+            ${expenseEntryMarkup(category)}
+            ${recordMarkup}
+          </div>` : ''}
+        </div>
+      `;
+    }).join('');
+  }
+
+  function renderExpensesGlobalRecords() {
+    const list = document.getElementById('expensesList');
+    if (!list) return;
+
+    const sorted = [...expenses].sort((a,b) => {
+      const dateCompare = String(b.date || '').localeCompare(String(a.date || ''));
+      if (dateCompare !== 0) return dateCompare;
+      return String(b.id || '').localeCompare(String(a.id || ''));
+    });
+
+    if (!sorted.length) {
+      list.innerHTML = '<div class="expense-records-empty">No expenses yet</div>';
+      return;
+    }
+
+    list.innerHTML = sorted.map(e => `
+      <div class="expense-item">
+        <div class="expense-item-head">
+          <div>
+            <div class="expense-record-category">${escapeHtml(expenseCategoryForRecord(e))}</div>
+            <div class="expense-record-date">${escapeHtml(e.date || '')}</div>
+            <div class="expense-record-desc">${escapeHtml(e.name || '')}</div>
           </div>
-        ` : '';
+          <div class="expense-amount">${money(e.amount)}</div>
+        </div>
+        ${e.notes ? `<div class="expense-notes">${escapeHtml(e.notes)}</div>` : ''}
+        <div class="expense-actions">
+          <button class="expense-action" onclick="editExpense('${e.id}')"><i class="fa-solid fa-pen"></i> Edit</button>
+          <button class="expense-action delete" onclick="deleteExpense('${e.id}')"><i class="fa-solid fa-trash"></i> Delete</button>
+        </div>
+      </div>
+    `).join('');
+  }
 
-        const editor = isActive ? `
-          <div class="expense-category-content active">
-            ${savedItems}
-            <div class="expense-mini-form">
-              <div class="form-group">
-                <label class="expense-mini-label" for="expenseName">What was recorded?</label>
-                <input id="expenseName" type="text" placeholder="${category === 'Stock Purchase' ? 'e.g. Fragrance Oil' : 'e.g. Customer Delivery'}">
-              </div>
-              <div class="form-row">
-                <div class="form-group">
-                  <label class="expense-mini-label" for="expenseAmount">Amount (TZS)</label>
-                  <input id="expenseAmount" class="number-control" type="number" min="0" step="100" placeholder="0">
-                </div>
-                <div class="form-group">
-                  <label class="expense-mini-label" for="expenseDate">Date</label>
-                  <input id="expenseDate" class="date-control" type="date" value="${todayISO()}">
-                </div>
-              </div>
-              <div class="form-group">
-                <label class="expense-mini-label" for="expenseNotes">Description / Notes <span style="font-weight:600;">(optional)</span></label>
-                <textarea id="expenseNotes" rows="2" placeholder="Optional notes"></textarea>
-              </div>
-              <button id="expenseSaveBtn" class="expense-add-btn" onclick="saveExpense()">
-                <i class="fa-solid fa-plus"></i> ${editingExpenseId ? 'Update Expense' : 'Add & Continue'}
-              </button>
-              ${editingExpenseId ? '<button class="expense-another-btn" onclick="cancelExpenseEdit()">Cancel Edit</button>' : ''}
-            </div>
-            ${items.length ? '<button class="expense-another-btn" onclick="focusExpenseInput()"><i class="fa-solid fa-plus"></i> Add Another</button>' : ''}
-          </div>
-        ` : '';
+  function renderExpenses() {
+    const totalEl = document.getElementById('expenseTotalValue');
+    const total = EXPENSE_CATEGORIES.reduce(
+      (sum, category) => sum + expensesForCategory(category).reduce((s, e) => s + Number(e.amount || 0), 0),
+      0
+    );
+    if (totalEl) totalEl.textContent = money(total);
+    renderExpenseCategoryCards();
+    renderExpensesGlobalRecords();
+  }
 
-        return `
-          <div class="expense-category-card">
-            <button class="expense-category-header ${isActive ? 'active' : ''}" type="button" onclick="toggleExpenseCategory('${escapeHtml(category)}')">
-              <div class="expense-category-title-wrap">
-                <div class="expense-category-icon"><i class="fa-solid ${expenseCategoryIcon(category)}"></i></div>
-                <div>
-                  <div class="expense-category-name">${escapeHtml(category)}</div>
-                  <div class="expense-category-summary">${items.length ? `${items.length} item${items.length === 1 ? '' : 's'} • ${money(categoryTotal)}` : 'No items recorded'}</div>
-                </div>
-              </div>
-              <i class="fa-solid fa-chevron-down expense-category-arrow"></i>
-            </button>
-            ${editor}
-          </div>
-        `;
-      }).join('');
-    }
-
-    function focusExpenseInput() {
-      const input = document.getElementById('expenseName');
-      if (input) {
-        input.value = '';
-        const amount = document.getElementById('expenseAmount');
-        const notes = document.getElementById('expenseNotes');
-        if (amount) amount.value = '';
-        if (notes) notes.value = '';
-        input.focus();
-      }
-    }
-
-    function renderExpenses() {
-      const list = document.getElementById('expensesList');
-      const totalEl = document.getElementById('expenseTotalValue');
-      if (!list) return;
-
-      const sorted = [...expenses].sort((a,b) => {
-        return String(b.date || '').localeCompare(String(a.date || ''));
-      });
-      const total = sorted.reduce((sum,e) => sum + Number(e.amount || 0), 0);
-      if (totalEl) totalEl.textContent = money(total);
-
-      if (!sorted.length) {
-        list.innerHTML = '<div class="expense-empty">No expenses recorded yet.</div>';
-      } else {
-        list.innerHTML = sorted.map(e => `
-          <div class="expense-item">
-            <div class="expense-item-head">
-              <div>
-                <div class="expense-name">${escapeHtml(e.category || 'Expense')}</div>
-                <div class="expense-meta">${escapeHtml(e.name)} • ${escapeHtml(e.date)}</div>
-              </div>
-              <div class="expense-amount">${money(e.amount)}</div>
-            </div>
-            ${e.notes ? `<div class="expense-notes">${escapeHtml(e.notes)}</div>` : ''}
-            <div class="expense-actions">
-              <button class="expense-action" onclick="editExpense('${e.id}')"><i class="fa-solid fa-pen"></i> Edit</button>
-              <button class="expense-action delete" onclick="deleteExpense('${e.id}')"><i class="fa-solid fa-trash"></i> Delete</button>
-            </div>
-          </div>
-        `).join('');
-      }
-
-      renderExpenseCategories();
-    }
-
-    async function syncExpensesFromSupabase() {
-      if (!currentUser) return;
-      try {
-        const { data, error } = await supabaseClient
-          .from('expenses')
-          .select('*')
-          .eq('user_id', currentUser.id)
-          .order('date', { ascending: false });
-        if (error) throw error;
-
-        expenses = (data || []).map(row => ({
-          id: row.id,
-          name: row.name,
-          date: row.date,
-          amount: Number(row.amount || 0),
-          category: row.category || 'General',
-          notes: row.notes || ''
-        }));
-      } catch(e) {
-        console.error('Expense sync error:', e);
-      }
-      renderExpenses();
-    }
-
-    async function saveExpense() {
-      const nameEl = document.getElementById('expenseName');
-      const dateEl = document.getElementById('expenseDate');
-      const amountEl = document.getElementById('expenseAmount');
-      const notesEl = document.getElementById('expenseNotes');
-
-      const name = nameEl ? nameEl.value.trim() : '';
-      const date = dateEl ? dateEl.value : todayISO();
-      const amount = Number(amountEl ? amountEl.value : 0);
-      const category = activeExpenseCategory;
-      const notes = notesEl ? notesEl.value.trim() : '';
-
-      if (!category) {
-        alert('Please select an expense category.');
-        return;
-      }
-      if (!name || !date || amount <= 0) {
-        alert('Please enter what was recorded, a date and a valid amount.');
-        return;
-      }
-
-      const payload = { user_id: currentUser.id, name, date, amount, category, notes };
-
-      try {
-        if (editingExpenseId) {
-          const { error } = await supabaseClient
-            .from('expenses')
-            .update(payload)
-            .eq('id', editingExpenseId)
-            .eq('user_id', currentUser.id);
-          if (error) throw error;
-        } else {
-          const { error } = await supabaseClient.from('expenses').insert([payload]);
-          if (error) throw error;
-        }
-
-        const wasEditing = !!editingExpenseId;
-        editingExpenseId = null;
-        if (!wasEditing) focusExpenseInput();
-        await syncExpensesFromSupabase();
-        activeExpenseCategory = category;
-        renderExpenseCategories();
-      } catch(e) {
-        alert('Error saving expense: ' + e.message);
-      }
-    }
-
-    function editExpense(id) {
-      const e = expenses.find(x => x.id === id);
-      if (!e) return;
-
-      editingExpenseId = id;
-      activeExpenseCategory = EXPENSE_CATEGORIES.includes(e.category) ? e.category : null;
-
-      if (!activeExpenseCategory) {
-        alert('This older expense uses a category that is no longer available. Please choose one of the current categories when editing.');
-        editingExpenseId = null;
-        return;
-      }
-
-      renderExpenseCategories();
-
-      document.getElementById('expenseName').value = e.name;
-      document.getElementById('expenseDate').value = e.date || todayISO();
-      document.getElementById('expenseAmount').value = e.amount;
-      document.getElementById('expenseNotes').value = e.notes || '';
-
-      const saveBtn = document.getElementById('expenseSaveBtn');
-      if (saveBtn) saveBtn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Update Expense';
-      document.getElementById('expenseName').focus();
-    }
-
-    function resetExpenseForm() {
+  function toggleExpenseCategory(category) {
+    if (editingExpenseId && activeExpenseCategory !== category) {
       editingExpenseId = null;
-      activeExpenseCategory = null;
-      renderExpenseCategories();
+    }
+    activeExpenseCategory = activeExpenseCategory === category ? null : category;
+    renderExpenses();
+    if (activeExpenseCategory) focusExpenseEntry();
+  }
+
+  function focusExpenseEntry() {
+    const input = document.getElementById('expenseName');
+    if (input) {
+      setTimeout(() => {
+        input.focus();
+        input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 30);
+    }
+  }
+
+  function showExpenseFeedback(message) {
+    const el = document.getElementById('expenseFeedback');
+    if (el) el.textContent = message;
+  }
+
+  async function syncExpensesFromSupabase() {
+    if (!currentUser) return;
+    try {
+      const { data, error } = await supabaseClient
+        .from('expenses')
+        .select('*')
+        .eq('user_id', currentUser.id)
+        .order('date', { ascending: false });
+      if (error) throw error;
+
+      expenses = (data || []).map(row => ({
+        id: row.id,
+        name: row.name,
+        date: row.date,
+        amount: Number(row.amount || 0),
+        category: row.category || 'Business Operations',
+        notes: row.notes || ''
+      }));
+    } catch(e) {
+      console.error('Expense sync error:', e);
+    }
+    renderExpenses();
+  }
+
+  async function saveExpense() {
+    const name = document.getElementById('expenseName')?.value.trim();
+    const date = document.getElementById('expenseDate')?.value;
+    const amount = Number(document.getElementById('expenseAmount')?.value || 0);
+    const notes = document.getElementById('expenseNotes')?.value.trim() || '';
+
+    if (!activeExpenseCategory) {
+      alert('Please open an expense category first.');
+      return;
+    }
+    if (!name || !date || amount <= 0) {
+      alert('Please enter a description, date and valid amount.');
+      return;
     }
 
-    function cancelExpenseEdit() {
-      resetExpenseForm();
-    }
+    const payload = {
+      user_id: currentUser.id,
+      name,
+      date,
+      amount,
+      category: activeExpenseCategory,
+      notes
+    };
 
-    async function deleteExpense(id) {
-      if (!confirm('Delete this expense?')) return;
-      try {
+    try {
+      const wasEditing = Boolean(editingExpenseId);
+      if (wasEditing) {
         const { error } = await supabaseClient
           .from('expenses')
-          .delete()
-          .eq('id', id)
+          .update(payload)
+          .eq('id', editingExpenseId)
           .eq('user_id', currentUser.id);
         if (error) throw error;
-        if (editingExpenseId === id) editingExpenseId = null;
+        editingExpenseId = null;
         await syncExpensesFromSupabase();
-      } catch(e) {
-        alert('Failed to delete expense: ' + e.message);
+      } else {
+        const { error } = await supabaseClient.from('expenses').insert([payload]);
+        if (error) throw error;
+        await syncExpensesFromSupabase();
       }
+
+      resetExpenseEntryFields();
+      renderExpenses();
+      showExpenseFeedback(wasEditing ? '✓ Expense updated' : '✓ Expense added');
+      focusExpenseEntry();
+    } catch(e) {
+      alert('Error saving expense: ' + e.message);
     }
-    /* STOCKS MANAGEMENT */
-    /* STOCKS MANAGEMENT */
+  }
+
+  function editExpense(id) {
+    const e = expenses.find(x => x.id === id);
+    if (!e) return;
+
+    editingExpenseId = id;
+    activeExpenseCategory = expenseCategoryForRecord(e);
+    renderExpenses();
+    focusExpenseEntry();
+  }
+
+  function resetExpenseForm() {
+    editingExpenseId = null;
+    resetExpenseEntryFields();
+    activeExpenseCategory = null;
+    renderExpenses();
+  }
+
+  function cancelExpenseEdit() {
+    resetExpenseForm();
+  }
+
+  async function deleteExpense(id) {
+    if (!confirm('Delete this expense?')) return;
+    try {
+      const { error } = await supabaseClient
+        .from('expenses')
+        .delete()
+        .eq('id', id)
+        .eq('user_id', currentUser.id);
+      if (error) throw error;
+      if (editingExpenseId === id) editingExpenseId = null;
+      await syncExpensesFromSupabase();
+      renderExpenses();
+    } catch(e) {
+      alert('Failed to delete expense: ' + e.message);
+    }
+  }
+
+  /* STOCKS MANAGEMENT */
     async function syncAllStocksFromSupabase() {
       if (!currentUser) return;
       try {
