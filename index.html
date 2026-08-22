@@ -1054,6 +1054,15 @@
       </div>
       <div class="form-row">
         <div class="form-group">
+          <label>MLS *</label>
+          <select id="saleMls" class="select-control">
+            <option value="10 ml">10 ml</option>
+            <option value="20 ml">20 ml</option>
+            <option value="30 ml">30 ml</option>
+            <option value="50 ml">50 ml</option>
+          </select>
+        </div>
+        <div class="form-group">
           <label>Quantity *</label>
           <input id="saleQuantity" class="number-control" type="number" min="1" value="1" oninput="calculateCurrentTotal()">
         </div>
@@ -1553,7 +1562,8 @@
         id: row.id,
         user_id: row.user_id,
         perfumeName: row.perfume_name || 'Unknown Perfume',
-        quantity: Number(row.quantity || 1),
+        
+      mls: row.mls || '10 ml',quantity: Number(row.quantity || 1),
         price: Number(row.price || 0),
         total: Number(row.total || 0),
         paymentMethod: row.payment_method || '',
@@ -1711,7 +1721,8 @@
     }
     async function saveSale() {
       const perfumeName = document.getElementById('salePerfumeName').value.trim();
-      const quantity = Number(document.getElementById('saleQuantity').value || 0);
+        const mls = document.getElementById('saleMls').value;
+const quantity = Number(document.getElementById('saleQuantity').value || 0);
       const price = Number(document.getElementById('salePrice').value || 0);
       const saleDateVal = document.getElementById('saleDate').value;
       
@@ -1735,7 +1746,9 @@
       const recordData = {
         user_id: currentUser.id,
         perfume_name: perfumeName,
-        quantity: quantity,
+        
+      mls: mls,
+quantity: quantity,
         price: price,
         total: totalCalculated,
         payment_method: finalPaymentMethod,
@@ -1775,7 +1788,8 @@
       document.getElementById('saleCancelBtn').style.display = 'block';
       
       document.getElementById('salePerfumeName').value = sale.perfumeName;
-      document.getElementById('saleQuantity').value = sale.quantity;
+      
+  document.getElementById('saleMls').value = sale.mls || '10 ml';document.getElementById('saleQuantity').value = sale.quantity;
       document.getElementById('salePrice').value = sale.price;
       document.getElementById('saleDate').value = sale.date;
       calculateCurrentTotal();
@@ -1792,7 +1806,8 @@
       document.getElementById('saleSaveBtn').innerHTML = '<i class="fa-solid fa-plus"></i> Add Sale';
       document.getElementById('saleCancelBtn').style.display = 'none';
       document.getElementById('salePerfumeName').value = '';
-      document.getElementById('saleQuantity').value = '1';
+      
+  document.getElementById('saleMls').value = '10 ml';document.getElementById('saleQuantity').value = '1';
       document.getElementById('salePrice').value = '';
       document.getElementById('saleTotalCalculated').value = '';
       document.getElementById('saleDate').value = todayISO();
@@ -1824,7 +1839,7 @@
             <span style="color:var(--accent-gold);">${money(sale.total)}</span>
           </div>
           <div style="font-size:0.78rem; color:var(--text-sub); margin-top:4px;">
-            Quantity: ${sale.quantity} | Price: ${money(sale.price)}
+            MLS: ${escapeHtml(sale.mls || '10 ml')} | Quantity: ${sale.quantity} | Price: ${money(sale.price)}
           </div>
           <div style="font-size:0.78rem; color:var(--text-sub); margin-top:2px;">
             Payment: <strong>${escapeHtml(sale.paymentMethod)}</strong> | Date: ${sale.date}
@@ -1850,7 +1865,7 @@
             <span style="color:var(--accent-gold);">${money(sale.total)}</span>
           </div>
           <div style="font-size:0.8rem; color:var(--text-sub); margin-top:6px;">
-            Qty: ${sale.quantity} × ${money(sale.price)}
+            MLS: ${escapeHtml(sale.mls || '10 ml')} | Qty: ${sale.quantity} × ${money(sale.price)}
           </div>
           <div style="font-size:0.8rem; color:var(--text-sub); margin-top:2px;">
             Payment Method: <strong>${escapeHtml(sale.paymentMethod)}</strong>
@@ -1865,44 +1880,136 @@
         </div>
       `).join('');
     }
-    function renderSalesProgress() {
-      renderBestSellers();
-      const metrics = document.getElementById('progressMetrics');
-      if (!metrics) return;
-      const totalRev = activeOrders.reduce((sum, s) => sum + s.total, 0);
-      const totalQty = activeOrders.reduce((sum, s) => sum + s.quantity, 0);
-      metrics.innerHTML = `
-        <div class="review-card" style="margin-bottom:0; text-align:center;">
-          <div style="font-size:0.75rem; color:var(--text-sub);">Total Sales Revenue</div>
-          <div style="font-size:1.1rem; font-weight:900; color:var(--accent-gold); margin-top:4px;">${money(totalRev)}</div>
-        </div>
-        <div class="review-card" style="margin-bottom:0; text-align:center;">
-          <div style="font-size:0.75rem; color:var(--text-sub);">Total Items Sold</div>
-          <div style="font-size:1.1rem; font-weight:900; margin-top:4px;">${totalQty} PCS</div>
-        </div>
-      `;
-    }
-    function renderBestSellers() {
-      const container = document.getElementById('bestSellersList');
-      if (!container) return;
-      const tally = {};
-      activeOrders.forEach(sale => {
-        const name = sale.perfumeName;
-        tally[name] = (tally[name] || 0) + sale.quantity;
-      });
-      const sorted = Object.entries(tally).sort((a, b) => b[1] - a[1]);
-      if (!sorted.length) {
-        container.innerHTML = '<div style="font-size:0.8rem; color:var(--text-sub);">No sales available to determine Best Sellers.</div>';
-        return;
-      }
-      container.innerHTML = sorted.map(([name, qty], index) => `
-        <div class="bestseller-item">
-          <span>${index + 1}. ${escapeHtml(name)}</span>
-          <span style="color:var(--accent-gold);">${qty} sold</span>
-        </div>
-      `).join('');
-    }
-    function updateLoyaltyUI() {
+    function getSalesForReview() {
+  if (reviewMode === 'daily') {
+    const selectedDate = document.getElementById('dailyDate')?.value || todayISO();
+    return activeOrders.filter(s => (s.date || '') === selectedDate);
+  }
+
+  if (reviewMode === 'monthly') {
+    const selectedMonth = document.getElementById('reviewMonth')?.value || monthISO();
+    return activeOrders.filter(s => (s.date || '').startsWith(selectedMonth));
+  }
+
+  const from = document.getElementById('rangeFrom')?.value;
+  const to = document.getElementById('rangeTo')?.value;
+
+  if (from && to) {
+    return activeOrders.filter(s => {
+      const d = s.date || '';
+      return d >= from && d <= to;
+    });
+  }
+
+  // Weekly: previous 7 calendar days including today.
+  const end = new Date();
+  const start = new Date(end);
+  start.setDate(end.getDate() - 6);
+
+  const startISO = start.toISOString().slice(0, 10);
+  const endISO = end.toISOString().slice(0, 10);
+
+  return activeOrders.filter(s => {
+    const d = s.date || '';
+    return d >= startISO && d <= endISO;
+  });
+}
+
+function renderSalesProgress() {
+  const metrics = document.getElementById('progressMetrics');
+  if (!metrics) return;
+
+  const reviewSales = getSalesForReview();
+
+  const totalRev = reviewSales.reduce(
+    (sum, s) => sum + Number(s.total || 0), 0
+  );
+
+  const totalQty = reviewSales.reduce(
+    (sum, s) => sum + Number(s.quantity || 0), 0
+  );
+
+  // Always calculate the exact selected day separately.
+  // If there were no sales that day, both values remain 0.
+  const selectedDate =
+    document.getElementById('dailyDate')?.value || todayISO();
+
+  const selectedDaySales = activeOrders.filter(
+    s => (s.date || '') === selectedDate
+  );
+
+  const selectedDayAmount = selectedDaySales.reduce(
+    (sum, s) => sum + Number(s.total || 0), 0
+  );
+
+  const selectedDayQty = selectedDaySales.reduce(
+    (sum, s) => sum + Number(s.quantity || 0), 0
+  );
+
+  metrics.innerHTML = `
+    <div class="review-card" style="margin-bottom:0; text-align:center;">
+      <div style="font-size:0.75rem; color:var(--text-sub);">
+        Total Sales Revenue
+      </div>
+      <div style="font-size:1.1rem; font-weight:900; color:var(--accent-gold); margin-top:4px;">
+        ${money(totalRev)}
+      </div>
+    </div>
+
+    <div class="review-card" style="margin-bottom:0; text-align:center;">
+      <div style="font-size:0.75rem; color:var(--text-sub);">
+        Total Items Sold
+      </div>
+      <div style="font-size:1.1rem; font-weight:900; margin-top:4px;">
+        ${totalQty} PCS
+      </div>
+    </div>
+
+    <div class="review-card" style="grid-column:1/-1; margin-bottom:0; text-align:center;">
+      <div style="font-size:0.75rem; color:var(--text-sub);">
+        Amount for ${escapeHtml(selectedDate)}
+      </div>
+      <div style="font-size:1.1rem; font-weight:900; color:var(--accent-gold); margin-top:4px;">
+        ${money(selectedDayAmount)}
+      </div>
+      <div style="font-size:0.75rem; color:var(--text-sub); margin-top:4px;">
+        ${selectedDayQty} PCS sold
+      </div>
+    </div>
+  `;
+
+  renderBestSellers(reviewSales);
+}
+
+function renderBestSellers(salesForReview = getSalesForReview()) {
+  const container = document.getElementById('bestSellersList');
+  if (!container) return;
+
+  const tally = {};
+
+  salesForReview.forEach(sale => {
+    const name = sale.perfumeName;
+    tally[name] = (tally[name] || 0) + Number(sale.quantity || 0);
+  });
+
+  const sorted = Object.entries(tally)
+    .sort((a, b) => b[1] - a[1]);
+
+  if (!sorted.length) {
+    container.innerHTML =
+      '<div style="font-size:0.8rem; color:var(--text-sub);">0 PCS sold — No sales recorded for the selected period.</div>';
+    return;
+  }
+
+  container.innerHTML = sorted.map(([name, qty], index) => `
+    <div class="bestseller-item">
+      <span>${index + 1}. ${escapeHtml(name)}</span>
+      <span style="color:var(--accent-gold);">${qty} sold</span>
+    </div>
+  `).join('');
+}
+
+function updateLoyaltyUI() {
       const badge = document.getElementById('loyaltyCountBadge');
       if (badge) badge.textContent = `Total Orders: ${activeOrders.length}`;
       const dots = document.querySelectorAll('.stamp-dot');
